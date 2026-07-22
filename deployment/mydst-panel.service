@@ -1,0 +1,25 @@
+[Unit]
+Description=MyDST Server Control Panel
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+Type=simple
+User=dst
+Group=dst
+WorkingDirectory=/opt/mydst/panel
+EnvironmentFile=/etc/mydst-panel.env
+ExecStart=/usr/bin/node dist/server/index.js
+Restart=on-failure
+RestartSec=5
+KillMode=process
+TimeoutStopSec=15
+NoNewPrivileges=true
+ProtectSystem=strict
+ProtectHome=true
+ReadWritePaths=/opt/mydst
+UMask=0027
+LimitNOFILE=65535
+
+[Install]
+WantedBy=multi-user.target

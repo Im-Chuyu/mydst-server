@@ -1,0 +1,352 @@
+import {
+  Archive,
+  ArchiveRestore,
+  CalendarDays,
+  CircleStop,
+  Check,
+  CloudDownload,
+  Copy,
+  Cpu,
+  Database,
+  Gamepad2,
+  HardDrive,
+  History,
+  MemoryStick,
+  MessageSquareText,
+  Moon,
+  Play,
+  RefreshCw,
+  RotateCcw,
+  Save,
+  Send,
+  Server,
+  SunMedium,
+  TimerReset,
+  Trash2,
+  Users
+} from "lucide-react";
+import { useCallback, useEffect, useRef, useState, type FormEvent } from "react";
+import { api } from "../api";
+import { ConfirmDialog, type ConfirmState } from "../components/ConfirmDialog";
+import type { ChatMessage, DashboardData, ServerStatus, Shard } from "../types";
+
+type Notify = (type: "success" | "error", message: string) => void;
+
+export function DashboardPage({ notify }: { notify: Notify }) {
+  const [data, setData] = useState<DashboardData | null>(null);
+  const [busy, setBusy] = useState("");
+  const [confirm, setConfirm] = useState<ConfirmState | null>(null);
+  const [copied, setCopied] = useState(false);
+
+  const load = useCallback(async (quiet = false) => {
+    try {
+      setData(await api.get<DashboardData>("/dashboard"));
+    } catch (error) {
+      if (!quiet) notify("error", error instanceof Error ? error.message : "加载失败");
+    }
+  }, [notify]);
+
+  useEffect(() => {
+    void load();
+    const timer = window.setInterval(() => void load(true), 10_000);
+    return () => window.clearInterval(timer);
+  }, [load]);
+
+  async function action(actionName: "start" | "stop" | "restart", shard: Shard | "all") {
+    setBusy(`${actionName}-${shard}`);
+    try {
+      const status = await api.post<ServerStatus>("/server/action", { action: actionName, shard });
+      setData((current) => current ? { ...current, server: status } : current);
+      notify("success", actionName === "start" ? "分片已启动" : actionName === "stop" ? "分片已停止" : "分片已重启");
+    } catch (error) {
+      notify("error", error instanceof Error ? error.message : "操作失败");
+    } finally {
+      setBusy("");
+      void load(true);
+    }
+  }
+
+  async function saveWorld() {
+    setBusy("save");
+    try {
+      await api.post("/server/save");
+      notify("success", "世界已立即存档");
+      window.setTimeout(() => void load(true), 1200);
+    } catch (error) {
+      notify("error", error instanceof Error ? error.message : "存档失败");
+    } finally {
+      setBusy("");
+    }
+  }
+
+  async function createBackup() {
+    try {
+      await api.post("/backups", { label: "dashboard" });
+      notify("success", "存档备份任务已开始");
+      void load(true);
+    } catch (error) {
+      notify("error", error instanceof Error ? error.message : "备份任务启动失败");
+    }
+  }
+
+  async function rollback(snapshots: number) {
+    setBusy(`rollback-${snapshots}`);
+    try {
+      await api.post("/server/rollback", { snapshots });
+      notify("success", `正在回退 ${snapshots} 个快照`);
+      window.setTimeout(() => void load(true), 2500);
+    } catch (error) {
+      notify("error", error instanceof Error ? error.message : "回档失败");
+    } finally {
+      setBusy("");
+    }
+  }
+
+  async function updateGame() {
+    try {
+      await api.post("/server/update", { restartAfter: true });
+      notify("success", "更新任务已开始");
+      void load(true);
+    } catch (error) {
+      notify("error", error instanceof Error ? error.message : "任务启动失败");
+    }
+  }
+
+  async function resetWorld() {
+    try {
+      await api.post("/server/reset-world");
+      notify("success", "重置任务已开始，正在备份并重新生成地面与洞穴");
+      void load(true);
+    } catch (error) {
+      notify("error", error instanceof Error ? error.message : "世界重置失败");
+    }
+  }
+
+  async function deleteSave() {
+    try {
+      await api.post("/server/delete-save");
+      notify("success", "删除存档任务已开始，完成后服务器会保持停止");
+      void load(true);
+    } catch (error) {
+      notify("error", error instanceof Error ? error.message : "删除存档失败");
+    }
+  }
+
+  if (!data) return <div className="page-loading"><RefreshCw className="spin" size={20} />正在读取房间状态</div>;
+  const { system, server, room, world } = data;
+  const online = server.master.running || server.caves.running;
+
+  async function copyDirectConnect() {
+    try {
+      let copiedToClipboard = false;
+      if (navigator.clipboard?.writeText) {
+        try {
+          await navigator.clipboard.writeText(room.directConnect);
+          copiedToClipboard = true;
+        } catch {
+          // Plain HTTP pages usually cannot use the modern Clipboard API.
+        }
+      }
+      if (!copiedToClipboard) copiedToClipboard = copyTextFallback(room.directConnect);
+      if (!copiedToClipboard) throw new Error("copy failed");
+      setCopied(true);
+      window.setTimeout(() => setCopied(false), 1800);
+      notify("success", "直连命令已复制");
+    } catch {
+      notify("error", "浏览器未允许访问剪贴板");
+    }
+  }
+
+  return (
+    <>
+      <section className="room-status-banner">
+        <div className="room-identity">
+          <span className={`large-status-dot ${online ? "online" : "offline"}`} />
+          <div>
+            <div className="room-title-line"><h2>{room.name}</h2><span>{online ? "运行中" : "已停止"}</span></div>
+            <p>{room.description || "暂无房间描述"}</p>
+            <div className="direct-connect-block"><span>直连代码</span><div className="direct-connect"><code>{room.directConnect}</code><button className="icon-button" type="button" title="复制直连代码" aria-label="复制直连代码" onClick={() => void copyDirectConnect()}>{copied ? <Check size={15} /> : <Copy size={15} />}</button></div></div>
+          </div>
+        </div>
+        <div className="button-row">
+          <button className="button secondary" onClick={() => void load()}><RefreshCw size={17} />刷新</button>
+          <button className="button primary" disabled={Boolean(busy)} onClick={() => void action("start", "all")}><Play size={17} />全部启动</button>
+          <button className="button secondary" disabled={Boolean(busy) || !online} onClick={() => setConfirm({ title: "停止全部分片", message: "地面和洞穴会在保存完成后安全停止。", confirmText: "安全停止", onConfirm: () => action("stop", "all") })}><CircleStop size={17} />全部停止</button>
+        </div>
+      </section>
+
+      {!server.configured && <div className="notice warning"><Server size={18} /><span>Cluster Token 尚未配置，游戏分片无法启动。</span></div>}
+      {data.activeJob && <div className="notice job"><RefreshCw className="spin" size={18} /><span>正在执行 {jobName(data.activeJob.type)}</span><code>{data.activeJob.logs.at(-1) || "准备中"}</code></div>}
+
+      <section className="world-summary-grid">
+        <Summary icon={Gamepad2} label="玩法模式" value={playstyleName(room.playstyle)} detail={`${system.hostname} · ${system.platform}`} />
+        <Summary icon={CalendarDays} label="世界进度" value={world ? `第 ${world.day} 天` : "未运行"} detail={world ? `${seasonName(world.season)}${world.seasonRemainingDays === null ? "" : ` · 剩余 ${world.seasonRemainingDays} 天`}` : "等待地面世界启动"} />
+        <Summary icon={Users} label="在线玩家" value={`${data.onlinePlayers} / ${room.maxPlayers}`} detail={data.onlinePlayers ? "当前房间在线人数" : "当前没有在线玩家"} />
+        <Summary icon={world?.phase === "night" ? Moon : SunMedium} label="时间与气温" value={world ? phaseName(world.phase) : "-"} detail={world ? `${moonName(world.moonPhase)}${world.temperature === null ? "" : ` · ${world.temperature.toFixed(1)}°C`}` : "暂无实时世界状态"} />
+      </section>
+
+      <div className="dashboard-operations">
+        <div className="dashboard-left-column">
+          <section className="panel">
+            <div className="panel-header"><div><Server size={19} /><h2>游戏分片</h2></div></div>
+            <div className="shard-list">
+              <ShardRow name="地面世界" code="MASTER · UDP 8489" running={server.master.running} onStart={() => action("start", "master")} onStop={() => setConfirm({ title: "停止地面世界", message: "地面世界将保存并安全停止。", onConfirm: () => action("stop", "master") })} onRestart={() => action("restart", "master")} busy={Boolean(busy)} />
+              <ShardRow name="洞穴世界" code="CAVES · UDP 8114" enabled={room.cavesEnabled} running={server.caves.running} onStart={() => action("start", "caves")} onStop={() => setConfirm({ title: "停止洞穴世界", message: "洞穴世界将保存并安全停止。", onConfirm: () => action("stop", "caves") })} onRestart={() => action("restart", "caves")} busy={Boolean(busy)} />
+            </div>
+          </section>
+
+          <section className="panel archive-panel">
+            <div className="panel-header"><div><Database size={19} /><h2>存档与回档</h2><span className="count-label">{data.snapshotCount}</span></div></div>
+            <div className="archive-primary-actions">
+              <button className="button primary" disabled={!server.master.running || Boolean(busy)} onClick={() => void saveWorld()}><Save size={17} />立即存档</button>
+              <button className="button secondary" disabled={Boolean(data.activeJob)} onClick={() => void createBackup()}><Archive size={17} />生成备份</button>
+              <button className="button secondary" disabled={Boolean(data.activeJob)} onClick={() => setConfirm({ title: "更新 DST 服务端", message: "更新期间会安全停止游戏，完成后恢复当前运行状态。", confirmText: "开始更新", onConfirm: updateGame })}><CloudDownload size={17} />更新服务端</button>
+              <button className="button danger-outline" disabled={!room.cavesEnabled || !server.master.running || !server.caves.running || Boolean(data.activeJob) || Boolean(busy)} onClick={() => void resetWorld()}><RotateCcw size={17} />重置世界</button>
+              <button className="button danger-outline" disabled={Boolean(data.activeJob) || Boolean(busy)} onClick={() => setConfirm({ title: "删除当前存档", message: "服务器会安全停止并自动备份，然后删除地面与洞穴的世界进度。房间配置、MOD 和名单会保留，完成后服务器不会自动启动。", confirmText: "备份并删除", danger: true, onConfirm: deleteSave })}><Trash2 size={17} />删除存档</button>
+            </div>
+            <div className="rollback-section">
+              <div className="rollback-heading"><div><History size={17} /><strong>快照回档</strong></div><span>最多显示最近 5 个</span></div>
+              <div className="rollback-grid">
+                {[1, 2, 3, 4, 5].map((snapshots) => (
+                  <button key={snapshots} className="rollback-button" disabled={!server.master.running || Boolean(busy)} onClick={() => setConfirm({
+                    title: `回档 ${snapshots} 个快照`,
+                    message: `当前世界进度将丢失，并回退到之前第 ${snapshots} 个快照。地面与洞穴会同步处理。`,
+                    confirmText: "确认回档",
+                    danger: true,
+                    onConfirm: () => rollback(snapshots)
+                  })}>
+                    <ArchiveRestore size={17} /><span>{snapshots}</span>
+                  </button>
+                ))}
+              </div>
+            </div>
+            <div className="latest-backup">
+              <span>最近备份</span>
+              <strong>{data.backups[0]?.name || "暂无备份"}</strong>
+            </div>
+          </section>
+        </div>
+
+        <ChatCard notify={notify} masterRunning={server.master.running} />
+      </div>
+
+      <section className="metric-grid resource-metrics">
+        <Metric icon={Cpu} label="CPU" value={`${system.cpu.usage}%`} detail={`${system.cpu.cores} vCPU`} percent={system.cpu.usage} />
+        <Metric icon={MemoryStick} label="内存" value={`${system.memory.usage}%`} detail={`${formatBytes(system.memory.used)} / ${formatBytes(system.memory.total)}`} percent={system.memory.usage} />
+        <Metric icon={HardDrive} label="磁盘" value={system.disk ? `${system.disk.usage}%` : "-"} detail={system.disk ? `${formatBytes(system.disk.used)} / ${formatBytes(system.disk.total)}` : "未检测"} percent={system.disk?.usage || 0} />
+        <Metric icon={TimerReset} label="系统运行时间" value={formatUptime(system.uptimeSeconds)} detail={system.cpu.model} />
+      </section>
+      <ConfirmDialog state={confirm} onClose={() => setConfirm(null)} />
+    </>
+  );
+}
+
+function ChatCard({ notify, masterRunning }: { notify: Notify; masterRunning: boolean }) {
+  const [shard, setShard] = useState<Shard | "all">("all");
+  const [messages, setMessages] = useState<ChatMessage[]>([]);
+  const [announcement, setAnnouncement] = useState("");
+  const [sending, setSending] = useState(false);
+  const listRef = useRef<HTMLDivElement>(null);
+
+  const load = useCallback(async (quiet = false) => {
+    try {
+      const value = await api.get<ChatMessage[]>(`/chat?shard=${shard}&limit=100`);
+      setMessages(value);
+      requestAnimationFrame(() => { if (listRef.current) listRef.current.scrollTop = listRef.current.scrollHeight; });
+    } catch (error) {
+      if (!quiet) notify("error", error instanceof Error ? error.message : "聊天记录读取失败");
+    }
+  }, [notify, shard]);
+
+  useEffect(() => {
+    void load();
+    const timer = window.setInterval(() => void load(true), 4000);
+    return () => window.clearInterval(timer);
+  }, [load]);
+
+  async function announce(event: FormEvent) {
+    event.preventDefault();
+    if (!announcement.trim()) return;
+    setSending(true);
+    try {
+      await api.post("/server/announce", { message: announcement });
+      setAnnouncement("");
+      notify("success", "公告已发送");
+    } catch (error) {
+      notify("error", error instanceof Error ? error.message : "公告发送失败");
+    } finally {
+      setSending(false);
+    }
+  }
+
+  return (
+    <section className="panel chat-panel">
+      <div className="panel-header">
+        <div><MessageSquareText size={19} /><h2>玩家聊天</h2><span className="count-label">{messages.length}</span></div>
+        <button className="icon-button" title="刷新聊天" onClick={() => void load()}><RefreshCw size={16} /></button>
+      </div>
+      <div className="chat-tabs segmented full">
+        <button className={shard === "all" ? "active" : ""} onClick={() => setShard("all")}>全部</button>
+        <button className={shard === "master" ? "active" : ""} onClick={() => setShard("master")}>地面</button>
+        <button className={shard === "caves" ? "active" : ""} onClick={() => setShard("caves")}>洞穴</button>
+      </div>
+      <div className="chat-list" ref={listRef}>
+        {messages.length === 0 ? <div className="chat-empty"><MessageSquareText size={26} /><span>暂无玩家聊天记录</span></div> : messages.map((item) => (
+          <article className="chat-message" key={item.id}>
+            <div className={`chat-avatar ${item.shard}`}>{item.player.slice(0, 1).toUpperCase()}</div>
+            <div className="chat-content">
+              <div className="chat-meta"><strong>{item.player}</strong><span className={`shard-label ${item.shard}`}>{item.shard === "master" ? "地面" : "洞穴"}</span><time>{item.time}</time></div>
+              <p>{item.message}</p>
+            </div>
+          </article>
+        ))}
+      </div>
+      <form className="announce-form" onSubmit={announce}>
+        <input maxLength={200} disabled={!masterRunning || sending} value={announcement} onChange={(event) => setAnnouncement(event.target.value)} placeholder={masterRunning ? "发送服务器公告" : "地面世界未运行"} />
+        <button className="icon-button" disabled={!masterRunning || sending || !announcement.trim()} title="发送公告"><Send size={17} /></button>
+      </form>
+    </section>
+  );
+}
+
+function Summary({ icon: Icon, label, value, detail }: { icon: typeof Gamepad2; label: string; value: string; detail: string }) {
+  return <article className="summary-tile"><div className="summary-icon"><Icon size={20} /></div><div><span>{label}</span><strong>{value}</strong><small>{detail}</small></div></article>;
+}
+
+function Metric({ icon: Icon, label, value, detail, percent }: { icon: typeof Cpu; label: string; value: string; detail: string; percent?: number }) {
+  return <article className="metric"><div className="metric-icon"><Icon size={20} /></div><div className="metric-main"><span>{label}</span><strong>{value}</strong><small title={detail}>{detail}</small>{percent !== undefined && <div className="progress"><i style={{ width: `${Math.min(percent, 100)}%` }} /></div>}</div></article>;
+}
+
+function ShardRow({ name, code, enabled = true, running, onStart, onStop, onRestart, busy }: { name: string; code: string; enabled?: boolean; running: boolean; onStart: () => void; onStop: () => void; onRestart: () => void; busy: boolean }) {
+  return <div className="shard-row"><div className={`shard-emblem ${running ? "running" : ""}`}><Server size={20} /></div><div className="shard-copy"><strong>{name}</strong><span>{code}</span></div><span className={`status-badge ${running ? "success" : "neutral"}`}><i />{running ? "运行中" : enabled ? "已停止" : "未开启"}</span><div className="row-actions">{!enabled ? null : running ? <><button className="icon-button" title="重启" disabled={busy} onClick={onRestart}><RotateCcw size={17} /></button><button className="icon-button" title="停止" disabled={busy} onClick={onStop}><CircleStop size={17} /></button></> : <button className="icon-button" title="启动" disabled={busy} onClick={onStart}><Play size={17} /></button>}</div></div>;
+}
+
+function formatBytes(value: number): string { const units = ["B", "KB", "MB", "GB", "TB"]; const index = value ? Math.min(Math.floor(Math.log(value) / Math.log(1024)), units.length - 1) : 0; return `${(value / 1024 ** index).toFixed(index > 2 ? 1 : 0)} ${units[index]}`; }
+function formatUptime(seconds: number): string { const days = Math.floor(seconds / 86400); const hours = Math.floor((seconds % 86400) / 3600); return days ? `${days}天 ${hours}小时` : `${hours}小时`; }
+function playstyleName(value: string): string { return ({ relaxed: "轻松", endless: "无尽", survival: "生存", wilderness: "荒野", lightsout: "暗无天日" } as Record<string, string>)[value] || value; }
+function seasonName(value: string): string { return ({ autumn: "秋季", winter: "冬季", spring: "春季", summer: "夏季" } as Record<string, string>)[value] || "未知季节"; }
+function phaseName(value: string): string { return ({ day: "白天", dusk: "黄昏", night: "夜晚" } as Record<string, string>)[value] || value; }
+function moonName(value: string): string { return ({ new: "新月", quarter: "弦月", half: "半月", threequarter: "凸月", full: "满月" } as Record<string, string>)[value] || value; }
+function jobName(type: string): string { if (type.startsWith("mod-download:")) return "MOD 下载"; return ({ "game-update": "游戏更新", "world-reset": "世界重置", "save-delete": "删除存档", "backup-create": "存档备份", "backup-restore": "存档恢复", "scheduled-backup": "定时备份", "scheduled-update": "定时更新" } as Record<string, string>)[type] || type; }
+
+function copyTextFallback(value: string): boolean {
+  const previousFocus = document.activeElement instanceof HTMLElement ? document.activeElement : null;
+  const text = document.createElement("span");
+  text.textContent = value;
+  text.style.position = "fixed";
+  text.style.left = "-9999px";
+  text.style.opacity = "0";
+  document.body.appendChild(text);
+  const selection = window.getSelection();
+  const range = document.createRange();
+  range.selectNodeContents(text);
+  selection?.removeAllRanges();
+  selection?.addRange(range);
+  try {
+    return document.execCommand("copy");
+  } finally {
+    selection?.removeAllRanges();
+    text.remove();
+    previousFocus?.focus({ preventScroll: true });
+  }
+}

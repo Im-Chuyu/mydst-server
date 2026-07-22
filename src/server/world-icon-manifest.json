@@ -1,0 +1,1192 @@
+{
+    "spiders":  {
+                    "atlas":  "worldgen",
+                    "x":  1,
+                    "y":  4
+                },
+    "cave_spiders":  {
+                         "atlas":  "worldgen",
+                         "x":  13,
+                         "y":  0
+                     },
+    "houndmound":  {
+                       "atlas":  "worldgen",
+                       "x":  5,
+                       "y":  1
+                   },
+    "merm":  {
+                 "atlas":  "worldgen",
+                 "x":  12,
+                 "y":  1
+             },
+    "tentacles":  {
+                      "atlas":  "worldgen",
+                      "x":  5,
+                      "y":  4
+                  },
+    "chess":  {
+                  "atlas":  "worldgen",
+                  "x":  14,
+                  "y":  0
+              },
+    "walrus":  {
+                   "atlas":  "worldgen",
+                   "x":  10,
+                   "y":  1
+               },
+    "bats":  {
+                 "atlas":  "worldgen",
+                 "x":  2,
+                 "y":  0
+             },
+    "fissure":  {
+                    "atlas":  "worldgen",
+                    "x":  0,
+                    "y":  1
+                },
+    "worms":  {
+                  "atlas":  "worldgen",
+                  "x":  2,
+                  "y":  5
+              },
+    "moon_spiders":  {
+                         "atlas":  "worldgen",
+                         "x":  7,
+                         "y":  2
+                     },
+    "ocean_waterplant":  {
+                             "atlas":  "worldgen",
+                             "x":  0,
+                             "y":  3
+                         },
+    "angrybees":  {
+                      "atlas":  "worldgen",
+                      "x":  11,
+                      "y":  4
+                  },
+    "tallbirds":  {
+                      "atlas":  "worldgen",
+                      "x":  4,
+                      "y":  4
+                  },
+    "rabbits":  {
+                    "atlas":  "worldgen",
+                    "x":  5,
+                    "y":  3
+                },
+    "moles":  {
+                  "atlas":  "worldgen",
+                  "x":  13,
+                  "y":  1
+              },
+    "buzzard":  {
+                    "atlas":  "worldgen",
+                    "x":  8,
+                    "y":  0
+                },
+    "catcoon":  {
+                    "atlas":  "worldgen",
+                    "x":  11,
+                    "y":  0
+                },
+    "pigs":  {
+                 "atlas":  "worldgen",
+                 "x":  3,
+                 "y":  3
+             },
+    "lightninggoat":  {
+                          "atlas":  "worldgen",
+                          "x":  9,
+                          "y":  1
+                      },
+    "beefalo":  {
+                    "atlas":  "worldgen",
+                    "x":  3,
+                    "y":  0
+                },
+    "bees":  {
+                 "atlas":  "worldgen",
+                 "x":  4,
+                 "y":  0
+             },
+    "slurper":  {
+                    "atlas":  "worldgen",
+                    "x":  15,
+                    "y":  3
+                },
+    "bunnymen":  {
+                     "atlas":  "worldgen",
+                     "x":  6,
+                     "y":  0
+                 },
+    "slurtles":  {
+                     "atlas":  "worldgen",
+                     "x":  0,
+                     "y":  4
+                 },
+    "rocky":  {
+                  "atlas":  "worldgen",
+                  "x":  9,
+                  "y":  3
+              },
+    "monkey":  {
+                   "atlas":  "worldgen",
+                   "x":  14,
+                   "y":  1
+               },
+    "moon_carrot":  {
+                        "atlas":  "worldgen",
+                        "x":  1,
+                        "y":  2
+                    },
+    "moon_fruitdragon":  {
+                             "atlas":  "worldgen",
+                             "x":  3,
+                             "y":  2
+                         },
+    "ocean_shoal":  {
+                        "atlas":  "worldgen",
+                        "x":  15,
+                        "y":  2
+                    },
+    "ocean_wobsterden":  {
+                             "atlas":  "worldgen",
+                             "x":  1,
+                             "y":  3
+                         },
+    "ocean_otterdens":  {
+                            "atlas":  "worldgen",
+                            "x":  13,
+                            "y":  2
+                        },
+    "flowers":  {
+                    "atlas":  "worldgen",
+                    "x":  2,
+                    "y":  1
+                },
+    "grass":  {
+                  "atlas":  "worldgen",
+                  "x":  4,
+                  "y":  1
+              },
+    "sapling":  {
+                    "atlas":  "worldgen",
+                    "x":  12,
+                    "y":  3
+                },
+    "marshbush":  {
+                      "atlas":  "worldgen",
+                      "x":  11,
+                      "y":  1
+                  },
+    "tumbleweed":  {
+                       "atlas":  "worldgen",
+                       "x":  10,
+                       "y":  4
+                   },
+    "reeds":  {
+                  "atlas":  "worldgen",
+                  "x":  6,
+                  "y":  3
+              },
+    "trees":  {
+                  "atlas":  "worldgen",
+                  "x":  8,
+                  "y":  4
+              },
+    "flint":  {
+                  "atlas":  "worldgen",
+                  "x":  1,
+                  "y":  1
+              },
+    "rock":  {
+                 "atlas":  "worldgen",
+                 "x":  8,
+                 "y":  3
+             },
+    "rock_ice":  {
+                     "atlas":  "worldgen",
+                     "x":  6,
+                     "y":  1
+                 },
+    "meteorspawner":  {
+                          "atlas":  "worldgen",
+                          "x":  7,
+                          "y":  0
+                      },
+    "mushtree":  {
+                     "atlas":  "worldgen",
+                     "x":  11,
+                     "y":  2
+                 },
+    "fern":  {
+                 "atlas":  "worldgen",
+                 "x":  15,
+                 "y":  0
+             },
+    "flower_cave":  {
+                        "atlas":  "worldgen",
+                        "x":  3,
+                        "y":  1
+                    },
+    "wormlights":  {
+                       "atlas":  "worldgen",
+                       "x":  1,
+                       "y":  5
+                   },
+    "tree_rock":  {
+                      "atlas":  "worldgen",
+                      "x":  9,
+                      "y":  4
+                  },
+    "berrybush":  {
+                      "atlas":  "worldgen",
+                      "x":  5,
+                      "y":  0
+                  },
+    "carrot":  {
+                   "atlas":  "worldgen",
+                   "x":  10,
+                   "y":  0
+               },
+    "mushroom":  {
+                     "atlas":  "worldgen",
+                     "x":  10,
+                     "y":  2
+                 },
+    "cactus":  {
+                   "atlas":  "worldgen",
+                   "x":  9,
+                   "y":  0
+               },
+    "banana":  {
+                   "atlas":  "worldgen",
+                   "x":  1,
+                   "y":  0
+               },
+    "lichen":  {
+                   "atlas":  "worldgen",
+                   "x":  8,
+                   "y":  1
+               },
+    "moon_tree":  {
+                      "atlas":  "worldgen",
+                      "x":  9,
+                      "y":  2
+                  },
+    "moon_sapling":  {
+                         "atlas":  "worldgen",
+                         "x":  6,
+                         "y":  2
+                     },
+    "moon_berrybush":  {
+                           "atlas":  "worldgen",
+                           "x":  15,
+                           "y":  1
+                       },
+    "moon_rock":  {
+                      "atlas":  "worldgen",
+                      "x":  5,
+                      "y":  2
+                  },
+    "moon_hotspring":  {
+                           "atlas":  "worldgen",
+                           "x":  4,
+                           "y":  2
+                       },
+    "moon_starfish":  {
+                          "atlas":  "worldgen",
+                          "x":  8,
+                          "y":  2
+                      },
+    "moon_bullkelp":  {
+                          "atlas":  "worldgen",
+                          "x":  0,
+                          "y":  2
+                      },
+    "ponds":  {
+                  "atlas":  "worldgen",
+                  "x":  4,
+                  "y":  3
+              },
+    "cave_ponds":  {
+                       "atlas":  "worldgen",
+                       "x":  4,
+                       "y":  3
+                   },
+    "ocean_bullkelp":  {
+                           "atlas":  "worldgen",
+                           "x":  12,
+                           "y":  2
+                       },
+    "ocean_seastack":  {
+                           "atlas":  "worldgen",
+                           "x":  14,
+                           "y":  2
+                       },
+    "palmconetree":  {
+                         "atlas":  "worldgen",
+                         "x":  2,
+                         "y":  3
+                     },
+    "location":  {
+                     "atlas":  "worldgen",
+                     "x":  14,
+                     "y":  4
+                 },
+    "task_set":  {
+                     "atlas":  "worldgen",
+                     "x":  14,
+                     "y":  4
+                 },
+    "start_location":  {
+                           "atlas":  "worldgen",
+                           "x":  0,
+                           "y":  5
+                       },
+    "world_size":  {
+                       "atlas":  "worldgen",
+                       "x":  15,
+                       "y":  4
+                   },
+    "branching":  {
+                      "atlas":  "worldgen",
+                      "x":  12,
+                      "y":  4
+                  },
+    "loop":  {
+                 "atlas":  "worldgen",
+                 "x":  13,
+                 "y":  4
+             },
+    "roads":  {
+                  "atlas":  "worldgen",
+                  "x":  7,
+                  "y":  3
+              },
+    "touchstone":  {
+                       "atlas":  "worldgen",
+                       "x":  7,
+                       "y":  4
+                   },
+    "boons":  {
+                  "atlas":  "worldgen",
+                  "x":  14,
+                  "y":  3
+              },
+    "cavelight":  {
+                      "atlas":  "worldgen",
+                      "x":  12,
+                      "y":  0
+                  },
+    "prefabswaps_start":  {
+                              "atlas":  "worldgen",
+                              "x":  3,
+                              "y":  4
+                          },
+    "moon_fissure":  {
+                         "atlas":  "worldgen",
+                         "x":  2,
+                         "y":  2
+                     },
+    "terrariumchest":  {
+                           "atlas":  "worldgen",
+                           "x":  6,
+                           "y":  4
+                       },
+    "stageplays":  {
+                       "atlas":  "worldgen",
+                       "x":  2,
+                       "y":  4
+                   },
+    "junkyard":  {
+                     "atlas":  "worldgen",
+                     "x":  7,
+                     "y":  1
+                 },
+    "balatro":  {
+                    "atlas":  "worldgen",
+                    "x":  0,
+                    "y":  0
+                },
+    "season_start":  {
+                         "atlas":  "worldgen",
+                         "x":  13,
+                         "y":  3
+                     },
+    "mutated_hounds":  {
+                           "atlas":  "worldsettings",
+                           "x":  12,
+                           "y":  5
+                       },
+    "penguins_moon":  {
+                          "atlas":  "worldsettings",
+                          "x":  0,
+                          "y":  5
+                      },
+    "moon_spider":  {
+                        "atlas":  "worldsettings",
+                        "x":  1,
+                        "y":  5
+                    },
+    "mutated_birds":  {
+                          "atlas":  "worldsettings",
+                          "x":  8,
+                          "y":  5
+                      },
+    "mutated_merm":  {
+                         "atlas":  "worldsettings",
+                         "x":  13,
+                         "y":  5
+                     },
+    "mutated_spiderqueen":  {
+                                "atlas":  "worldsettings",
+                                "x":  14,
+                                "y":  5
+                            },
+    "mutated_bird_gestalt":  {
+                                 "atlas":  "worldsettings",
+                                 "x":  9,
+                                 "y":  5
+                             },
+    "mutated_buzzard_gestalt":  {
+                                    "atlas":  "worldsettings",
+                                    "x":  10,
+                                    "y":  5
+                                },
+    "mutated_deerclops":  {
+                              "atlas":  "worldsettings",
+                              "x":  11,
+                              "y":  5
+                          },
+    "mutated_bearger":  {
+                            "atlas":  "worldsettings",
+                            "x":  7,
+                            "y":  5
+                        },
+    "mutated_warg":  {
+                         "atlas":  "worldsettings",
+                         "x":  15,
+                         "y":  5
+                     },
+    "liefs":  {
+                  "atlas":  "worldsettings",
+                  "x":  15,
+                  "y":  3
+              },
+    "deciduousmonster":  {
+                             "atlas":  "worldsettings",
+                             "x":  13,
+                             "y":  1
+                         },
+    "bearger":  {
+                    "atlas":  "worldsettings",
+                    "x":  8,
+                    "y":  0
+                },
+    "deerclops":  {
+                      "atlas":  "worldsettings",
+                      "x":  15,
+                      "y":  1
+                  },
+    "goosemoose":  {
+                       "atlas":  "worldsettings",
+                       "x":  2,
+                       "y":  3
+                   },
+    "dragonfly":  {
+                      "atlas":  "worldsettings",
+                      "x":  0,
+                      "y":  2
+                  },
+    "antliontribute":  {
+                           "atlas":  "worldsettings",
+                           "x":  2,
+                           "y":  0
+                       },
+    "crabking":  {
+                     "atlas":  "worldsettings",
+                     "x":  7,
+                     "y":  1
+                 },
+    "beequeen":  {
+                     "atlas":  "worldsettings",
+                     "x":  10,
+                     "y":  0
+                 },
+    "toadstool":  {
+                      "atlas":  "worldsettings",
+                      "x":  10,
+                      "y":  8
+                  },
+    "malbatross":  {
+                       "atlas":  "worldsettings",
+                       "x":  8,
+                       "y":  4
+                   },
+    "fruitfly":  {
+                     "atlas":  "worldsettings",
+                     "x":  14,
+                     "y":  2
+                 },
+    "klaus":  {
+                  "atlas":  "worldsettings",
+                  "x":  12,
+                  "y":  3
+              },
+    "spiderqueen":  {
+                        "atlas":  "worldsettings",
+                        "x":  15,
+                        "y":  7
+                    },
+    "eyeofterror":  {
+                        "atlas":  "worldsettings",
+                        "x":  7,
+                        "y":  2
+                    },
+    "daywalker":  {
+                      "atlas":  "worldsettings",
+                      "x":  11,
+                      "y":  1
+                  },
+    "daywalker2":  {
+                       "atlas":  "worldsettings",
+                       "x":  12,
+                       "y":  1
+                   },
+    "sharkboi":  {
+                     "atlas":  "worldsettings",
+                     "x":  8,
+                     "y":  7
+                 },
+    "lureplants":  {
+                       "atlas":  "worldsettings",
+                       "x":  6,
+                       "y":  4
+                   },
+    "hound_mounds":  {
+                         "atlas":  "worldsettings",
+                         "x":  8,
+                         "y":  3
+                     },
+    "mosquitos":  {
+                      "atlas":  "worldsettings",
+                      "x":  3,
+                      "y":  5
+                  },
+    "sharks":  {
+                   "atlas":  "worldsettings",
+                   "x":  9,
+                   "y":  7
+               },
+    "squid":  {
+                  "atlas":  "worldsettings",
+                  "x":  6,
+                  "y":  8
+              },
+    "wasps":  {
+                  "atlas":  "worldsettings",
+                  "x":  0,
+                  "y":  9
+              },
+    "frogs":  {
+                  "atlas":  "worldsettings",
+                  "x":  12,
+                  "y":  2
+              },
+    "walrus_setting":  {
+                           "atlas":  "worldsettings",
+                           "x":  7,
+                           "y":  4
+                       },
+    "cookiecutters":  {
+                          "atlas":  "worldsettings",
+                          "x":  6,
+                          "y":  1
+                      },
+    "pirateraids":  {
+                        "atlas":  "worldsettings",
+                        "x":  10,
+                        "y":  6
+                    },
+    "merms":  {
+                  "atlas":  "worldsettings",
+                  "x":  9,
+                  "y":  4
+              },
+    "spiders_setting":  {
+                            "atlas":  "worldsettings",
+                            "x":  0,
+                            "y":  8
+                        },
+    "spider_warriors":  {
+                            "atlas":  "worldsettings",
+                            "x":  4,
+                            "y":  8
+                        },
+    "bats_setting":  {
+                         "atlas":  "worldsettings",
+                         "x":  7,
+                         "y":  0
+                     },
+    "nightmarecreatures":  {
+                               "atlas":  "worldsettings",
+                               "x":  0,
+                               "y":  6
+                           },
+    "spider_hider":  {
+                         "atlas":  "worldsettings",
+                         "x":  2,
+                         "y":  8
+                     },
+    "spider_spitter":  {
+                           "atlas":  "worldsettings",
+                           "x":  3,
+                           "y":  8
+                       },
+    "spider_dropper":  {
+                           "atlas":  "worldsettings",
+                           "x":  1,
+                           "y":  8
+                       },
+    "molebats":  {
+                     "atlas":  "worldsettings",
+                     "x":  11,
+                     "y":  4
+                 },
+    "itemmimics":  {
+                       "atlas":  "worldsettings",
+                       "x":  11,
+                       "y":  3
+                   },
+    "chest_mimics":  {
+                         "atlas":  "worldsettings",
+                         "x":  5,
+                         "y":  1
+                     },
+    "butterfly":  {
+                      "atlas":  "worldsettings",
+                      "x":  1,
+                      "y":  1
+                  },
+    "birds":  {
+                  "atlas":  "worldsettings",
+                  "x":  14,
+                  "y":  0
+              },
+    "perd":  {
+                 "atlas":  "worldsettings",
+                 "x":  5,
+                 "y":  6
+             },
+    "penguins":  {
+                     "atlas":  "worldsettings",
+                     "x":  4,
+                     "y":  6
+                 },
+    "bees_setting":  {
+                         "atlas":  "worldsettings",
+                         "x":  11,
+                         "y":  0
+                     },
+    "catcoons":  {
+                     "atlas":  "worldsettings",
+                     "x":  4,
+                     "y":  1
+                 },
+    "rabbits_setting":  {
+                            "atlas":  "worldsettings",
+                            "x":  13,
+                            "y":  6
+                        },
+    "wobsters":  {
+                     "atlas":  "worldsettings",
+                     "x":  4,
+                     "y":  9
+                 },
+    "gnarwail":  {
+                     "atlas":  "worldsettings",
+                     "x":  1,
+                     "y":  3
+                 },
+    "fishschools":  {
+                        "atlas":  "worldsettings",
+                        "x":  8,
+                        "y":  2
+                    },
+    "otters_setting":  {
+                           "atlas":  "worldsettings",
+                           "x":  1,
+                           "y":  6
+                       },
+    "pigs_setting":  {
+                         "atlas":  "worldsettings",
+                         "x":  8,
+                         "y":  6
+                     },
+    "bunnymen_setting":  {
+                             "atlas":  "worldsettings",
+                             "x":  0,
+                             "y":  1
+                         },
+    "moles_setting":  {
+                          "atlas":  "worldsettings",
+                          "x":  12,
+                          "y":  4
+                      },
+    "grassgekkos":  {
+                        "atlas":  "worldsettings",
+                        "x":  4,
+                        "y":  3
+                    },
+    "slurtles_setting":  {
+                             "atlas":  "worldsettings",
+                             "x":  10,
+                             "y":  7
+                         },
+    "snurtles":  {
+                     "atlas":  "worldsettings",
+                     "x":  12,
+                     "y":  7
+                 },
+    "rocky_setting":  {
+                          "atlas":  "worldsettings",
+                          "x":  2,
+                          "y":  7
+                      },
+    "monkey_setting":  {
+                           "atlas":  "worldsettings",
+                           "x":  14,
+                           "y":  4
+                       },
+    "dustmoths":  {
+                      "atlas":  "worldsettings",
+                      "x":  2,
+                      "y":  2
+                  },
+    "lightfliers":  {
+                        "atlas":  "worldsettings",
+                        "x":  1,
+                        "y":  4
+                    },
+    "mushgnome":  {
+                      "atlas":  "worldsettings",
+                      "x":  4,
+                      "y":  5
+                  },
+    "regrowth":  {
+                     "atlas":  "worldsettings",
+                     "x":  0,
+                     "y":  7
+                 },
+    "evergreen_regrowth":  {
+                               "atlas":  "worldsettings",
+                               "x":  5,
+                               "y":  2
+                           },
+    "deciduoustree_regrowth":  {
+                                   "atlas":  "worldsettings",
+                                   "x":  14,
+                                   "y":  1
+                               },
+    "twiggytrees_regrowth":  {
+                                 "atlas":  "worldsettings",
+                                 "x":  13,
+                                 "y":  8
+                             },
+    "moon_tree_regrowth":  {
+                               "atlas":  "worldsettings",
+                               "x":  2,
+                               "y":  5
+                           },
+    "flowers_regrowth":  {
+                             "atlas":  "worldsettings",
+                             "x":  10,
+                             "y":  2
+                         },
+    "carrots_regrowth":  {
+                             "atlas":  "worldsettings",
+                             "x":  3,
+                             "y":  1
+                         },
+    "reeds_regrowth":  {
+                           "atlas":  "worldsettings",
+                           "x":  15,
+                           "y":  6
+                       },
+    "cactus_regrowth":  {
+                            "atlas":  "worldsettings",
+                            "x":  2,
+                            "y":  1
+                        },
+    "saltstack_regrowth":  {
+                               "atlas":  "worldsettings",
+                               "x":  3,
+                               "y":  7
+                           },
+    "palmconetree_regrowth":  {
+                                  "atlas":  "worldsettings",
+                                  "x":  2,
+                                  "y":  6
+                              },
+    "flower_cave_regrowth":  {
+                                 "atlas":  "worldsettings",
+                                 "x":  11,
+                                 "y":  2
+                             },
+    "lightflier_flower_regrowth":  {
+                                       "atlas":  "worldsettings",
+                                       "x":  2,
+                                       "y":  4
+                                   },
+    "mushtree_regrowth":  {
+                              "atlas":  "worldsettings",
+                              "x":  5,
+                              "y":  5
+                          },
+    "mushtree_moon_regrowth":  {
+                                   "atlas":  "worldsettings",
+                                   "x":  6,
+                                   "y":  5
+                               },
+    "tree_rock_regrowth":  {
+                               "atlas":  "worldsettings",
+                               "x":  12,
+                               "y":  8
+                           },
+    "basicresource_regrowth":  {
+                                   "atlas":  "worldsettings",
+                                   "x":  6,
+                                   "y":  0
+                               },
+    "portal_spawnrate":  {
+                             "atlas":  "worldsettings",
+                             "x":  13,
+                             "y":  4
+                         },
+    "bananabush_portalrate":  {
+                                  "atlas":  "worldsettings",
+                                  "x":  5,
+                                  "y":  0
+                              },
+    "lightcrab_portalrate":  {
+                                 "atlas":  "worldsettings",
+                                 "x":  0,
+                                 "y":  4
+                             },
+    "monkeytail_portalrate":  {
+                                  "atlas":  "worldsettings",
+                                  "x":  15,
+                                  "y":  4
+                              },
+    "palmcone_seed_portalrate":  {
+                                     "atlas":  "worldsettings",
+                                     "x":  3,
+                                     "y":  6
+                                 },
+    "powder_monkey_portalrate":  {
+                                     "atlas":  "worldsettings",
+                                     "x":  12,
+                                     "y":  6
+                                 },
+    "lightning":  {
+                      "atlas":  "worldsettings",
+                      "x":  3,
+                      "y":  4
+                  },
+    "frograin":  {
+                     "atlas":  "worldsettings",
+                     "x":  13,
+                     "y":  2
+                 },
+    "wildfires":  {
+                      "atlas":  "worldsettings",
+                      "x":  11,
+                      "y":  7
+                  },
+    "petrification":  {
+                          "atlas":  "worldsettings",
+                          "x":  7,
+                          "y":  6
+                      },
+    "meteorshowers":  {
+                          "atlas":  "worldsettings",
+                          "x":  10,
+                          "y":  4
+                      },
+    "hunt":  {
+                 "atlas":  "worldsettings",
+                 "x":  11,
+                 "y":  8
+             },
+    "alternatehunt":  {
+                          "atlas":  "worldsettings",
+                          "x":  1,
+                          "y":  0
+                      },
+    "hounds":  {
+                   "atlas":  "worldsettings",
+                   "x":  7,
+                   "y":  3
+               },
+    "winterhounds":  {
+                         "atlas":  "worldsettings",
+                         "x":  2,
+                         "y":  9
+                     },
+    "summerhounds":  {
+                         "atlas":  "worldsettings",
+                         "x":  8,
+                         "y":  8
+                     },
+    "rifts_frequency":  {
+                            "atlas":  "worldsettings",
+                            "x":  4,
+                            "y":  4
+                        },
+    "rifts_enabled":  {
+                          "atlas":  "worldsettings",
+                          "x":  4,
+                          "y":  4
+                      },
+    "lunarhail_frequency":  {
+                                "atlas":  "worldsettings",
+                                "x":  5,
+                                "y":  4
+                            },
+    "wanderingtrader_enabled":  {
+                                    "atlas":  "worldsettings",
+                                    "x":  14,
+                                    "y":  8
+                                },
+    "weather":  {
+                    "atlas":  "worldsettings",
+                    "x":  14,
+                    "y":  6
+                },
+    "earthquakes":  {
+                        "atlas":  "worldsettings",
+                        "x":  3,
+                        "y":  2
+                    },
+    "wormattacks":  {
+                        "atlas":  "worldsettings",
+                        "x":  5,
+                        "y":  9
+                    },
+    "wormattacks_boss":  {
+                             "atlas":  "worldsettings",
+                             "x":  6,
+                             "y":  9
+                         },
+    "atriumgate":  {
+                       "atlas":  "worldsettings",
+                       "x":  3,
+                       "y":  0
+                   },
+    "rifts_frequency_cave":  {
+                                 "atlas":  "worldsettings",
+                                 "x":  7,
+                                 "y":  7
+                             },
+    "rifts_enabled_cave":  {
+                               "atlas":  "worldsettings",
+                               "x":  7,
+                               "y":  7
+                           },
+    "acidrain_enabled":  {
+                             "atlas":  "worldsettings",
+                             "x":  0,
+                             "y":  0
+                         },
+    "disease_delay":  {
+                          "atlas":  "worldsettings",
+                          "x":  13,
+                          "y":  0
+                      },
+    "extrastartingitems":  {
+                               "atlas":  "worldsettings",
+                               "x":  6,
+                               "y":  2
+                           },
+    "seasonalstartingitems":  {
+                                  "atlas":  "worldsettings",
+                                  "x":  5,
+                                  "y":  7
+                              },
+    "spawnprotection":  {
+                            "atlas":  "worldsettings",
+                            "x":  14,
+                            "y":  7
+                        },
+    "dropeverythingondespawn":  {
+                                    "atlas":  "worldsettings",
+                                    "x":  1,
+                                    "y":  2
+                                },
+    "healthpenalty":  {
+                          "atlas":  "worldsettings",
+                          "x":  6,
+                          "y":  3
+                      },
+    "lessdamagetaken":  {
+                            "atlas":  "worldsettings",
+                            "x":  14,
+                            "y":  3
+                        },
+    "temperaturedamage":  {
+                              "atlas":  "worldsettings",
+                              "x":  9,
+                              "y":  8
+                          },
+    "hunger":  {
+                   "atlas":  "worldsettings",
+                   "x":  9,
+                   "y":  3
+               },
+    "darkness":  {
+                     "atlas":  "worldsettings",
+                     "x":  9,
+                     "y":  1
+                 },
+    "shadowcreatures":  {
+                            "atlas":  "worldsettings",
+                            "x":  6,
+                            "y":  7
+                        },
+    "brightmarecreatures":  {
+                                "atlas":  "worldsettings",
+                                "x":  15,
+                                "y":  0
+                            },
+    "crow_carnival":  {
+                          "atlas":  "worldsettings",
+                          "x":  8,
+                          "y":  1
+                      },
+    "hallowed_nights":  {
+                            "atlas":  "worldsettings",
+                            "x":  5,
+                            "y":  3
+                        },
+    "winters_feast":  {
+                          "atlas":  "worldsettings",
+                          "x":  3,
+                          "y":  9
+                      },
+    "year_of_the_gobbler":  {
+                                "atlas":  "worldsettings",
+                                "x":  6,
+                                "y":  6
+                            },
+    "year_of_the_varg":  {
+                             "atlas":  "worldsettings",
+                             "x":  15,
+                             "y":  8
+                         },
+    "year_of_the_pig":  {
+                            "atlas":  "worldsettings",
+                            "x":  9,
+                            "y":  6
+                        },
+    "year_of_the_carrat":  {
+                               "atlas":  "worldsettings",
+                               "x":  8,
+                               "y":  9
+                           },
+    "year_of_the_beefalo":  {
+                                "atlas":  "worldsettings",
+                                "x":  7,
+                                "y":  9
+                            },
+    "year_of_the_catcoon":  {
+                                "atlas":  "worldsettings",
+                                "x":  13,
+                                "y":  9
+                            },
+    "year_of_the_bunnyman":  {
+                                 "atlas":  "worldsettings",
+                                 "x":  11,
+                                 "y":  9
+                             },
+    "year_of_the_dragonfly":  {
+                                  "atlas":  "worldsettings",
+                                  "x":  9,
+                                  "y":  9
+                              },
+    "year_of_the_snake":  {
+                              "atlas":  "worldsettings",
+                              "x":  12,
+                              "y":  9
+                          },
+    "year_of_the_knight":  {
+                               "atlas":  "worldsettings",
+                               "x":  10,
+                               "y":  9
+                           },
+    "specialevent":  {
+                         "atlas":  "worldsettings",
+                         "x":  4,
+                         "y":  2
+                     },
+    "autumn":  {
+                   "atlas":  "worldsettings",
+                   "x":  4,
+                   "y":  0
+               },
+    "winter":  {
+                   "atlas":  "worldsettings",
+                   "x":  1,
+                   "y":  9
+               },
+    "spring":  {
+                   "atlas":  "worldsettings",
+                   "x":  5,
+                   "y":  8
+               },
+    "summer":  {
+                   "atlas":  "worldsettings",
+                   "x":  7,
+                   "y":  8
+               },
+    "day":  {
+                "atlas":  "worldsettings",
+                "x":  10,
+                "y":  1
+            },
+    "spawnmode":  {
+                      "atlas":  "worldsettings",
+                      "x":  13,
+                      "y":  7
+                  },
+    "ghostenabled":  {
+                         "atlas":  "worldsettings",
+                         "x":  15,
+                         "y":  2
+                     },
+    "portalresurection":  {
+                              "atlas":  "worldsettings",
+                              "x":  11,
+                              "y":  6
+                          },
+    "ghostsanitydrain":  {
+                             "atlas":  "worldsettings",
+                             "x":  0,
+                             "y":  3
+                         },
+    "resettime":  {
+                      "atlas":  "worldsettings",
+                      "x":  1,
+                      "y":  7
+                  },
+    "beefaloheat":  {
+                        "atlas":  "worldsettings",
+                        "x":  9,
+                        "y":  0
+                    },
+    "krampus":  {
+                    "atlas":  "worldsettings",
+                    "x":  13,
+                    "y":  3
+                }
+}

@@ -1,0 +1,9298 @@
+[
+  {
+    "key": "grassgekkos",
+    "label": "草壁虎转化",
+    "category": "settings",
+    "group": "animals",
+    "groupLabel": "生物",
+    "worlds": [
+      "master",
+      "caves"
+    ],
+    "defaultValue": "default",
+    "choices": [
+      {
+        "value": "never",
+        "label": "无"
+      },
+      {
+        "value": "rare",
+        "label": "很少"
+      },
+      {
+        "value": "default",
+        "label": "默认"
+      },
+      {
+        "value": "often",
+        "label": "较多"
+      },
+      {
+        "value": "always",
+        "label": "大量"
+      }
+    ],
+    "icon": {
+      "atlas": "worldsettings",
+      "x": 4,
+      "y": 3
+    }
+  },
+  {
+    "key": "dustmoths",
+    "label": "尘蛾",
+    "category": "settings",
+    "group": "animals",
+    "groupLabel": "生物",
+    "worlds": [
+      "caves"
+    ],
+    "defaultValue": "default",
+    "choices": [
+      {
+        "value": "never",
+        "label": "无"
+      },
+      {
+        "value": "rare",
+        "label": "很少"
+      },
+      {
+        "value": "default",
+        "label": "默认"
+      },
+      {
+        "value": "often",
+        "label": "较多"
+      },
+      {
+        "value": "always",
+        "label": "大量"
+      }
+    ],
+    "icon": {
+      "atlas": "worldsettings",
+      "x": 2,
+      "y": 2
+    }
+  },
+  {
+    "key": "butterfly",
+    "label": "蝴蝶",
+    "category": "settings",
+    "group": "animals",
+    "groupLabel": "生物",
+    "worlds": [
+      "master"
+    ],
+    "defaultValue": "default",
+    "choices": [
+      {
+        "value": "never",
+        "label": "无"
+      },
+      {
+        "value": "rare",
+        "label": "很少"
+      },
+      {
+        "value": "default",
+        "label": "默认"
+      },
+      {
+        "value": "often",
+        "label": "较多"
+      },
+      {
+        "value": "always",
+        "label": "大量"
+      }
+    ],
+    "icon": {
+      "atlas": "worldsettings",
+      "x": 1,
+      "y": 1
+    }
+  },
+  {
+    "key": "catcoons",
+    "label": "浣猫",
+    "category": "settings",
+    "group": "animals",
+    "groupLabel": "生物",
+    "worlds": [
+      "master"
+    ],
+    "defaultValue": "default",
+    "choices": [
+      {
+        "value": "never",
+        "label": "无"
+      },
+      {
+        "value": "rare",
+        "label": "很少"
+      },
+      {
+        "value": "default",
+        "label": "默认"
+      },
+      {
+        "value": "often",
+        "label": "较多"
+      },
+      {
+        "value": "always",
+        "label": "大量"
+      }
+    ],
+    "icon": {
+      "atlas": "worldsettings",
+      "x": 4,
+      "y": 1
+    }
+  },
+  {
+    "key": "perd",
+    "label": "火鸡",
+    "category": "settings",
+    "group": "animals",
+    "groupLabel": "生物",
+    "worlds": [
+      "master"
+    ],
+    "defaultValue": "default",
+    "choices": [
+      {
+        "value": "never",
+        "label": "无"
+      },
+      {
+        "value": "rare",
+        "label": "很少"
+      },
+      {
+        "value": "default",
+        "label": "默认"
+      },
+      {
+        "value": "often",
+        "label": "较多"
+      },
+      {
+        "value": "always",
+        "label": "大量"
+      }
+    ],
+    "icon": {
+      "atlas": "worldsettings",
+      "x": 5,
+      "y": 6
+    }
+  },
+  {
+    "key": "slurtles_setting",
+    "label": "蛞蝓龟",
+    "category": "settings",
+    "group": "animals",
+    "groupLabel": "生物",
+    "worlds": [
+      "caves"
+    ],
+    "defaultValue": "default",
+    "choices": [
+      {
+        "value": "never",
+        "label": "无"
+      },
+      {
+        "value": "rare",
+        "label": "很少"
+      },
+      {
+        "value": "default",
+        "label": "默认"
+      },
+      {
+        "value": "often",
+        "label": "较多"
+      },
+      {
+        "value": "always",
+        "label": "大量"
+      }
+    ],
+    "icon": {
+      "atlas": "worldsettings",
+      "x": 10,
+      "y": 7
+    }
+  },
+  {
+    "key": "wobsters",
+    "label": "龙虾",
+    "category": "settings",
+    "group": "animals",
+    "groupLabel": "生物",
+    "worlds": [
+      "master"
+    ],
+    "defaultValue": "default",
+    "choices": [
+      {
+        "value": "never",
+        "label": "无"
+      },
+      {
+        "value": "rare",
+        "label": "很少"
+      },
+      {
+        "value": "default",
+        "label": "默认"
+      },
+      {
+        "value": "often",
+        "label": "较多"
+      },
+      {
+        "value": "always",
+        "label": "大量"
+      }
+    ],
+    "icon": {
+      "atlas": "worldsettings",
+      "x": 4,
+      "y": 9
+    }
+  },
+  {
+    "key": "bees_setting",
+    "label": "蜜蜂",
+    "category": "settings",
+    "group": "animals",
+    "groupLabel": "生物",
+    "worlds": [
+      "master"
+    ],
+    "defaultValue": "default",
+    "choices": [
+      {
+        "value": "never",
+        "label": "无"
+      },
+      {
+        "value": "rare",
+        "label": "很少"
+      },
+      {
+        "value": "default",
+        "label": "默认"
+      },
+      {
+        "value": "often",
+        "label": "较多"
+      },
+      {
+        "value": "always",
+        "label": "大量"
+      }
+    ],
+    "icon": {
+      "atlas": "worldsettings",
+      "x": 11,
+      "y": 0
+    }
+  },
+  {
+    "key": "mushgnome",
+    "label": "蘑菇地精",
+    "category": "settings",
+    "group": "animals",
+    "groupLabel": "生物",
+    "worlds": [
+      "caves"
+    ],
+    "defaultValue": "default",
+    "choices": [
+      {
+        "value": "never",
+        "label": "无"
+      },
+      {
+        "value": "rare",
+        "label": "很少"
+      },
+      {
+        "value": "default",
+        "label": "默认"
+      },
+      {
+        "value": "often",
+        "label": "较多"
+      },
+      {
+        "value": "always",
+        "label": "大量"
+      }
+    ],
+    "icon": {
+      "atlas": "worldsettings",
+      "x": 4,
+      "y": 5
+    }
+  },
+  {
+    "key": "birds",
+    "label": "鸟",
+    "category": "settings",
+    "group": "animals",
+    "groupLabel": "生物",
+    "worlds": [
+      "master"
+    ],
+    "defaultValue": "default",
+    "choices": [
+      {
+        "value": "never",
+        "label": "无"
+      },
+      {
+        "value": "rare",
+        "label": "很少"
+      },
+      {
+        "value": "default",
+        "label": "默认"
+      },
+      {
+        "value": "often",
+        "label": "较多"
+      },
+      {
+        "value": "always",
+        "label": "大量"
+      }
+    ],
+    "icon": {
+      "atlas": "worldsettings",
+      "x": 14,
+      "y": 0
+    }
+  },
+  {
+    "key": "penguins",
+    "label": "企鸥",
+    "category": "settings",
+    "group": "animals",
+    "groupLabel": "生物",
+    "worlds": [
+      "master"
+    ],
+    "defaultValue": "default",
+    "choices": [
+      {
+        "value": "never",
+        "label": "无"
+      },
+      {
+        "value": "rare",
+        "label": "很少"
+      },
+      {
+        "value": "default",
+        "label": "默认"
+      },
+      {
+        "value": "often",
+        "label": "较多"
+      },
+      {
+        "value": "always",
+        "label": "大量"
+      }
+    ],
+    "icon": {
+      "atlas": "worldsettings",
+      "x": 4,
+      "y": 6
+    }
+  },
+  {
+    "key": "lightfliers",
+    "label": "球状光虫",
+    "category": "settings",
+    "group": "animals",
+    "groupLabel": "生物",
+    "worlds": [
+      "caves"
+    ],
+    "defaultValue": "default",
+    "choices": [
+      {
+        "value": "never",
+        "label": "无"
+      },
+      {
+        "value": "rare",
+        "label": "很少"
+      },
+      {
+        "value": "default",
+        "label": "默认"
+      },
+      {
+        "value": "often",
+        "label": "较多"
+      },
+      {
+        "value": "always",
+        "label": "大量"
+      }
+    ],
+    "icon": {
+      "atlas": "worldsettings",
+      "x": 1,
+      "y": 4
+    }
+  },
+  {
+    "key": "rocky_setting",
+    "label": "石虾",
+    "category": "settings",
+    "group": "animals",
+    "groupLabel": "生物",
+    "worlds": [
+      "caves"
+    ],
+    "defaultValue": "default",
+    "choices": [
+      {
+        "value": "never",
+        "label": "无"
+      },
+      {
+        "value": "rare",
+        "label": "很少"
+      },
+      {
+        "value": "default",
+        "label": "默认"
+      },
+      {
+        "value": "often",
+        "label": "较多"
+      },
+      {
+        "value": "always",
+        "label": "大量"
+      }
+    ],
+    "icon": {
+      "atlas": "worldsettings",
+      "x": 2,
+      "y": 7
+    }
+  },
+  {
+    "key": "otters_setting",
+    "label": "水獭掠夺者",
+    "category": "settings",
+    "group": "animals",
+    "groupLabel": "生物",
+    "worlds": [
+      "master"
+    ],
+    "defaultValue": "default",
+    "choices": [
+      {
+        "value": "never",
+        "label": "无"
+      },
+      {
+        "value": "rare",
+        "label": "很少"
+      },
+      {
+        "value": "default",
+        "label": "默认"
+      },
+      {
+        "value": "often",
+        "label": "较多"
+      },
+      {
+        "value": "always",
+        "label": "大量"
+      }
+    ],
+    "icon": {
+      "atlas": "worldsettings",
+      "x": 1,
+      "y": 6
+    }
+  },
+  {
+    "key": "bunnymen_setting",
+    "label": "兔人",
+    "category": "settings",
+    "group": "animals",
+    "groupLabel": "生物",
+    "worlds": [
+      "master",
+      "caves"
+    ],
+    "defaultValue": "default",
+    "choices": [
+      {
+        "value": "never",
+        "label": "无"
+      },
+      {
+        "value": "rare",
+        "label": "很少"
+      },
+      {
+        "value": "default",
+        "label": "默认"
+      },
+      {
+        "value": "often",
+        "label": "较多"
+      },
+      {
+        "value": "always",
+        "label": "大量"
+      }
+    ],
+    "icon": {
+      "atlas": "worldsettings",
+      "x": 0,
+      "y": 1
+    }
+  },
+  {
+    "key": "rabbits_setting",
+    "label": "兔子",
+    "category": "settings",
+    "group": "animals",
+    "groupLabel": "生物",
+    "worlds": [
+      "master"
+    ],
+    "defaultValue": "default",
+    "choices": [
+      {
+        "value": "never",
+        "label": "无"
+      },
+      {
+        "value": "rare",
+        "label": "很少"
+      },
+      {
+        "value": "default",
+        "label": "默认"
+      },
+      {
+        "value": "often",
+        "label": "较多"
+      },
+      {
+        "value": "always",
+        "label": "大量"
+      }
+    ],
+    "icon": {
+      "atlas": "worldsettings",
+      "x": 13,
+      "y": 6
+    }
+  },
+  {
+    "key": "snurtles",
+    "label": "蜗牛龟",
+    "category": "settings",
+    "group": "animals",
+    "groupLabel": "生物",
+    "worlds": [
+      "caves"
+    ],
+    "defaultValue": "default",
+    "choices": [
+      {
+        "value": "never",
+        "label": "无"
+      },
+      {
+        "value": "rare",
+        "label": "很少"
+      },
+      {
+        "value": "default",
+        "label": "默认"
+      },
+      {
+        "value": "often",
+        "label": "较多"
+      },
+      {
+        "value": "always",
+        "label": "大量"
+      }
+    ],
+    "icon": {
+      "atlas": "worldsettings",
+      "x": 12,
+      "y": 7
+    }
+  },
+  {
+    "key": "monkey_setting",
+    "label": "穴居猴",
+    "category": "settings",
+    "group": "animals",
+    "groupLabel": "生物",
+    "worlds": [
+      "caves"
+    ],
+    "defaultValue": "default",
+    "choices": [
+      {
+        "value": "never",
+        "label": "无"
+      },
+      {
+        "value": "rare",
+        "label": "很少"
+      },
+      {
+        "value": "default",
+        "label": "默认"
+      },
+      {
+        "value": "often",
+        "label": "较多"
+      },
+      {
+        "value": "always",
+        "label": "大量"
+      }
+    ],
+    "icon": {
+      "atlas": "worldsettings",
+      "x": 14,
+      "y": 4
+    }
+  },
+  {
+    "key": "moles_setting",
+    "label": "鼹鼠",
+    "category": "settings",
+    "group": "animals",
+    "groupLabel": "生物",
+    "worlds": [
+      "master",
+      "caves"
+    ],
+    "defaultValue": "default",
+    "choices": [
+      {
+        "value": "never",
+        "label": "无"
+      },
+      {
+        "value": "rare",
+        "label": "很少"
+      },
+      {
+        "value": "default",
+        "label": "默认"
+      },
+      {
+        "value": "often",
+        "label": "较多"
+      },
+      {
+        "value": "always",
+        "label": "大量"
+      }
+    ],
+    "icon": {
+      "atlas": "worldsettings",
+      "x": 12,
+      "y": 4
+    }
+  },
+  {
+    "key": "gnarwail",
+    "label": "一角鲸",
+    "category": "settings",
+    "group": "animals",
+    "groupLabel": "生物",
+    "worlds": [
+      "master"
+    ],
+    "defaultValue": "default",
+    "choices": [
+      {
+        "value": "never",
+        "label": "无"
+      },
+      {
+        "value": "rare",
+        "label": "很少"
+      },
+      {
+        "value": "default",
+        "label": "默认"
+      },
+      {
+        "value": "often",
+        "label": "较多"
+      },
+      {
+        "value": "always",
+        "label": "大量"
+      }
+    ],
+    "icon": {
+      "atlas": "worldsettings",
+      "x": 1,
+      "y": 3
+    }
+  },
+  {
+    "key": "fishschools",
+    "label": "鱼群",
+    "category": "settings",
+    "group": "animals",
+    "groupLabel": "生物",
+    "worlds": [
+      "master"
+    ],
+    "defaultValue": "default",
+    "choices": [
+      {
+        "value": "never",
+        "label": "无"
+      },
+      {
+        "value": "rare",
+        "label": "很少"
+      },
+      {
+        "value": "default",
+        "label": "默认"
+      },
+      {
+        "value": "often",
+        "label": "较多"
+      },
+      {
+        "value": "always",
+        "label": "大量"
+      }
+    ],
+    "icon": {
+      "atlas": "worldsettings",
+      "x": 8,
+      "y": 2
+    }
+  },
+  {
+    "key": "pigs_setting",
+    "label": "猪",
+    "category": "settings",
+    "group": "animals",
+    "groupLabel": "生物",
+    "worlds": [
+      "master",
+      "caves"
+    ],
+    "defaultValue": "default",
+    "choices": [
+      {
+        "value": "never",
+        "label": "无"
+      },
+      {
+        "value": "rare",
+        "label": "很少"
+      },
+      {
+        "value": "default",
+        "label": "默认"
+      },
+      {
+        "value": "often",
+        "label": "较多"
+      },
+      {
+        "value": "always",
+        "label": "大量"
+      }
+    ],
+    "icon": {
+      "atlas": "worldsettings",
+      "x": 8,
+      "y": 6
+    }
+  },
+  {
+    "key": "winters_feast",
+    "label": "冬季盛宴",
+    "category": "settings",
+    "group": "events",
+    "groupLabel": "活动",
+    "worlds": [
+      "master"
+    ],
+    "defaultValue": "default",
+    "choices": [
+      {
+        "value": "default",
+        "label": "默认"
+      },
+      {
+        "value": "enabled",
+        "label": "开启"
+      }
+    ],
+    "icon": {
+      "atlas": "worldsettings",
+      "x": 3,
+      "y": 9
+    }
+  },
+  {
+    "key": "year_of_the_snake",
+    "label": "洞穴蠕虫之年",
+    "category": "settings",
+    "group": "events",
+    "groupLabel": "活动",
+    "worlds": [
+      "master"
+    ],
+    "defaultValue": "default",
+    "choices": [
+      {
+        "value": "default",
+        "label": "默认"
+      },
+      {
+        "value": "enabled",
+        "label": "开启"
+      }
+    ],
+    "icon": {
+      "atlas": "worldsettings",
+      "x": 12,
+      "y": 9
+    }
+  },
+  {
+    "key": "year_of_the_knight",
+    "label": "发条骑士之年",
+    "category": "settings",
+    "group": "events",
+    "groupLabel": "活动",
+    "worlds": [
+      "master"
+    ],
+    "defaultValue": "default",
+    "choices": [
+      {
+        "value": "default",
+        "label": "默认"
+      },
+      {
+        "value": "enabled",
+        "label": "开启"
+      }
+    ],
+    "icon": {
+      "atlas": "worldsettings",
+      "x": 10,
+      "y": 9
+    }
+  },
+  {
+    "key": "year_of_the_carrat",
+    "label": "胡萝卜鼠之年",
+    "category": "settings",
+    "group": "events",
+    "groupLabel": "活动",
+    "worlds": [
+      "master"
+    ],
+    "defaultValue": "default",
+    "choices": [
+      {
+        "value": "default",
+        "label": "默认"
+      },
+      {
+        "value": "enabled",
+        "label": "开启"
+      }
+    ],
+    "icon": {
+      "atlas": "worldsettings",
+      "x": 8,
+      "y": 9
+    }
+  },
+  {
+    "key": "year_of_the_catcoon",
+    "label": "浣猫之年",
+    "category": "settings",
+    "group": "events",
+    "groupLabel": "活动",
+    "worlds": [
+      "master"
+    ],
+    "defaultValue": "default",
+    "choices": [
+      {
+        "value": "default",
+        "label": "默认"
+      },
+      {
+        "value": "enabled",
+        "label": "开启"
+      }
+    ],
+    "icon": {
+      "atlas": "worldsettings",
+      "x": 13,
+      "y": 9
+    }
+  },
+  {
+    "key": "year_of_the_gobbler",
+    "label": "火鸡之年",
+    "category": "settings",
+    "group": "events",
+    "groupLabel": "活动",
+    "worlds": [
+      "master"
+    ],
+    "defaultValue": "default",
+    "choices": [
+      {
+        "value": "default",
+        "label": "默认"
+      },
+      {
+        "value": "enabled",
+        "label": "开启"
+      }
+    ],
+    "icon": {
+      "atlas": "worldsettings",
+      "x": 6,
+      "y": 6
+    }
+  },
+  {
+    "key": "year_of_the_dragonfly",
+    "label": "龙蝇之年",
+    "category": "settings",
+    "group": "events",
+    "groupLabel": "活动",
+    "worlds": [
+      "master"
+    ],
+    "defaultValue": "default",
+    "choices": [
+      {
+        "value": "default",
+        "label": "默认"
+      },
+      {
+        "value": "enabled",
+        "label": "开启"
+      }
+    ],
+    "icon": {
+      "atlas": "worldsettings",
+      "x": 9,
+      "y": 9
+    }
+  },
+  {
+    "key": "year_of_the_beefalo",
+    "label": "皮弗娄牛之年",
+    "category": "settings",
+    "group": "events",
+    "groupLabel": "活动",
+    "worlds": [
+      "master"
+    ],
+    "defaultValue": "default",
+    "choices": [
+      {
+        "value": "default",
+        "label": "默认"
+      },
+      {
+        "value": "enabled",
+        "label": "开启"
+      }
+    ],
+    "icon": {
+      "atlas": "worldsettings",
+      "x": 7,
+      "y": 9
+    }
+  },
+  {
+    "key": "crow_carnival",
+    "label": "盛夏鸦年华",
+    "category": "settings",
+    "group": "events",
+    "groupLabel": "活动",
+    "worlds": [
+      "master"
+    ],
+    "defaultValue": "default",
+    "choices": [
+      {
+        "value": "default",
+        "label": "默认"
+      },
+      {
+        "value": "enabled",
+        "label": "开启"
+      }
+    ],
+    "icon": {
+      "atlas": "worldsettings",
+      "x": 8,
+      "y": 1
+    }
+  },
+  {
+    "key": "year_of_the_bunnyman",
+    "label": "兔人之年",
+    "category": "settings",
+    "group": "events",
+    "groupLabel": "活动",
+    "worlds": [
+      "master"
+    ],
+    "defaultValue": "default",
+    "choices": [
+      {
+        "value": "default",
+        "label": "默认"
+      },
+      {
+        "value": "enabled",
+        "label": "开启"
+      }
+    ],
+    "icon": {
+      "atlas": "worldsettings",
+      "x": 11,
+      "y": 9
+    }
+  },
+  {
+    "key": "hallowed_nights",
+    "label": "万圣夜",
+    "category": "settings",
+    "group": "events",
+    "groupLabel": "活动",
+    "worlds": [
+      "master"
+    ],
+    "defaultValue": "default",
+    "choices": [
+      {
+        "value": "default",
+        "label": "默认"
+      },
+      {
+        "value": "enabled",
+        "label": "开启"
+      }
+    ],
+    "icon": {
+      "atlas": "worldsettings",
+      "x": 5,
+      "y": 3
+    }
+  },
+  {
+    "key": "year_of_the_pig",
+    "label": "猪王之年",
+    "category": "settings",
+    "group": "events",
+    "groupLabel": "活动",
+    "worlds": [
+      "master"
+    ],
+    "defaultValue": "default",
+    "choices": [
+      {
+        "value": "default",
+        "label": "默认"
+      },
+      {
+        "value": "enabled",
+        "label": "开启"
+      }
+    ],
+    "icon": {
+      "atlas": "worldsettings",
+      "x": 9,
+      "y": 6
+    }
+  },
+  {
+    "key": "year_of_the_varg",
+    "label": "座狼之年",
+    "category": "settings",
+    "group": "events",
+    "groupLabel": "活动",
+    "worlds": [
+      "master"
+    ],
+    "defaultValue": "default",
+    "choices": [
+      {
+        "value": "default",
+        "label": "默认"
+      },
+      {
+        "value": "enabled",
+        "label": "开启"
+      }
+    ],
+    "icon": {
+      "atlas": "worldsettings",
+      "x": 15,
+      "y": 8
+    }
+  },
+  {
+    "key": "sharkboi",
+    "label": "大霜鲨",
+    "category": "settings",
+    "group": "giants",
+    "groupLabel": "巨兽",
+    "worlds": [
+      "master"
+    ],
+    "defaultValue": "default",
+    "choices": [
+      {
+        "value": "never",
+        "label": "无"
+      },
+      {
+        "value": "rare",
+        "label": "很少"
+      },
+      {
+        "value": "default",
+        "label": "默认"
+      },
+      {
+        "value": "often",
+        "label": "较多"
+      },
+      {
+        "value": "always",
+        "label": "大量"
+      }
+    ],
+    "icon": {
+      "atlas": "worldsettings",
+      "x": 8,
+      "y": 7
+    }
+  },
+  {
+    "key": "crabking",
+    "label": "帝王蟹",
+    "category": "settings",
+    "group": "giants",
+    "groupLabel": "巨兽",
+    "worlds": [
+      "master"
+    ],
+    "defaultValue": "default",
+    "choices": [
+      {
+        "value": "never",
+        "label": "无"
+      },
+      {
+        "value": "rare",
+        "label": "很少"
+      },
+      {
+        "value": "default",
+        "label": "默认"
+      },
+      {
+        "value": "often",
+        "label": "较多"
+      },
+      {
+        "value": "always",
+        "label": "大量"
+      }
+    ],
+    "icon": {
+      "atlas": "worldsettings",
+      "x": 7,
+      "y": 1
+    }
+  },
+  {
+    "key": "deciduousmonster",
+    "label": "毒桦栗树",
+    "category": "settings",
+    "group": "giants",
+    "groupLabel": "巨兽",
+    "worlds": [
+      "master"
+    ],
+    "defaultValue": "default",
+    "choices": [
+      {
+        "value": "never",
+        "label": "无"
+      },
+      {
+        "value": "rare",
+        "label": "很少"
+      },
+      {
+        "value": "default",
+        "label": "默认"
+      },
+      {
+        "value": "often",
+        "label": "较多"
+      },
+      {
+        "value": "always",
+        "label": "大量"
+      }
+    ],
+    "icon": {
+      "atlas": "worldsettings",
+      "x": 13,
+      "y": 1
+    }
+  },
+  {
+    "key": "toadstool",
+    "label": "毒菌蟾蜍",
+    "category": "settings",
+    "group": "giants",
+    "groupLabel": "巨兽",
+    "worlds": [
+      "caves"
+    ],
+    "defaultValue": "default",
+    "choices": [
+      {
+        "value": "never",
+        "label": "无"
+      },
+      {
+        "value": "rare",
+        "label": "很少"
+      },
+      {
+        "value": "default",
+        "label": "默认"
+      },
+      {
+        "value": "often",
+        "label": "较多"
+      },
+      {
+        "value": "always",
+        "label": "大量"
+      }
+    ],
+    "icon": {
+      "atlas": "worldsettings",
+      "x": 10,
+      "y": 8
+    }
+  },
+  {
+    "key": "deerclops",
+    "label": "独眼巨鹿",
+    "category": "settings",
+    "group": "giants",
+    "groupLabel": "巨兽",
+    "worlds": [
+      "master"
+    ],
+    "defaultValue": "default",
+    "choices": [
+      {
+        "value": "never",
+        "label": "无"
+      },
+      {
+        "value": "rare",
+        "label": "很少"
+      },
+      {
+        "value": "default",
+        "label": "默认"
+      },
+      {
+        "value": "often",
+        "label": "较多"
+      },
+      {
+        "value": "always",
+        "label": "大量"
+      }
+    ],
+    "icon": {
+      "atlas": "worldsettings",
+      "x": 15,
+      "y": 1
+    }
+  },
+  {
+    "key": "beequeen",
+    "label": "蜂王",
+    "category": "settings",
+    "group": "giants",
+    "groupLabel": "巨兽",
+    "worlds": [
+      "master"
+    ],
+    "defaultValue": "default",
+    "choices": [
+      {
+        "value": "never",
+        "label": "无"
+      },
+      {
+        "value": "rare",
+        "label": "很少"
+      },
+      {
+        "value": "default",
+        "label": "默认"
+      },
+      {
+        "value": "often",
+        "label": "较多"
+      },
+      {
+        "value": "always",
+        "label": "大量"
+      }
+    ],
+    "icon": {
+      "atlas": "worldsettings",
+      "x": 10,
+      "y": 0
+    }
+  },
+  {
+    "key": "fruitfly",
+    "label": "果蝇王",
+    "category": "settings",
+    "group": "giants",
+    "groupLabel": "巨兽",
+    "worlds": [
+      "master",
+      "caves"
+    ],
+    "defaultValue": "default",
+    "choices": [
+      {
+        "value": "never",
+        "label": "无"
+      },
+      {
+        "value": "rare",
+        "label": "很少"
+      },
+      {
+        "value": "default",
+        "label": "默认"
+      },
+      {
+        "value": "often",
+        "label": "较多"
+      },
+      {
+        "value": "always",
+        "label": "大量"
+      }
+    ],
+    "icon": {
+      "atlas": "worldsettings",
+      "x": 14,
+      "y": 2
+    }
+  },
+  {
+    "key": "klaus",
+    "label": "克劳斯",
+    "category": "settings",
+    "group": "giants",
+    "groupLabel": "巨兽",
+    "worlds": [
+      "master"
+    ],
+    "defaultValue": "default",
+    "choices": [
+      {
+        "value": "never",
+        "label": "无"
+      },
+      {
+        "value": "rare",
+        "label": "很少"
+      },
+      {
+        "value": "default",
+        "label": "默认"
+      },
+      {
+        "value": "often",
+        "label": "较多"
+      },
+      {
+        "value": "always",
+        "label": "大量"
+      }
+    ],
+    "icon": {
+      "atlas": "worldsettings",
+      "x": 12,
+      "y": 3
+    }
+  },
+  {
+    "key": "eyeofterror",
+    "label": "恐怖之眼",
+    "category": "settings",
+    "group": "giants",
+    "groupLabel": "巨兽",
+    "worlds": [
+      "master"
+    ],
+    "defaultValue": "default",
+    "choices": [
+      {
+        "value": "never",
+        "label": "无"
+      },
+      {
+        "value": "rare",
+        "label": "很少"
+      },
+      {
+        "value": "default",
+        "label": "默认"
+      },
+      {
+        "value": "often",
+        "label": "较多"
+      },
+      {
+        "value": "always",
+        "label": "大量"
+      }
+    ],
+    "icon": {
+      "atlas": "worldsettings",
+      "x": 7,
+      "y": 2
+    }
+  },
+  {
+    "key": "dragonfly",
+    "label": "龙蝇",
+    "category": "settings",
+    "group": "giants",
+    "groupLabel": "巨兽",
+    "worlds": [
+      "master"
+    ],
+    "defaultValue": "default",
+    "choices": [
+      {
+        "value": "never",
+        "label": "无"
+      },
+      {
+        "value": "rare",
+        "label": "很少"
+      },
+      {
+        "value": "default",
+        "label": "默认"
+      },
+      {
+        "value": "often",
+        "label": "较多"
+      },
+      {
+        "value": "always",
+        "label": "大量"
+      }
+    ],
+    "icon": {
+      "atlas": "worldsettings",
+      "x": 0,
+      "y": 2
+    }
+  },
+  {
+    "key": "daywalker",
+    "label": "梦魇疯猪",
+    "category": "settings",
+    "group": "giants",
+    "groupLabel": "巨兽",
+    "worlds": [
+      "caves"
+    ],
+    "defaultValue": "default",
+    "choices": [
+      {
+        "value": "never",
+        "label": "无"
+      },
+      {
+        "value": "rare",
+        "label": "很少"
+      },
+      {
+        "value": "default",
+        "label": "默认"
+      },
+      {
+        "value": "often",
+        "label": "较多"
+      },
+      {
+        "value": "always",
+        "label": "大量"
+      }
+    ],
+    "icon": {
+      "atlas": "worldsettings",
+      "x": 11,
+      "y": 1
+    }
+  },
+  {
+    "key": "goosemoose",
+    "label": "麋鹿鹅",
+    "category": "settings",
+    "group": "giants",
+    "groupLabel": "巨兽",
+    "worlds": [
+      "master"
+    ],
+    "defaultValue": "default",
+    "choices": [
+      {
+        "value": "never",
+        "label": "无"
+      },
+      {
+        "value": "rare",
+        "label": "很少"
+      },
+      {
+        "value": "default",
+        "label": "默认"
+      },
+      {
+        "value": "often",
+        "label": "较多"
+      },
+      {
+        "value": "always",
+        "label": "大量"
+      }
+    ],
+    "icon": {
+      "atlas": "worldsettings",
+      "x": 2,
+      "y": 3
+    }
+  },
+  {
+    "key": "liefs",
+    "label": "树精守卫",
+    "category": "settings",
+    "group": "giants",
+    "groupLabel": "巨兽",
+    "worlds": [
+      "master",
+      "caves"
+    ],
+    "defaultValue": "default",
+    "choices": [
+      {
+        "value": "never",
+        "label": "无"
+      },
+      {
+        "value": "rare",
+        "label": "很少"
+      },
+      {
+        "value": "default",
+        "label": "默认"
+      },
+      {
+        "value": "often",
+        "label": "较多"
+      },
+      {
+        "value": "always",
+        "label": "大量"
+      }
+    ],
+    "icon": {
+      "atlas": "worldsettings",
+      "x": 15,
+      "y": 3
+    }
+  },
+  {
+    "key": "malbatross",
+    "label": "邪天翁",
+    "category": "settings",
+    "group": "giants",
+    "groupLabel": "巨兽",
+    "worlds": [
+      "master"
+    ],
+    "defaultValue": "default",
+    "choices": [
+      {
+        "value": "never",
+        "label": "无"
+      },
+      {
+        "value": "rare",
+        "label": "很少"
+      },
+      {
+        "value": "default",
+        "label": "默认"
+      },
+      {
+        "value": "often",
+        "label": "较多"
+      },
+      {
+        "value": "always",
+        "label": "大量"
+      }
+    ],
+    "icon": {
+      "atlas": "worldsettings",
+      "x": 8,
+      "y": 4
+    }
+  },
+  {
+    "key": "bearger",
+    "label": "熊獾",
+    "category": "settings",
+    "group": "giants",
+    "groupLabel": "巨兽",
+    "worlds": [
+      "master"
+    ],
+    "defaultValue": "default",
+    "choices": [
+      {
+        "value": "never",
+        "label": "无"
+      },
+      {
+        "value": "rare",
+        "label": "很少"
+      },
+      {
+        "value": "default",
+        "label": "默认"
+      },
+      {
+        "value": "often",
+        "label": "较多"
+      },
+      {
+        "value": "always",
+        "label": "大量"
+      }
+    ],
+    "icon": {
+      "atlas": "worldsettings",
+      "x": 8,
+      "y": 0
+    }
+  },
+  {
+    "key": "antliontribute",
+    "label": "蚁狮贡品",
+    "category": "settings",
+    "group": "giants",
+    "groupLabel": "巨兽",
+    "worlds": [
+      "master"
+    ],
+    "defaultValue": "default",
+    "choices": [
+      {
+        "value": "never",
+        "label": "无"
+      },
+      {
+        "value": "rare",
+        "label": "很少"
+      },
+      {
+        "value": "default",
+        "label": "默认"
+      },
+      {
+        "value": "often",
+        "label": "较多"
+      },
+      {
+        "value": "always",
+        "label": "大量"
+      }
+    ],
+    "icon": {
+      "atlas": "worldsettings",
+      "x": 2,
+      "y": 0
+    }
+  },
+  {
+    "key": "spiderqueen",
+    "label": "蜘蛛女王",
+    "category": "settings",
+    "group": "giants",
+    "groupLabel": "巨兽",
+    "worlds": [
+      "master",
+      "caves"
+    ],
+    "defaultValue": "default",
+    "choices": [
+      {
+        "value": "never",
+        "label": "无"
+      },
+      {
+        "value": "rare",
+        "label": "很少"
+      },
+      {
+        "value": "default",
+        "label": "默认"
+      },
+      {
+        "value": "often",
+        "label": "较多"
+      },
+      {
+        "value": "always",
+        "label": "大量"
+      }
+    ],
+    "icon": {
+      "atlas": "worldsettings",
+      "x": 15,
+      "y": 7
+    }
+  },
+  {
+    "key": "spawnmode",
+    "label": "出生模式",
+    "category": "settings",
+    "group": "global",
+    "groupLabel": "全局",
+    "worlds": [
+      "master"
+    ],
+    "defaultValue": "fixed",
+    "choices": [
+      {
+        "value": "fixed",
+        "label": "绚丽之门"
+      },
+      {
+        "value": "scatter",
+        "label": "随机位置"
+      }
+    ],
+    "icon": {
+      "atlas": "worldsettings",
+      "x": 13,
+      "y": 7
+    }
+  },
+  {
+    "key": "spring",
+    "label": "春",
+    "category": "settings",
+    "group": "global",
+    "groupLabel": "全局",
+    "worlds": [
+      "master"
+    ],
+    "defaultValue": "default",
+    "choices": [
+      {
+        "value": "noseason",
+        "label": "无"
+      },
+      {
+        "value": "veryshortseason",
+        "label": "非常短"
+      },
+      {
+        "value": "shortseason",
+        "label": "短"
+      },
+      {
+        "value": "default",
+        "label": "默认"
+      },
+      {
+        "value": "longseason",
+        "label": "长"
+      },
+      {
+        "value": "verylongseason",
+        "label": "非常长"
+      },
+      {
+        "value": "random",
+        "label": "随机"
+      }
+    ],
+    "icon": {
+      "atlas": "worldsettings",
+      "x": 5,
+      "y": 8
+    }
+  },
+  {
+    "key": "winter",
+    "label": "冬",
+    "category": "settings",
+    "group": "global",
+    "groupLabel": "全局",
+    "worlds": [
+      "master"
+    ],
+    "defaultValue": "default",
+    "choices": [
+      {
+        "value": "noseason",
+        "label": "无"
+      },
+      {
+        "value": "veryshortseason",
+        "label": "非常短"
+      },
+      {
+        "value": "shortseason",
+        "label": "短"
+      },
+      {
+        "value": "default",
+        "label": "默认"
+      },
+      {
+        "value": "longseason",
+        "label": "长"
+      },
+      {
+        "value": "verylongseason",
+        "label": "非常长"
+      },
+      {
+        "value": "random",
+        "label": "随机"
+      }
+    ],
+    "icon": {
+      "atlas": "worldsettings",
+      "x": 1,
+      "y": 9
+    }
+  },
+  {
+    "key": "ghostsanitydrain",
+    "label": "鬼魂理智值惩罚",
+    "category": "settings",
+    "group": "global",
+    "groupLabel": "全局",
+    "worlds": [
+      "master"
+    ],
+    "defaultValue": "always",
+    "choices": [
+      {
+        "value": "none",
+        "label": "关闭"
+      },
+      {
+        "value": "always",
+        "label": "开启"
+      }
+    ],
+    "icon": {
+      "atlas": "worldsettings",
+      "x": 0,
+      "y": 3
+    }
+  },
+  {
+    "key": "specialevent",
+    "label": "活动",
+    "category": "settings",
+    "group": "global",
+    "groupLabel": "全局",
+    "worlds": [
+      "master"
+    ],
+    "defaultValue": "default",
+    "choices": [
+      {
+        "value": "none",
+        "label": "无"
+      },
+      {
+        "value": "default",
+        "label": "自动"
+      }
+    ],
+    "icon": {
+      "atlas": "worldsettings",
+      "x": 4,
+      "y": 2
+    }
+  },
+  {
+    "key": "krampus",
+    "label": "坎普斯",
+    "category": "settings",
+    "group": "global",
+    "groupLabel": "全局",
+    "worlds": [
+      "master"
+    ],
+    "defaultValue": "default",
+    "choices": [
+      {
+        "value": "never",
+        "label": "无"
+      },
+      {
+        "value": "rare",
+        "label": "很少"
+      },
+      {
+        "value": "default",
+        "label": "默认"
+      },
+      {
+        "value": "often",
+        "label": "较多"
+      },
+      {
+        "value": "always",
+        "label": "大量"
+      }
+    ],
+    "icon": {
+      "atlas": "worldsettings",
+      "x": 13,
+      "y": 3
+    }
+  },
+  {
+    "key": "ghostenabled",
+    "label": "冒险家死亡",
+    "category": "settings",
+    "group": "global",
+    "groupLabel": "全局",
+    "worlds": [
+      "master"
+    ],
+    "defaultValue": "always",
+    "choices": [
+      {
+        "value": "none",
+        "label": "重新选人"
+      },
+      {
+        "value": "always",
+        "label": "变成幽灵"
+      }
+    ],
+    "icon": {
+      "atlas": "worldsettings",
+      "x": 15,
+      "y": 2
+    }
+  },
+  {
+    "key": "beefaloheat",
+    "label": "皮弗娄牛交配频率",
+    "category": "settings",
+    "group": "global",
+    "groupLabel": "全局",
+    "worlds": [
+      "master"
+    ],
+    "defaultValue": "default",
+    "choices": [
+      {
+        "value": "never",
+        "label": "无"
+      },
+      {
+        "value": "rare",
+        "label": "很少"
+      },
+      {
+        "value": "default",
+        "label": "默认"
+      },
+      {
+        "value": "often",
+        "label": "较多"
+      },
+      {
+        "value": "always",
+        "label": "大量"
+      }
+    ],
+    "icon": {
+      "atlas": "worldsettings",
+      "x": 9,
+      "y": 0
+    }
+  },
+  {
+    "key": "autumn",
+    "label": "秋",
+    "category": "settings",
+    "group": "global",
+    "groupLabel": "全局",
+    "worlds": [
+      "master"
+    ],
+    "defaultValue": "default",
+    "choices": [
+      {
+        "value": "noseason",
+        "label": "无"
+      },
+      {
+        "value": "veryshortseason",
+        "label": "非常短"
+      },
+      {
+        "value": "shortseason",
+        "label": "短"
+      },
+      {
+        "value": "default",
+        "label": "默认"
+      },
+      {
+        "value": "longseason",
+        "label": "长"
+      },
+      {
+        "value": "verylongseason",
+        "label": "非常长"
+      },
+      {
+        "value": "random",
+        "label": "随机"
+      }
+    ],
+    "icon": {
+      "atlas": "worldsettings",
+      "x": 4,
+      "y": 0
+    }
+  },
+  {
+    "key": "resettime",
+    "label": "死亡重置倒计时",
+    "category": "settings",
+    "group": "global",
+    "groupLabel": "全局",
+    "worlds": [
+      "master"
+    ],
+    "defaultValue": "default",
+    "choices": [
+      {
+        "value": "none",
+        "label": "关闭"
+      },
+      {
+        "value": "slow",
+        "label": "慢"
+      },
+      {
+        "value": "default",
+        "label": "默认"
+      },
+      {
+        "value": "fast",
+        "label": "快"
+      },
+      {
+        "value": "always",
+        "label": "立即"
+      }
+    ],
+    "icon": {
+      "atlas": "worldsettings",
+      "x": 1,
+      "y": 7
+    }
+  },
+  {
+    "key": "summer",
+    "label": "夏",
+    "category": "settings",
+    "group": "global",
+    "groupLabel": "全局",
+    "worlds": [
+      "master"
+    ],
+    "defaultValue": "default",
+    "choices": [
+      {
+        "value": "noseason",
+        "label": "无"
+      },
+      {
+        "value": "veryshortseason",
+        "label": "非常短"
+      },
+      {
+        "value": "shortseason",
+        "label": "短"
+      },
+      {
+        "value": "default",
+        "label": "默认"
+      },
+      {
+        "value": "longseason",
+        "label": "长"
+      },
+      {
+        "value": "verylongseason",
+        "label": "非常长"
+      },
+      {
+        "value": "random",
+        "label": "随机"
+      }
+    ],
+    "icon": {
+      "atlas": "worldsettings",
+      "x": 7,
+      "y": 8
+    }
+  },
+  {
+    "key": "portalresurection",
+    "label": "在绚丽之门复活",
+    "category": "settings",
+    "group": "global",
+    "groupLabel": "全局",
+    "worlds": [
+      "master"
+    ],
+    "defaultValue": "none",
+    "choices": [
+      {
+        "value": "none",
+        "label": "关闭"
+      },
+      {
+        "value": "always",
+        "label": "开启"
+      }
+    ],
+    "icon": {
+      "atlas": "worldsettings",
+      "x": 11,
+      "y": 6
+    }
+  },
+  {
+    "key": "day",
+    "label": "昼夜选项",
+    "category": "settings",
+    "group": "global",
+    "groupLabel": "全局",
+    "worlds": [
+      "master"
+    ],
+    "defaultValue": "default",
+    "choices": [
+      {
+        "value": "default",
+        "label": "默认"
+      },
+      {
+        "value": "longday",
+        "label": "长白天"
+      },
+      {
+        "value": "longdusk",
+        "label": "长黄昏"
+      },
+      {
+        "value": "longnight",
+        "label": "长夜晚"
+      },
+      {
+        "value": "noday",
+        "label": "无白天"
+      },
+      {
+        "value": "nodusk",
+        "label": "无黄昏"
+      },
+      {
+        "value": "nonight",
+        "label": "无夜晚"
+      },
+      {
+        "value": "onlyday",
+        "label": "仅白天"
+      },
+      {
+        "value": "onlydusk",
+        "label": "仅黄昏"
+      },
+      {
+        "value": "onlynight",
+        "label": "仅夜晚"
+      }
+    ],
+    "icon": {
+      "atlas": "worldsettings",
+      "x": 10,
+      "y": 1
+    }
+  },
+  {
+    "key": "mutated_birds",
+    "label": "变异的鸟",
+    "category": "settings",
+    "group": "lunar_mutations",
+    "groupLabel": "月亮变异",
+    "worlds": [
+      "master",
+      "caves"
+    ],
+    "defaultValue": "default",
+    "choices": [
+      {
+        "value": "never",
+        "label": "关闭"
+      },
+      {
+        "value": "default",
+        "label": "默认"
+      }
+    ],
+    "icon": {
+      "atlas": "worldsettings",
+      "x": 8,
+      "y": 5
+    }
+  },
+  {
+    "key": "mutated_merm",
+    "label": "变异鱼人",
+    "category": "settings",
+    "group": "lunar_mutations",
+    "groupLabel": "月亮变异",
+    "worlds": [
+      "master",
+      "caves"
+    ],
+    "defaultValue": "default",
+    "choices": [
+      {
+        "value": "never",
+        "label": "关闭"
+      },
+      {
+        "value": "default",
+        "label": "默认"
+      }
+    ],
+    "icon": {
+      "atlas": "worldsettings",
+      "x": 13,
+      "y": 5
+    }
+  },
+  {
+    "key": "mutated_warg",
+    "label": "附身座狼",
+    "category": "settings",
+    "group": "lunar_mutations",
+    "groupLabel": "月亮变异",
+    "worlds": [
+      "master"
+    ],
+    "defaultValue": "default",
+    "choices": [
+      {
+        "value": "never",
+        "label": "关闭"
+      },
+      {
+        "value": "default",
+        "label": "默认"
+      }
+    ],
+    "icon": {
+      "atlas": "worldsettings",
+      "x": 15,
+      "y": 5
+    }
+  },
+  {
+    "key": "mutated_deerclops",
+    "label": "晶体独眼巨鹿",
+    "category": "settings",
+    "group": "lunar_mutations",
+    "groupLabel": "月亮变异",
+    "worlds": [
+      "master"
+    ],
+    "defaultValue": "default",
+    "choices": [
+      {
+        "value": "never",
+        "label": "关闭"
+      },
+      {
+        "value": "default",
+        "label": "默认"
+      }
+    ],
+    "icon": {
+      "atlas": "worldsettings",
+      "x": 11,
+      "y": 5
+    }
+  },
+  {
+    "key": "mutated_hounds",
+    "label": "恐怖猎犬",
+    "category": "settings",
+    "group": "lunar_mutations",
+    "groupLabel": "月亮变异",
+    "worlds": [
+      "master"
+    ],
+    "defaultValue": "default",
+    "choices": [
+      {
+        "value": "never",
+        "label": "关闭"
+      },
+      {
+        "value": "default",
+        "label": "默认"
+      }
+    ],
+    "icon": {
+      "atlas": "worldsettings",
+      "x": 12,
+      "y": 5
+    }
+  },
+  {
+    "key": "mutated_bird_gestalt",
+    "label": "亮喙鸟",
+    "category": "settings",
+    "group": "lunar_mutations",
+    "groupLabel": "月亮变异",
+    "worlds": [
+      "master"
+    ],
+    "defaultValue": "default",
+    "choices": [
+      {
+        "value": "never",
+        "label": "关闭"
+      },
+      {
+        "value": "default",
+        "label": "默认"
+      }
+    ],
+    "icon": {
+      "atlas": "worldsettings",
+      "x": 9,
+      "y": 5
+    }
+  },
+  {
+    "key": "moon_spider",
+    "label": "破碎蜘蛛",
+    "category": "settings",
+    "group": "lunar_mutations",
+    "groupLabel": "月亮变异",
+    "worlds": [
+      "master",
+      "caves"
+    ],
+    "defaultValue": "default",
+    "choices": [
+      {
+        "value": "never",
+        "label": "无"
+      },
+      {
+        "value": "rare",
+        "label": "很少"
+      },
+      {
+        "value": "default",
+        "label": "默认"
+      },
+      {
+        "value": "often",
+        "label": "较多"
+      },
+      {
+        "value": "always",
+        "label": "大量"
+      }
+    ],
+    "icon": {
+      "atlas": "worldsettings",
+      "x": 1,
+      "y": 5
+    }
+  },
+  {
+    "key": "mutated_spiderqueen",
+    "label": "破碎蜘蛛洞",
+    "category": "settings",
+    "group": "lunar_mutations",
+    "groupLabel": "月亮变异",
+    "worlds": [
+      "master",
+      "caves"
+    ],
+    "defaultValue": "default",
+    "choices": [
+      {
+        "value": "never",
+        "label": "关闭"
+      },
+      {
+        "value": "default",
+        "label": "默认"
+      }
+    ],
+    "icon": {
+      "atlas": "worldsettings",
+      "x": 14,
+      "y": 5
+    }
+  },
+  {
+    "key": "mutated_buzzard_gestalt",
+    "label": "水晶冠秃鹫",
+    "category": "settings",
+    "group": "lunar_mutations",
+    "groupLabel": "月亮变异",
+    "worlds": [
+      "master"
+    ],
+    "defaultValue": "default",
+    "choices": [
+      {
+        "value": "never",
+        "label": "关闭"
+      },
+      {
+        "value": "default",
+        "label": "默认"
+      }
+    ],
+    "icon": {
+      "atlas": "worldsettings",
+      "x": 10,
+      "y": 5
+    }
+  },
+  {
+    "key": "penguins_moon",
+    "label": "永冻企鸥",
+    "category": "settings",
+    "group": "lunar_mutations",
+    "groupLabel": "月亮变异",
+    "worlds": [
+      "master"
+    ],
+    "defaultValue": "default",
+    "choices": [
+      {
+        "value": "never",
+        "label": "关闭"
+      },
+      {
+        "value": "default",
+        "label": "默认"
+      }
+    ],
+    "icon": {
+      "atlas": "worldsettings",
+      "x": 0,
+      "y": 5
+    }
+  },
+  {
+    "key": "mutated_bearger",
+    "label": "装甲熊獾",
+    "category": "settings",
+    "group": "lunar_mutations",
+    "groupLabel": "月亮变异",
+    "worlds": [
+      "master"
+    ],
+    "defaultValue": "default",
+    "choices": [
+      {
+        "value": "never",
+        "label": "关闭"
+      },
+      {
+        "value": "default",
+        "label": "默认"
+      }
+    ],
+    "icon": {
+      "atlas": "worldsettings",
+      "x": 7,
+      "y": 5
+    }
+  },
+  {
+    "key": "wormattacks_boss",
+    "label": "大蠕虫",
+    "category": "settings",
+    "group": "misc",
+    "groupLabel": "世界",
+    "worlds": [
+      "caves"
+    ],
+    "defaultValue": "default",
+    "choices": [
+      {
+        "value": "never",
+        "label": "无"
+      },
+      {
+        "value": "rare",
+        "label": "很少"
+      },
+      {
+        "value": "default",
+        "label": "默认"
+      },
+      {
+        "value": "often",
+        "label": "较多"
+      },
+      {
+        "value": "always",
+        "label": "始终"
+      }
+    ],
+    "icon": {
+      "atlas": "worldsettings",
+      "x": 6,
+      "y": 9
+    }
+  },
+  {
+    "key": "earthquakes",
+    "label": "地震",
+    "category": "settings",
+    "group": "misc",
+    "groupLabel": "世界",
+    "worlds": [
+      "caves"
+    ],
+    "defaultValue": "default",
+    "choices": [
+      {
+        "value": "never",
+        "label": "无"
+      },
+      {
+        "value": "rare",
+        "label": "很少"
+      },
+      {
+        "value": "default",
+        "label": "默认"
+      },
+      {
+        "value": "often",
+        "label": "较多"
+      },
+      {
+        "value": "always",
+        "label": "大量"
+      }
+    ],
+    "icon": {
+      "atlas": "worldsettings",
+      "x": 3,
+      "y": 2
+    }
+  },
+  {
+    "key": "wormattacks",
+    "label": "洞穴蠕虫袭击",
+    "category": "settings",
+    "group": "misc",
+    "groupLabel": "世界",
+    "worlds": [
+      "caves"
+    ],
+    "defaultValue": "default",
+    "choices": [
+      {
+        "value": "never",
+        "label": "无"
+      },
+      {
+        "value": "rare",
+        "label": "很少"
+      },
+      {
+        "value": "default",
+        "label": "默认"
+      },
+      {
+        "value": "often",
+        "label": "较多"
+      },
+      {
+        "value": "always",
+        "label": "大量"
+      }
+    ],
+    "icon": {
+      "atlas": "worldsettings",
+      "x": 5,
+      "y": 9
+    }
+  },
+  {
+    "key": "winterhounds",
+    "label": "寒冰猎犬群",
+    "category": "settings",
+    "group": "misc",
+    "groupLabel": "世界",
+    "worlds": [
+      "master"
+    ],
+    "defaultValue": "default",
+    "choices": [
+      {
+        "value": "never",
+        "label": "关闭"
+      },
+      {
+        "value": "default",
+        "label": "默认"
+      }
+    ],
+    "icon": {
+      "atlas": "worldsettings",
+      "x": 2,
+      "y": 9
+    }
+  },
+  {
+    "key": "rifts_enabled",
+    "label": "荒野裂隙",
+    "category": "settings",
+    "group": "misc",
+    "groupLabel": "世界",
+    "worlds": [
+      "master"
+    ],
+    "defaultValue": "default",
+    "choices": [
+      {
+        "value": "never",
+        "label": "关闭"
+      },
+      {
+        "value": "default",
+        "label": "自动"
+      },
+      {
+        "value": "always",
+        "label": "开启"
+      }
+    ],
+    "icon": {
+      "atlas": "worldsettings",
+      "x": 4,
+      "y": 4
+    }
+  },
+  {
+    "key": "rifts_enabled_cave",
+    "label": "荒野裂隙",
+    "category": "settings",
+    "group": "misc",
+    "groupLabel": "世界",
+    "worlds": [
+      "caves"
+    ],
+    "defaultValue": "default",
+    "choices": [
+      {
+        "value": "never",
+        "label": "关闭"
+      },
+      {
+        "value": "default",
+        "label": "自动"
+      },
+      {
+        "value": "always",
+        "label": "开启"
+      }
+    ],
+    "icon": {
+      "atlas": "worldsettings",
+      "x": 7,
+      "y": 7
+    }
+  },
+  {
+    "key": "rifts_frequency",
+    "label": "荒野裂隙频率",
+    "category": "settings",
+    "group": "misc",
+    "groupLabel": "世界",
+    "worlds": [
+      "master"
+    ],
+    "defaultValue": "default",
+    "choices": [
+      {
+        "value": "never",
+        "label": "无"
+      },
+      {
+        "value": "rare",
+        "label": "很少"
+      },
+      {
+        "value": "default",
+        "label": "默认"
+      },
+      {
+        "value": "often",
+        "label": "较多"
+      },
+      {
+        "value": "always",
+        "label": "大量"
+      }
+    ],
+    "icon": {
+      "atlas": "worldsettings",
+      "x": 4,
+      "y": 4
+    }
+  },
+  {
+    "key": "rifts_frequency_cave",
+    "label": "荒野裂隙频率",
+    "category": "settings",
+    "group": "misc",
+    "groupLabel": "世界",
+    "worlds": [
+      "caves"
+    ],
+    "defaultValue": "default",
+    "choices": [
+      {
+        "value": "never",
+        "label": "无"
+      },
+      {
+        "value": "rare",
+        "label": "很少"
+      },
+      {
+        "value": "default",
+        "label": "默认"
+      },
+      {
+        "value": "often",
+        "label": "较多"
+      },
+      {
+        "value": "always",
+        "label": "大量"
+      }
+    ],
+    "icon": {
+      "atlas": "worldsettings",
+      "x": 7,
+      "y": 7
+    }
+  },
+  {
+    "key": "summerhounds",
+    "label": "火焰猎犬群",
+    "category": "settings",
+    "group": "misc",
+    "groupLabel": "世界",
+    "worlds": [
+      "master"
+    ],
+    "defaultValue": "default",
+    "choices": [
+      {
+        "value": "never",
+        "label": "关闭"
+      },
+      {
+        "value": "default",
+        "label": "默认"
+      }
+    ],
+    "icon": {
+      "atlas": "worldsettings",
+      "x": 8,
+      "y": 8
+    }
+  },
+  {
+    "key": "hounds",
+    "label": "猎犬袭击",
+    "category": "settings",
+    "group": "misc",
+    "groupLabel": "世界",
+    "worlds": [
+      "master"
+    ],
+    "defaultValue": "default",
+    "choices": [
+      {
+        "value": "never",
+        "label": "无"
+      },
+      {
+        "value": "rare",
+        "label": "很少"
+      },
+      {
+        "value": "default",
+        "label": "默认"
+      },
+      {
+        "value": "often",
+        "label": "较多"
+      },
+      {
+        "value": "always",
+        "label": "大量"
+      }
+    ],
+    "icon": {
+      "atlas": "worldsettings",
+      "x": 7,
+      "y": 3
+    }
+  },
+  {
+    "key": "wanderingtrader_enabled",
+    "label": "流浪商人",
+    "category": "settings",
+    "group": "misc",
+    "groupLabel": "世界",
+    "worlds": [
+      "master"
+    ],
+    "defaultValue": "always",
+    "choices": [
+      {
+        "value": "none",
+        "label": "关闭"
+      },
+      {
+        "value": "always",
+        "label": "开启"
+      }
+    ],
+    "icon": {
+      "atlas": "worldsettings",
+      "x": 14,
+      "y": 8
+    }
+  },
+  {
+    "key": "meteorshowers",
+    "label": "流星频率",
+    "category": "settings",
+    "group": "misc",
+    "groupLabel": "世界",
+    "worlds": [
+      "master"
+    ],
+    "defaultValue": "default",
+    "choices": [
+      {
+        "value": "never",
+        "label": "无"
+      },
+      {
+        "value": "rare",
+        "label": "很少"
+      },
+      {
+        "value": "default",
+        "label": "默认"
+      },
+      {
+        "value": "often",
+        "label": "较多"
+      },
+      {
+        "value": "always",
+        "label": "大量"
+      }
+    ],
+    "icon": {
+      "atlas": "worldsettings",
+      "x": 10,
+      "y": 4
+    }
+  },
+  {
+    "key": "frograin",
+    "label": "青蛙雨",
+    "category": "settings",
+    "group": "misc",
+    "groupLabel": "世界",
+    "worlds": [
+      "master"
+    ],
+    "defaultValue": "default",
+    "choices": [
+      {
+        "value": "never",
+        "label": "无"
+      },
+      {
+        "value": "rare",
+        "label": "很少"
+      },
+      {
+        "value": "default",
+        "label": "默认"
+      },
+      {
+        "value": "often",
+        "label": "较多"
+      },
+      {
+        "value": "always",
+        "label": "大量"
+      }
+    ],
+    "icon": {
+      "atlas": "worldsettings",
+      "x": 13,
+      "y": 2
+    }
+  },
+  {
+    "key": "petrification",
+    "label": "森林石化",
+    "category": "settings",
+    "group": "misc",
+    "groupLabel": "世界",
+    "worlds": [
+      "master"
+    ],
+    "defaultValue": "default",
+    "choices": [
+      {
+        "value": "none",
+        "label": "无"
+      },
+      {
+        "value": "few",
+        "label": "慢"
+      },
+      {
+        "value": "default",
+        "label": "默认"
+      },
+      {
+        "value": "many",
+        "label": "快"
+      },
+      {
+        "value": "max",
+        "label": "非常快"
+      }
+    ],
+    "icon": {
+      "atlas": "worldsettings",
+      "x": 7,
+      "y": 6
+    }
+  },
+  {
+    "key": "lightning",
+    "label": "闪电",
+    "category": "settings",
+    "group": "misc",
+    "groupLabel": "世界",
+    "worlds": [
+      "master"
+    ],
+    "defaultValue": "default",
+    "choices": [
+      {
+        "value": "never",
+        "label": "无"
+      },
+      {
+        "value": "rare",
+        "label": "很少"
+      },
+      {
+        "value": "default",
+        "label": "默认"
+      },
+      {
+        "value": "often",
+        "label": "较多"
+      },
+      {
+        "value": "always",
+        "label": "大量"
+      }
+    ],
+    "icon": {
+      "atlas": "worldsettings",
+      "x": 3,
+      "y": 4
+    }
+  },
+  {
+    "key": "hunt",
+    "label": "狩猎",
+    "category": "settings",
+    "group": "misc",
+    "groupLabel": "世界",
+    "worlds": [
+      "master"
+    ],
+    "defaultValue": "default",
+    "choices": [
+      {
+        "value": "never",
+        "label": "无"
+      },
+      {
+        "value": "rare",
+        "label": "很少"
+      },
+      {
+        "value": "default",
+        "label": "默认"
+      },
+      {
+        "value": "often",
+        "label": "较多"
+      },
+      {
+        "value": "always",
+        "label": "大量"
+      }
+    ],
+    "icon": {
+      "atlas": "worldsettings",
+      "x": 11,
+      "y": 8
+    }
+  },
+  {
+    "key": "alternatehunt",
+    "label": "狩猎惊喜",
+    "category": "settings",
+    "group": "misc",
+    "groupLabel": "世界",
+    "worlds": [
+      "master"
+    ],
+    "defaultValue": "default",
+    "choices": [
+      {
+        "value": "never",
+        "label": "无"
+      },
+      {
+        "value": "rare",
+        "label": "很少"
+      },
+      {
+        "value": "default",
+        "label": "默认"
+      },
+      {
+        "value": "often",
+        "label": "较多"
+      },
+      {
+        "value": "always",
+        "label": "大量"
+      }
+    ],
+    "icon": {
+      "atlas": "worldsettings",
+      "x": 1,
+      "y": 0
+    }
+  },
+  {
+    "key": "acidrain_enabled",
+    "label": "酸雨",
+    "category": "settings",
+    "group": "misc",
+    "groupLabel": "世界",
+    "worlds": [
+      "caves"
+    ],
+    "defaultValue": "always",
+    "choices": [
+      {
+        "value": "none",
+        "label": "关闭"
+      },
+      {
+        "value": "always",
+        "label": "开启"
+      }
+    ],
+    "icon": {
+      "atlas": "worldsettings",
+      "x": 0,
+      "y": 0
+    }
+  },
+  {
+    "key": "wildfires",
+    "label": "野火",
+    "category": "settings",
+    "group": "misc",
+    "groupLabel": "世界",
+    "worlds": [
+      "master"
+    ],
+    "defaultValue": "default",
+    "choices": [
+      {
+        "value": "never",
+        "label": "无"
+      },
+      {
+        "value": "rare",
+        "label": "很少"
+      },
+      {
+        "value": "default",
+        "label": "默认"
+      },
+      {
+        "value": "often",
+        "label": "较多"
+      },
+      {
+        "value": "always",
+        "label": "大量"
+      }
+    ],
+    "icon": {
+      "atlas": "worldsettings",
+      "x": 11,
+      "y": 7
+    }
+  },
+  {
+    "key": "weather",
+    "label": "雨",
+    "category": "settings",
+    "group": "misc",
+    "groupLabel": "世界",
+    "worlds": [
+      "master",
+      "caves"
+    ],
+    "defaultValue": "default",
+    "choices": [
+      {
+        "value": "never",
+        "label": "无"
+      },
+      {
+        "value": "rare",
+        "label": "很少"
+      },
+      {
+        "value": "default",
+        "label": "默认"
+      },
+      {
+        "value": "often",
+        "label": "较多"
+      },
+      {
+        "value": "always",
+        "label": "大量"
+      }
+    ],
+    "icon": {
+      "atlas": "worldsettings",
+      "x": 14,
+      "y": 6
+    }
+  },
+  {
+    "key": "atriumgate",
+    "label": "远古大门",
+    "category": "settings",
+    "group": "misc",
+    "groupLabel": "世界",
+    "worlds": [
+      "caves"
+    ],
+    "defaultValue": "default",
+    "choices": [
+      {
+        "value": "veryslow",
+        "label": "非常慢"
+      },
+      {
+        "value": "slow",
+        "label": "慢"
+      },
+      {
+        "value": "default",
+        "label": "默认"
+      },
+      {
+        "value": "fast",
+        "label": "快"
+      },
+      {
+        "value": "veryfast",
+        "label": "非常快"
+      }
+    ],
+    "icon": {
+      "atlas": "worldsettings",
+      "x": 3,
+      "y": 0
+    }
+  },
+  {
+    "key": "lunarhail_frequency",
+    "label": "月雹",
+    "category": "settings",
+    "group": "misc",
+    "groupLabel": "世界",
+    "worlds": [
+      "master"
+    ],
+    "defaultValue": "default",
+    "choices": [
+      {
+        "value": "never",
+        "label": "无"
+      },
+      {
+        "value": "rare",
+        "label": "很少"
+      },
+      {
+        "value": "default",
+        "label": "默认"
+      },
+      {
+        "value": "often",
+        "label": "较多"
+      },
+      {
+        "value": "always",
+        "label": "大量"
+      }
+    ],
+    "icon": {
+      "atlas": "worldsettings",
+      "x": 5,
+      "y": 4
+    }
+  },
+  {
+    "key": "chest_mimics",
+    "label": "暴躁箱子",
+    "category": "settings",
+    "group": "monsters",
+    "groupLabel": "敌对生物",
+    "worlds": [
+      "caves"
+    ],
+    "defaultValue": "default",
+    "choices": [
+      {
+        "value": "never",
+        "label": "无"
+      },
+      {
+        "value": "rare",
+        "label": "很少"
+      },
+      {
+        "value": "default",
+        "label": "默认"
+      },
+      {
+        "value": "often",
+        "label": "较多"
+      },
+      {
+        "value": "always",
+        "label": "大量"
+      }
+    ],
+    "icon": {
+      "atlas": "worldsettings",
+      "x": 5,
+      "y": 1
+    }
+  },
+  {
+    "key": "bats_setting",
+    "label": "蝙蝠",
+    "category": "settings",
+    "group": "monsters",
+    "groupLabel": "敌对生物",
+    "worlds": [
+      "master",
+      "caves"
+    ],
+    "defaultValue": "default",
+    "choices": [
+      {
+        "value": "never",
+        "label": "无"
+      },
+      {
+        "value": "rare",
+        "label": "很少"
+      },
+      {
+        "value": "default",
+        "label": "默认"
+      },
+      {
+        "value": "often",
+        "label": "较多"
+      },
+      {
+        "value": "always",
+        "label": "大量"
+      }
+    ],
+    "icon": {
+      "atlas": "worldsettings",
+      "x": 7,
+      "y": 0
+    }
+  },
+  {
+    "key": "cookiecutters",
+    "label": "饼干切割机",
+    "category": "settings",
+    "group": "monsters",
+    "groupLabel": "敌对生物",
+    "worlds": [
+      "master"
+    ],
+    "defaultValue": "default",
+    "choices": [
+      {
+        "value": "never",
+        "label": "无"
+      },
+      {
+        "value": "rare",
+        "label": "很少"
+      },
+      {
+        "value": "default",
+        "label": "默认"
+      },
+      {
+        "value": "often",
+        "label": "较多"
+      },
+      {
+        "value": "always",
+        "label": "大量"
+      }
+    ],
+    "icon": {
+      "atlas": "worldsettings",
+      "x": 6,
+      "y": 1
+    }
+  },
+  {
+    "key": "spider_hider",
+    "label": "洞穴蜘蛛",
+    "category": "settings",
+    "group": "monsters",
+    "groupLabel": "敌对生物",
+    "worlds": [
+      "caves"
+    ],
+    "defaultValue": "default",
+    "choices": [
+      {
+        "value": "never",
+        "label": "无"
+      },
+      {
+        "value": "rare",
+        "label": "很少"
+      },
+      {
+        "value": "default",
+        "label": "默认"
+      },
+      {
+        "value": "often",
+        "label": "较多"
+      },
+      {
+        "value": "always",
+        "label": "大量"
+      }
+    ],
+    "icon": {
+      "atlas": "worldsettings",
+      "x": 2,
+      "y": 8
+    }
+  },
+  {
+    "key": "walrus_setting",
+    "label": "海象",
+    "category": "settings",
+    "group": "monsters",
+    "groupLabel": "敌对生物",
+    "worlds": [
+      "master"
+    ],
+    "defaultValue": "default",
+    "choices": [
+      {
+        "value": "never",
+        "label": "无"
+      },
+      {
+        "value": "rare",
+        "label": "很少"
+      },
+      {
+        "value": "default",
+        "label": "默认"
+      },
+      {
+        "value": "often",
+        "label": "较多"
+      },
+      {
+        "value": "always",
+        "label": "大量"
+      }
+    ],
+    "icon": {
+      "atlas": "worldsettings",
+      "x": 7,
+      "y": 4
+    }
+  },
+  {
+    "key": "hound_mounds",
+    "label": "猎犬",
+    "category": "settings",
+    "group": "monsters",
+    "groupLabel": "敌对生物",
+    "worlds": [
+      "master"
+    ],
+    "defaultValue": "default",
+    "choices": [
+      {
+        "value": "never",
+        "label": "无"
+      },
+      {
+        "value": "rare",
+        "label": "很少"
+      },
+      {
+        "value": "default",
+        "label": "默认"
+      },
+      {
+        "value": "often",
+        "label": "较多"
+      },
+      {
+        "value": "always",
+        "label": "大量"
+      }
+    ],
+    "icon": {
+      "atlas": "worldsettings",
+      "x": 8,
+      "y": 3
+    }
+  },
+  {
+    "key": "molebats",
+    "label": "裸鼹蝠",
+    "category": "settings",
+    "group": "monsters",
+    "groupLabel": "敌对生物",
+    "worlds": [
+      "caves"
+    ],
+    "defaultValue": "default",
+    "choices": [
+      {
+        "value": "never",
+        "label": "无"
+      },
+      {
+        "value": "rare",
+        "label": "很少"
+      },
+      {
+        "value": "default",
+        "label": "默认"
+      },
+      {
+        "value": "often",
+        "label": "较多"
+      },
+      {
+        "value": "always",
+        "label": "大量"
+      }
+    ],
+    "icon": {
+      "atlas": "worldsettings",
+      "x": 11,
+      "y": 4
+    }
+  },
+  {
+    "key": "itemmimics",
+    "label": "拟态蠕虫",
+    "category": "settings",
+    "group": "monsters",
+    "groupLabel": "敌对生物",
+    "worlds": [
+      "caves"
+    ],
+    "defaultValue": "default",
+    "choices": [
+      {
+        "value": "never",
+        "label": "无"
+      },
+      {
+        "value": "rare",
+        "label": "很少"
+      },
+      {
+        "value": "default",
+        "label": "默认"
+      },
+      {
+        "value": "often",
+        "label": "较多"
+      },
+      {
+        "value": "always",
+        "label": "大量"
+      }
+    ],
+    "icon": {
+      "atlas": "worldsettings",
+      "x": 11,
+      "y": 3
+    }
+  },
+  {
+    "key": "spider_spitter",
+    "label": "喷射蜘蛛",
+    "category": "settings",
+    "group": "monsters",
+    "groupLabel": "敌对生物",
+    "worlds": [
+      "caves"
+    ],
+    "defaultValue": "default",
+    "choices": [
+      {
+        "value": "never",
+        "label": "无"
+      },
+      {
+        "value": "rare",
+        "label": "很少"
+      },
+      {
+        "value": "default",
+        "label": "默认"
+      },
+      {
+        "value": "often",
+        "label": "较多"
+      },
+      {
+        "value": "always",
+        "label": "大量"
+      }
+    ],
+    "icon": {
+      "atlas": "worldsettings",
+      "x": 3,
+      "y": 8
+    }
+  },
+  {
+    "key": "frogs",
+    "label": "青蛙",
+    "category": "settings",
+    "group": "monsters",
+    "groupLabel": "敌对生物",
+    "worlds": [
+      "master"
+    ],
+    "defaultValue": "default",
+    "choices": [
+      {
+        "value": "never",
+        "label": "无"
+      },
+      {
+        "value": "rare",
+        "label": "很少"
+      },
+      {
+        "value": "default",
+        "label": "默认"
+      },
+      {
+        "value": "often",
+        "label": "较多"
+      },
+      {
+        "value": "always",
+        "label": "大量"
+      }
+    ],
+    "icon": {
+      "atlas": "worldsettings",
+      "x": 12,
+      "y": 2
+    }
+  },
+  {
+    "key": "wasps",
+    "label": "杀人蜂",
+    "category": "settings",
+    "group": "monsters",
+    "groupLabel": "敌对生物",
+    "worlds": [
+      "master"
+    ],
+    "defaultValue": "default",
+    "choices": [
+      {
+        "value": "never",
+        "label": "无"
+      },
+      {
+        "value": "rare",
+        "label": "很少"
+      },
+      {
+        "value": "default",
+        "label": "默认"
+      },
+      {
+        "value": "often",
+        "label": "较多"
+      },
+      {
+        "value": "always",
+        "label": "大量"
+      }
+    ],
+    "icon": {
+      "atlas": "worldsettings",
+      "x": 0,
+      "y": 9
+    }
+  },
+  {
+    "key": "sharks",
+    "label": "鲨鱼",
+    "category": "settings",
+    "group": "monsters",
+    "groupLabel": "敌对生物",
+    "worlds": [
+      "master"
+    ],
+    "defaultValue": "default",
+    "choices": [
+      {
+        "value": "never",
+        "label": "无"
+      },
+      {
+        "value": "rare",
+        "label": "很少"
+      },
+      {
+        "value": "default",
+        "label": "默认"
+      },
+      {
+        "value": "often",
+        "label": "较多"
+      },
+      {
+        "value": "always",
+        "label": "大量"
+      }
+    ],
+    "icon": {
+      "atlas": "worldsettings",
+      "x": 9,
+      "y": 7
+    }
+  },
+  {
+    "key": "lureplants",
+    "label": "食人花",
+    "category": "settings",
+    "group": "monsters",
+    "groupLabel": "敌对生物",
+    "worlds": [
+      "master"
+    ],
+    "defaultValue": "default",
+    "choices": [
+      {
+        "value": "never",
+        "label": "无"
+      },
+      {
+        "value": "rare",
+        "label": "很少"
+      },
+      {
+        "value": "default",
+        "label": "默认"
+      },
+      {
+        "value": "often",
+        "label": "较多"
+      },
+      {
+        "value": "always",
+        "label": "大量"
+      }
+    ],
+    "icon": {
+      "atlas": "worldsettings",
+      "x": 6,
+      "y": 4
+    }
+  },
+  {
+    "key": "mosquitos",
+    "label": "蚊子",
+    "category": "settings",
+    "group": "monsters",
+    "groupLabel": "敌对生物",
+    "worlds": [
+      "master"
+    ],
+    "defaultValue": "default",
+    "choices": [
+      {
+        "value": "never",
+        "label": "无"
+      },
+      {
+        "value": "rare",
+        "label": "很少"
+      },
+      {
+        "value": "default",
+        "label": "默认"
+      },
+      {
+        "value": "often",
+        "label": "较多"
+      },
+      {
+        "value": "always",
+        "label": "大量"
+      }
+    ],
+    "icon": {
+      "atlas": "worldsettings",
+      "x": 3,
+      "y": 5
+    }
+  },
+  {
+    "key": "spider_dropper",
+    "label": "穴居悬蛛",
+    "category": "settings",
+    "group": "monsters",
+    "groupLabel": "敌对生物",
+    "worlds": [
+      "caves"
+    ],
+    "defaultValue": "default",
+    "choices": [
+      {
+        "value": "never",
+        "label": "无"
+      },
+      {
+        "value": "rare",
+        "label": "很少"
+      },
+      {
+        "value": "default",
+        "label": "默认"
+      },
+      {
+        "value": "often",
+        "label": "较多"
+      },
+      {
+        "value": "always",
+        "label": "大量"
+      }
+    ],
+    "icon": {
+      "atlas": "worldsettings",
+      "x": 1,
+      "y": 8
+    }
+  },
+  {
+    "key": "nightmarecreatures",
+    "label": "遗迹梦魇",
+    "category": "settings",
+    "group": "monsters",
+    "groupLabel": "敌对生物",
+    "worlds": [
+      "caves"
+    ],
+    "defaultValue": "default",
+    "choices": [
+      {
+        "value": "never",
+        "label": "无"
+      },
+      {
+        "value": "rare",
+        "label": "很少"
+      },
+      {
+        "value": "default",
+        "label": "默认"
+      },
+      {
+        "value": "often",
+        "label": "较多"
+      },
+      {
+        "value": "always",
+        "label": "大量"
+      }
+    ],
+    "icon": {
+      "atlas": "worldsettings",
+      "x": 0,
+      "y": 6
+    }
+  },
+  {
+    "key": "squid",
+    "label": "鱿鱼",
+    "category": "settings",
+    "group": "monsters",
+    "groupLabel": "敌对生物",
+    "worlds": [
+      "master"
+    ],
+    "defaultValue": "default",
+    "choices": [
+      {
+        "value": "never",
+        "label": "无"
+      },
+      {
+        "value": "rare",
+        "label": "很少"
+      },
+      {
+        "value": "default",
+        "label": "默认"
+      },
+      {
+        "value": "often",
+        "label": "较多"
+      },
+      {
+        "value": "always",
+        "label": "大量"
+      }
+    ],
+    "icon": {
+      "atlas": "worldsettings",
+      "x": 6,
+      "y": 8
+    }
+  },
+  {
+    "key": "merms",
+    "label": "鱼人",
+    "category": "settings",
+    "group": "monsters",
+    "groupLabel": "敌对生物",
+    "worlds": [
+      "master",
+      "caves"
+    ],
+    "defaultValue": "default",
+    "choices": [
+      {
+        "value": "never",
+        "label": "无"
+      },
+      {
+        "value": "rare",
+        "label": "很少"
+      },
+      {
+        "value": "default",
+        "label": "默认"
+      },
+      {
+        "value": "often",
+        "label": "较多"
+      },
+      {
+        "value": "always",
+        "label": "大量"
+      }
+    ],
+    "icon": {
+      "atlas": "worldsettings",
+      "x": 9,
+      "y": 4
+    }
+  },
+  {
+    "key": "pirateraids",
+    "label": "月亮码头海盗",
+    "category": "settings",
+    "group": "monsters",
+    "groupLabel": "敌对生物",
+    "worlds": [
+      "master"
+    ],
+    "defaultValue": "default",
+    "choices": [
+      {
+        "value": "never",
+        "label": "无"
+      },
+      {
+        "value": "rare",
+        "label": "很少"
+      },
+      {
+        "value": "default",
+        "label": "默认"
+      },
+      {
+        "value": "often",
+        "label": "较多"
+      },
+      {
+        "value": "always",
+        "label": "大量"
+      }
+    ],
+    "icon": {
+      "atlas": "worldsettings",
+      "x": 10,
+      "y": 6
+    }
+  },
+  {
+    "key": "spiders_setting",
+    "label": "蜘蛛",
+    "category": "settings",
+    "group": "monsters",
+    "groupLabel": "敌对生物",
+    "worlds": [
+      "master",
+      "caves"
+    ],
+    "defaultValue": "default",
+    "choices": [
+      {
+        "value": "never",
+        "label": "无"
+      },
+      {
+        "value": "rare",
+        "label": "很少"
+      },
+      {
+        "value": "default",
+        "label": "默认"
+      },
+      {
+        "value": "often",
+        "label": "较多"
+      },
+      {
+        "value": "always",
+        "label": "大量"
+      }
+    ],
+    "icon": {
+      "atlas": "worldsettings",
+      "x": 0,
+      "y": 8
+    }
+  },
+  {
+    "key": "spider_warriors",
+    "label": "蜘蛛战士",
+    "category": "settings",
+    "group": "monsters",
+    "groupLabel": "敌对生物",
+    "worlds": [
+      "master",
+      "caves"
+    ],
+    "defaultValue": "default",
+    "choices": [
+      {
+        "value": "never",
+        "label": "关闭"
+      },
+      {
+        "value": "default",
+        "label": "默认"
+      }
+    ],
+    "icon": {
+      "atlas": "worldsettings",
+      "x": 4,
+      "y": 8
+    }
+  },
+  {
+    "key": "portal_spawnrate",
+    "label": "传送频率",
+    "category": "settings",
+    "group": "portal_resources",
+    "groupLabel": "非自然传送门资源",
+    "worlds": [
+      "master"
+    ],
+    "defaultValue": "default",
+    "choices": [
+      {
+        "value": "never",
+        "label": "无"
+      },
+      {
+        "value": "rare",
+        "label": "很少"
+      },
+      {
+        "value": "default",
+        "label": "默认"
+      },
+      {
+        "value": "often",
+        "label": "较多"
+      },
+      {
+        "value": "always",
+        "label": "大量"
+      }
+    ],
+    "icon": {
+      "atlas": "worldsettings",
+      "x": 13,
+      "y": 4
+    }
+  },
+  {
+    "key": "lightcrab_portalrate",
+    "label": "发光蟹",
+    "category": "settings",
+    "group": "portal_resources",
+    "groupLabel": "非自然传送门资源",
+    "worlds": [
+      "master"
+    ],
+    "defaultValue": "default",
+    "choices": [
+      {
+        "value": "never",
+        "label": "无"
+      },
+      {
+        "value": "rare",
+        "label": "很少"
+      },
+      {
+        "value": "default",
+        "label": "默认"
+      },
+      {
+        "value": "often",
+        "label": "较多"
+      },
+      {
+        "value": "always",
+        "label": "大量"
+      }
+    ],
+    "icon": {
+      "atlas": "worldsettings",
+      "x": 0,
+      "y": 4
+    }
+  },
+  {
+    "key": "monkeytail_portalrate",
+    "label": "猴尾草",
+    "category": "settings",
+    "group": "portal_resources",
+    "groupLabel": "非自然传送门资源",
+    "worlds": [
+      "master"
+    ],
+    "defaultValue": "default",
+    "choices": [
+      {
+        "value": "never",
+        "label": "无"
+      },
+      {
+        "value": "rare",
+        "label": "很少"
+      },
+      {
+        "value": "default",
+        "label": "默认"
+      },
+      {
+        "value": "often",
+        "label": "较多"
+      },
+      {
+        "value": "always",
+        "label": "大量"
+      }
+    ],
+    "icon": {
+      "atlas": "worldsettings",
+      "x": 15,
+      "y": 4
+    }
+  },
+  {
+    "key": "powder_monkey_portalrate",
+    "label": "火药猴",
+    "category": "settings",
+    "group": "portal_resources",
+    "groupLabel": "非自然传送门资源",
+    "worlds": [
+      "master"
+    ],
+    "defaultValue": "default",
+    "choices": [
+      {
+        "value": "never",
+        "label": "无"
+      },
+      {
+        "value": "rare",
+        "label": "很少"
+      },
+      {
+        "value": "default",
+        "label": "默认"
+      },
+      {
+        "value": "often",
+        "label": "较多"
+      },
+      {
+        "value": "always",
+        "label": "大量"
+      }
+    ],
+    "icon": {
+      "atlas": "worldsettings",
+      "x": 12,
+      "y": 6
+    }
+  },
+  {
+    "key": "bananabush_portalrate",
+    "label": "香蕉丛",
+    "category": "settings",
+    "group": "portal_resources",
+    "groupLabel": "非自然传送门资源",
+    "worlds": [
+      "master"
+    ],
+    "defaultValue": "default",
+    "choices": [
+      {
+        "value": "never",
+        "label": "无"
+      },
+      {
+        "value": "rare",
+        "label": "很少"
+      },
+      {
+        "value": "default",
+        "label": "默认"
+      },
+      {
+        "value": "often",
+        "label": "较多"
+      },
+      {
+        "value": "always",
+        "label": "大量"
+      }
+    ],
+    "icon": {
+      "atlas": "worldsettings",
+      "x": 5,
+      "y": 0
+    }
+  },
+  {
+    "key": "palmcone_seed_portalrate",
+    "label": "棕榈松果树芽",
+    "category": "settings",
+    "group": "portal_resources",
+    "groupLabel": "非自然传送门资源",
+    "worlds": [
+      "master"
+    ],
+    "defaultValue": "default",
+    "choices": [
+      {
+        "value": "never",
+        "label": "无"
+      },
+      {
+        "value": "rare",
+        "label": "很少"
+      },
+      {
+        "value": "default",
+        "label": "默认"
+      },
+      {
+        "value": "often",
+        "label": "较多"
+      },
+      {
+        "value": "always",
+        "label": "大量"
+      }
+    ],
+    "icon": {
+      "atlas": "worldsettings",
+      "x": 3,
+      "y": 6
+    }
+  },
+  {
+    "key": "evergreen_regrowth",
+    "label": "常青树",
+    "category": "settings",
+    "group": "resources",
+    "groupLabel": "资源再生",
+    "worlds": [
+      "master",
+      "caves"
+    ],
+    "defaultValue": "default",
+    "choices": [
+      {
+        "value": "never",
+        "label": "无"
+      },
+      {
+        "value": "veryslow",
+        "label": "非常慢"
+      },
+      {
+        "value": "slow",
+        "label": "慢"
+      },
+      {
+        "value": "default",
+        "label": "默认"
+      },
+      {
+        "value": "fast",
+        "label": "快"
+      },
+      {
+        "value": "veryfast",
+        "label": "非常快"
+      }
+    ],
+    "icon": {
+      "atlas": "worldsettings",
+      "x": 5,
+      "y": 2
+    }
+  },
+  {
+    "key": "twiggytrees_regrowth",
+    "label": "多枝树",
+    "category": "settings",
+    "group": "resources",
+    "groupLabel": "资源再生",
+    "worlds": [
+      "master",
+      "caves"
+    ],
+    "defaultValue": "default",
+    "choices": [
+      {
+        "value": "never",
+        "label": "无"
+      },
+      {
+        "value": "veryslow",
+        "label": "非常慢"
+      },
+      {
+        "value": "slow",
+        "label": "慢"
+      },
+      {
+        "value": "default",
+        "label": "默认"
+      },
+      {
+        "value": "fast",
+        "label": "快"
+      },
+      {
+        "value": "veryfast",
+        "label": "非常快"
+      }
+    ],
+    "icon": {
+      "atlas": "worldsettings",
+      "x": 13,
+      "y": 8
+    }
+  },
+  {
+    "key": "lightflier_flower_regrowth",
+    "label": "光虫花",
+    "category": "settings",
+    "group": "resources",
+    "groupLabel": "资源再生",
+    "worlds": [
+      "caves"
+    ],
+    "defaultValue": "default",
+    "choices": [
+      {
+        "value": "never",
+        "label": "无"
+      },
+      {
+        "value": "veryslow",
+        "label": "非常慢"
+      },
+      {
+        "value": "slow",
+        "label": "慢"
+      },
+      {
+        "value": "default",
+        "label": "默认"
+      },
+      {
+        "value": "fast",
+        "label": "快"
+      },
+      {
+        "value": "veryfast",
+        "label": "非常快"
+      }
+    ],
+    "icon": {
+      "atlas": "worldsettings",
+      "x": 2,
+      "y": 4
+    }
+  },
+  {
+    "key": "carrots_regrowth",
+    "label": "胡萝卜",
+    "category": "settings",
+    "group": "resources",
+    "groupLabel": "资源再生",
+    "worlds": [
+      "master"
+    ],
+    "defaultValue": "default",
+    "choices": [
+      {
+        "value": "never",
+        "label": "无"
+      },
+      {
+        "value": "veryslow",
+        "label": "非常慢"
+      },
+      {
+        "value": "slow",
+        "label": "慢"
+      },
+      {
+        "value": "default",
+        "label": "默认"
+      },
+      {
+        "value": "fast",
+        "label": "快"
+      },
+      {
+        "value": "veryfast",
+        "label": "非常快"
+      }
+    ],
+    "icon": {
+      "atlas": "worldsettings",
+      "x": 3,
+      "y": 1
+    }
+  },
+  {
+    "key": "flowers_regrowth",
+    "label": "花",
+    "category": "settings",
+    "group": "resources",
+    "groupLabel": "资源再生",
+    "worlds": [
+      "master"
+    ],
+    "defaultValue": "default",
+    "choices": [
+      {
+        "value": "never",
+        "label": "无"
+      },
+      {
+        "value": "veryslow",
+        "label": "非常慢"
+      },
+      {
+        "value": "slow",
+        "label": "慢"
+      },
+      {
+        "value": "default",
+        "label": "默认"
+      },
+      {
+        "value": "fast",
+        "label": "快"
+      },
+      {
+        "value": "veryfast",
+        "label": "非常快"
+      }
+    ],
+    "icon": {
+      "atlas": "worldsettings",
+      "x": 10,
+      "y": 2
+    }
+  },
+  {
+    "key": "deciduoustree_regrowth",
+    "label": "桦栗树",
+    "category": "settings",
+    "group": "resources",
+    "groupLabel": "资源再生",
+    "worlds": [
+      "master"
+    ],
+    "defaultValue": "default",
+    "choices": [
+      {
+        "value": "never",
+        "label": "无"
+      },
+      {
+        "value": "veryslow",
+        "label": "非常慢"
+      },
+      {
+        "value": "slow",
+        "label": "慢"
+      },
+      {
+        "value": "default",
+        "label": "默认"
+      },
+      {
+        "value": "fast",
+        "label": "快"
+      },
+      {
+        "value": "veryfast",
+        "label": "非常快"
+      }
+    ],
+    "icon": {
+      "atlas": "worldsettings",
+      "x": 14,
+      "y": 1
+    }
+  },
+  {
+    "key": "basicresource_regrowth",
+    "label": "基础资源",
+    "category": "settings",
+    "group": "resources",
+    "groupLabel": "资源再生",
+    "worlds": [
+      "master"
+    ],
+    "defaultValue": "none",
+    "choices": [
+      {
+        "value": "none",
+        "label": "关闭"
+      },
+      {
+        "value": "always",
+        "label": "开启"
+      }
+    ],
+    "icon": {
+      "atlas": "worldsettings",
+      "x": 6,
+      "y": 0
+    }
+  },
+  {
+    "key": "tree_rock_regrowth",
+    "label": "巨石枝",
+    "category": "settings",
+    "group": "resources",
+    "groupLabel": "资源再生",
+    "worlds": [
+      "caves"
+    ],
+    "defaultValue": "default",
+    "choices": [
+      {
+        "value": "never",
+        "label": "无"
+      },
+      {
+        "value": "veryslow",
+        "label": "非常慢"
+      },
+      {
+        "value": "slow",
+        "label": "慢"
+      },
+      {
+        "value": "default",
+        "label": "默认"
+      },
+      {
+        "value": "fast",
+        "label": "快"
+      },
+      {
+        "value": "veryfast",
+        "label": "非常快"
+      }
+    ],
+    "icon": {
+      "atlas": "worldsettings",
+      "x": 12,
+      "y": 8
+    }
+  },
+  {
+    "key": "reeds_regrowth",
+    "label": "芦苇",
+    "category": "settings",
+    "group": "resources",
+    "groupLabel": "资源再生",
+    "worlds": [
+      "master",
+      "caves"
+    ],
+    "defaultValue": "default",
+    "choices": [
+      {
+        "value": "never",
+        "label": "无"
+      },
+      {
+        "value": "veryslow",
+        "label": "非常慢"
+      },
+      {
+        "value": "slow",
+        "label": "慢"
+      },
+      {
+        "value": "default",
+        "label": "默认"
+      },
+      {
+        "value": "fast",
+        "label": "快"
+      },
+      {
+        "value": "veryfast",
+        "label": "非常快"
+      }
+    ],
+    "icon": {
+      "atlas": "worldsettings",
+      "x": 15,
+      "y": 6
+    }
+  },
+  {
+    "key": "mushtree_regrowth",
+    "label": "蘑菇树",
+    "category": "settings",
+    "group": "resources",
+    "groupLabel": "资源再生",
+    "worlds": [
+      "caves"
+    ],
+    "defaultValue": "default",
+    "choices": [
+      {
+        "value": "never",
+        "label": "无"
+      },
+      {
+        "value": "veryslow",
+        "label": "非常慢"
+      },
+      {
+        "value": "slow",
+        "label": "慢"
+      },
+      {
+        "value": "default",
+        "label": "默认"
+      },
+      {
+        "value": "fast",
+        "label": "快"
+      },
+      {
+        "value": "veryfast",
+        "label": "非常快"
+      }
+    ],
+    "icon": {
+      "atlas": "worldsettings",
+      "x": 5,
+      "y": 5
+    }
+  },
+  {
+    "key": "cactus_regrowth",
+    "label": "仙人掌",
+    "category": "settings",
+    "group": "resources",
+    "groupLabel": "资源再生",
+    "worlds": [
+      "master"
+    ],
+    "defaultValue": "default",
+    "choices": [
+      {
+        "value": "never",
+        "label": "无"
+      },
+      {
+        "value": "veryslow",
+        "label": "非常慢"
+      },
+      {
+        "value": "slow",
+        "label": "慢"
+      },
+      {
+        "value": "default",
+        "label": "默认"
+      },
+      {
+        "value": "fast",
+        "label": "快"
+      },
+      {
+        "value": "veryfast",
+        "label": "非常快"
+      }
+    ],
+    "icon": {
+      "atlas": "worldsettings",
+      "x": 2,
+      "y": 1
+    }
+  },
+  {
+    "key": "saltstack_regrowth",
+    "label": "盐堆",
+    "category": "settings",
+    "group": "resources",
+    "groupLabel": "资源再生",
+    "worlds": [
+      "master"
+    ],
+    "defaultValue": "default",
+    "choices": [
+      {
+        "value": "never",
+        "label": "无"
+      },
+      {
+        "value": "veryslow",
+        "label": "非常慢"
+      },
+      {
+        "value": "slow",
+        "label": "慢"
+      },
+      {
+        "value": "default",
+        "label": "默认"
+      },
+      {
+        "value": "fast",
+        "label": "快"
+      },
+      {
+        "value": "veryfast",
+        "label": "非常快"
+      }
+    ],
+    "icon": {
+      "atlas": "worldsettings",
+      "x": 3,
+      "y": 7
+    }
+  },
+  {
+    "key": "flower_cave_regrowth",
+    "label": "荧光花",
+    "category": "settings",
+    "group": "resources",
+    "groupLabel": "资源再生",
+    "worlds": [
+      "caves"
+    ],
+    "defaultValue": "default",
+    "choices": [
+      {
+        "value": "never",
+        "label": "无"
+      },
+      {
+        "value": "veryslow",
+        "label": "非常慢"
+      },
+      {
+        "value": "slow",
+        "label": "慢"
+      },
+      {
+        "value": "default",
+        "label": "默认"
+      },
+      {
+        "value": "fast",
+        "label": "快"
+      },
+      {
+        "value": "veryfast",
+        "label": "非常快"
+      }
+    ],
+    "icon": {
+      "atlas": "worldsettings",
+      "x": 11,
+      "y": 2
+    }
+  },
+  {
+    "key": "mushtree_moon_regrowth",
+    "label": "月亮蘑菇树",
+    "category": "settings",
+    "group": "resources",
+    "groupLabel": "资源再生",
+    "worlds": [
+      "caves"
+    ],
+    "defaultValue": "default",
+    "choices": [
+      {
+        "value": "never",
+        "label": "无"
+      },
+      {
+        "value": "veryslow",
+        "label": "非常慢"
+      },
+      {
+        "value": "slow",
+        "label": "慢"
+      },
+      {
+        "value": "default",
+        "label": "默认"
+      },
+      {
+        "value": "fast",
+        "label": "快"
+      },
+      {
+        "value": "veryfast",
+        "label": "非常快"
+      }
+    ],
+    "icon": {
+      "atlas": "worldsettings",
+      "x": 6,
+      "y": 5
+    }
+  },
+  {
+    "key": "moon_tree_regrowth",
+    "label": "月树",
+    "category": "settings",
+    "group": "resources",
+    "groupLabel": "资源再生",
+    "worlds": [
+      "master"
+    ],
+    "defaultValue": "default",
+    "choices": [
+      {
+        "value": "never",
+        "label": "无"
+      },
+      {
+        "value": "veryslow",
+        "label": "非常慢"
+      },
+      {
+        "value": "slow",
+        "label": "慢"
+      },
+      {
+        "value": "default",
+        "label": "默认"
+      },
+      {
+        "value": "fast",
+        "label": "快"
+      },
+      {
+        "value": "veryfast",
+        "label": "非常快"
+      }
+    ],
+    "icon": {
+      "atlas": "worldsettings",
+      "x": 2,
+      "y": 5
+    }
+  },
+  {
+    "key": "regrowth",
+    "label": "再生速度",
+    "category": "settings",
+    "group": "resources",
+    "groupLabel": "资源再生",
+    "worlds": [
+      "master",
+      "caves"
+    ],
+    "defaultValue": "default",
+    "choices": [
+      {
+        "value": "never",
+        "label": "无"
+      },
+      {
+        "value": "veryslow",
+        "label": "非常慢"
+      },
+      {
+        "value": "slow",
+        "label": "慢"
+      },
+      {
+        "value": "default",
+        "label": "默认"
+      },
+      {
+        "value": "fast",
+        "label": "快"
+      },
+      {
+        "value": "veryfast",
+        "label": "非常快"
+      }
+    ],
+    "icon": {
+      "atlas": "worldsettings",
+      "x": 0,
+      "y": 7
+    }
+  },
+  {
+    "key": "palmconetree_regrowth",
+    "label": "棕榈松果树",
+    "category": "settings",
+    "group": "resources",
+    "groupLabel": "资源再生",
+    "worlds": [
+      "master"
+    ],
+    "defaultValue": "default",
+    "choices": [
+      {
+        "value": "never",
+        "label": "无"
+      },
+      {
+        "value": "veryslow",
+        "label": "非常慢"
+      },
+      {
+        "value": "slow",
+        "label": "慢"
+      },
+      {
+        "value": "default",
+        "label": "默认"
+      },
+      {
+        "value": "fast",
+        "label": "快"
+      },
+      {
+        "value": "veryfast",
+        "label": "非常快"
+      }
+    ],
+    "icon": {
+      "atlas": "worldsettings",
+      "x": 2,
+      "y": 6
+    }
+  },
+  {
+    "key": "extrastartingitems",
+    "label": "额外起始资源",
+    "category": "settings",
+    "group": "survivors",
+    "groupLabel": "冒险家",
+    "worlds": [
+      "master"
+    ],
+    "defaultValue": "default",
+    "choices": [
+      {
+        "value": "0",
+        "label": "总是"
+      },
+      {
+        "value": "5",
+        "label": "第 5 天"
+      },
+      {
+        "value": "default",
+        "label": "第 10 天"
+      },
+      {
+        "value": "15",
+        "label": "第 15 天"
+      },
+      {
+        "value": "20",
+        "label": "第 20 天"
+      },
+      {
+        "value": "none",
+        "label": "从不"
+      }
+    ],
+    "icon": {
+      "atlas": "worldsettings",
+      "x": 6,
+      "y": 2
+    }
+  },
+  {
+    "key": "spawnprotection",
+    "label": "防骚扰出生保护",
+    "category": "settings",
+    "group": "survivors",
+    "groupLabel": "冒险家",
+    "worlds": [
+      "master"
+    ],
+    "defaultValue": "default",
+    "choices": [
+      {
+        "value": "never",
+        "label": "关闭"
+      },
+      {
+        "value": "default",
+        "label": "自动"
+      },
+      {
+        "value": "always",
+        "label": "开启"
+      }
+    ],
+    "icon": {
+      "atlas": "worldsettings",
+      "x": 14,
+      "y": 7
+    }
+  },
+  {
+    "key": "darkness",
+    "label": "黑暗伤害",
+    "category": "settings",
+    "group": "survivors",
+    "groupLabel": "冒险家",
+    "worlds": [
+      "master"
+    ],
+    "defaultValue": "default",
+    "choices": [
+      {
+        "value": "nonlethal",
+        "label": "非致命"
+      },
+      {
+        "value": "default",
+        "label": "默认"
+      }
+    ],
+    "icon": {
+      "atlas": "worldsettings",
+      "x": 9,
+      "y": 1
+    }
+  },
+  {
+    "key": "hunger",
+    "label": "饥饿伤害",
+    "category": "settings",
+    "group": "survivors",
+    "groupLabel": "冒险家",
+    "worlds": [
+      "master"
+    ],
+    "defaultValue": "default",
+    "choices": [
+      {
+        "value": "nonlethal",
+        "label": "非致命"
+      },
+      {
+        "value": "default",
+        "label": "默认"
+      }
+    ],
+    "icon": {
+      "atlas": "worldsettings",
+      "x": 9,
+      "y": 3
+    }
+  },
+  {
+    "key": "seasonalstartingitems",
+    "label": "季节起始物品",
+    "category": "settings",
+    "group": "survivors",
+    "groupLabel": "冒险家",
+    "worlds": [
+      "master"
+    ],
+    "defaultValue": "default",
+    "choices": [
+      {
+        "value": "never",
+        "label": "关闭"
+      },
+      {
+        "value": "default",
+        "label": "默认"
+      }
+    ],
+    "icon": {
+      "atlas": "worldsettings",
+      "x": 5,
+      "y": 7
+    }
+  },
+  {
+    "key": "dropeverythingondespawn",
+    "label": "离开游戏后物品掉落",
+    "category": "settings",
+    "group": "survivors",
+    "groupLabel": "冒险家",
+    "worlds": [
+      "master"
+    ],
+    "defaultValue": "default",
+    "choices": [
+      {
+        "value": "default",
+        "label": "默认"
+      },
+      {
+        "value": "always",
+        "label": "全部掉落"
+      }
+    ],
+    "icon": {
+      "atlas": "worldsettings",
+      "x": 1,
+      "y": 2
+    }
+  },
+  {
+    "key": "shadowcreatures",
+    "label": "理智怪兽",
+    "category": "settings",
+    "group": "survivors",
+    "groupLabel": "冒险家",
+    "worlds": [
+      "master"
+    ],
+    "defaultValue": "default",
+    "choices": [
+      {
+        "value": "never",
+        "label": "无"
+      },
+      {
+        "value": "rare",
+        "label": "很少"
+      },
+      {
+        "value": "default",
+        "label": "默认"
+      },
+      {
+        "value": "often",
+        "label": "较多"
+      },
+      {
+        "value": "always",
+        "label": "大量"
+      }
+    ],
+    "icon": {
+      "atlas": "worldsettings",
+      "x": 6,
+      "y": 7
+    }
+  },
+  {
+    "key": "brightmarecreatures",
+    "label": "启蒙怪兽",
+    "category": "settings",
+    "group": "survivors",
+    "groupLabel": "冒险家",
+    "worlds": [
+      "master"
+    ],
+    "defaultValue": "default",
+    "choices": [
+      {
+        "value": "never",
+        "label": "无"
+      },
+      {
+        "value": "rare",
+        "label": "很少"
+      },
+      {
+        "value": "default",
+        "label": "默认"
+      },
+      {
+        "value": "often",
+        "label": "较多"
+      },
+      {
+        "value": "always",
+        "label": "大量"
+      }
+    ],
+    "icon": {
+      "atlas": "worldsettings",
+      "x": 15,
+      "y": 0
+    }
+  },
+  {
+    "key": "healthpenalty",
+    "label": "生命值上限惩罚",
+    "category": "settings",
+    "group": "survivors",
+    "groupLabel": "冒险家",
+    "worlds": [
+      "master"
+    ],
+    "defaultValue": "always",
+    "choices": [
+      {
+        "value": "none",
+        "label": "关闭"
+      },
+      {
+        "value": "always",
+        "label": "开启"
+      }
+    ],
+    "icon": {
+      "atlas": "worldsettings",
+      "x": 6,
+      "y": 3
+    }
+  },
+  {
+    "key": "temperaturedamage",
+    "label": "温度伤害",
+    "category": "settings",
+    "group": "survivors",
+    "groupLabel": "冒险家",
+    "worlds": [
+      "master"
+    ],
+    "defaultValue": "default",
+    "choices": [
+      {
+        "value": "nonlethal",
+        "label": "非致命"
+      },
+      {
+        "value": "default",
+        "label": "默认"
+      }
+    ],
+    "icon": {
+      "atlas": "worldsettings",
+      "x": 9,
+      "y": 8
+    }
+  },
+  {
+    "key": "slurper",
+    "label": "啜食者",
+    "category": "worldgen",
+    "group": "animals",
+    "groupLabel": "生物以及刷新点",
+    "worlds": [
+      "caves"
+    ],
+    "defaultValue": "default",
+    "choices": [
+      {
+        "value": "never",
+        "label": "无"
+      },
+      {
+        "value": "rare",
+        "label": "很少"
+      },
+      {
+        "value": "uncommon",
+        "label": "较少"
+      },
+      {
+        "value": "default",
+        "label": "默认"
+      },
+      {
+        "value": "often",
+        "label": "较多"
+      },
+      {
+        "value": "mostly",
+        "label": "很多"
+      },
+      {
+        "value": "always",
+        "label": "大量"
+      },
+      {
+        "value": "insane",
+        "label": "疯狂"
+      }
+    ],
+    "icon": {
+      "atlas": "worldgen",
+      "x": 15,
+      "y": 3
+    }
+  },
+  {
+    "key": "lightninggoat",
+    "label": "伏特羊",
+    "category": "worldgen",
+    "group": "animals",
+    "groupLabel": "生物以及刷新点",
+    "worlds": [
+      "master"
+    ],
+    "defaultValue": "default",
+    "choices": [
+      {
+        "value": "never",
+        "label": "无"
+      },
+      {
+        "value": "rare",
+        "label": "很少"
+      },
+      {
+        "value": "uncommon",
+        "label": "较少"
+      },
+      {
+        "value": "default",
+        "label": "默认"
+      },
+      {
+        "value": "often",
+        "label": "较多"
+      },
+      {
+        "value": "mostly",
+        "label": "很多"
+      },
+      {
+        "value": "always",
+        "label": "大量"
+      },
+      {
+        "value": "insane",
+        "label": "疯狂"
+      }
+    ],
+    "icon": {
+      "atlas": "worldgen",
+      "x": 9,
+      "y": 1
+    }
+  },
+  {
+    "key": "moon_carrot",
+    "label": "胡萝卜鼠",
+    "category": "worldgen",
+    "group": "animals",
+    "groupLabel": "生物以及刷新点",
+    "worlds": [
+      "master"
+    ],
+    "defaultValue": "default",
+    "choices": [
+      {
+        "value": "never",
+        "label": "无"
+      },
+      {
+        "value": "rare",
+        "label": "很少"
+      },
+      {
+        "value": "uncommon",
+        "label": "较少"
+      },
+      {
+        "value": "default",
+        "label": "默认"
+      },
+      {
+        "value": "often",
+        "label": "较多"
+      },
+      {
+        "value": "mostly",
+        "label": "很多"
+      },
+      {
+        "value": "always",
+        "label": "大量"
+      },
+      {
+        "value": "insane",
+        "label": "疯狂"
+      }
+    ],
+    "icon": {
+      "atlas": "worldgen",
+      "x": 1,
+      "y": 2
+    }
+  },
+  {
+    "key": "catcoon",
+    "label": "空心树桩",
+    "category": "worldgen",
+    "group": "animals",
+    "groupLabel": "生物以及刷新点",
+    "worlds": [
+      "master"
+    ],
+    "defaultValue": "default",
+    "choices": [
+      {
+        "value": "never",
+        "label": "无"
+      },
+      {
+        "value": "rare",
+        "label": "很少"
+      },
+      {
+        "value": "uncommon",
+        "label": "较少"
+      },
+      {
+        "value": "default",
+        "label": "默认"
+      },
+      {
+        "value": "often",
+        "label": "较多"
+      },
+      {
+        "value": "mostly",
+        "label": "很多"
+      },
+      {
+        "value": "always",
+        "label": "大量"
+      },
+      {
+        "value": "insane",
+        "label": "疯狂"
+      }
+    ],
+    "icon": {
+      "atlas": "worldgen",
+      "x": 11,
+      "y": 0
+    }
+  },
+  {
+    "key": "slurtles",
+    "label": "蛞蝓龟窝",
+    "category": "worldgen",
+    "group": "animals",
+    "groupLabel": "生物以及刷新点",
+    "worlds": [
+      "caves"
+    ],
+    "defaultValue": "default",
+    "choices": [
+      {
+        "value": "never",
+        "label": "无"
+      },
+      {
+        "value": "rare",
+        "label": "很少"
+      },
+      {
+        "value": "uncommon",
+        "label": "较少"
+      },
+      {
+        "value": "default",
+        "label": "默认"
+      },
+      {
+        "value": "often",
+        "label": "较多"
+      },
+      {
+        "value": "mostly",
+        "label": "很多"
+      },
+      {
+        "value": "always",
+        "label": "大量"
+      },
+      {
+        "value": "insane",
+        "label": "疯狂"
+      }
+    ],
+    "icon": {
+      "atlas": "worldgen",
+      "x": 0,
+      "y": 4
+    }
+  },
+  {
+    "key": "ocean_wobsterden",
+    "label": "龙虾窝",
+    "category": "worldgen",
+    "group": "animals",
+    "groupLabel": "生物以及刷新点",
+    "worlds": [
+      "master"
+    ],
+    "defaultValue": "default",
+    "choices": [
+      {
+        "value": "never",
+        "label": "无"
+      },
+      {
+        "value": "rare",
+        "label": "很少"
+      },
+      {
+        "value": "uncommon",
+        "label": "较少"
+      },
+      {
+        "value": "default",
+        "label": "默认"
+      },
+      {
+        "value": "often",
+        "label": "较多"
+      },
+      {
+        "value": "mostly",
+        "label": "很多"
+      },
+      {
+        "value": "always",
+        "label": "大量"
+      },
+      {
+        "value": "insane",
+        "label": "疯狂"
+      }
+    ],
+    "icon": {
+      "atlas": "worldgen",
+      "x": 1,
+      "y": 3
+    }
+  },
+  {
+    "key": "bees",
+    "label": "蜜蜂蜂窝",
+    "category": "worldgen",
+    "group": "animals",
+    "groupLabel": "生物以及刷新点",
+    "worlds": [
+      "master"
+    ],
+    "defaultValue": "default",
+    "choices": [
+      {
+        "value": "never",
+        "label": "无"
+      },
+      {
+        "value": "rare",
+        "label": "很少"
+      },
+      {
+        "value": "uncommon",
+        "label": "较少"
+      },
+      {
+        "value": "default",
+        "label": "默认"
+      },
+      {
+        "value": "often",
+        "label": "较多"
+      },
+      {
+        "value": "mostly",
+        "label": "很多"
+      },
+      {
+        "value": "always",
+        "label": "大量"
+      },
+      {
+        "value": "insane",
+        "label": "疯狂"
+      }
+    ],
+    "icon": {
+      "atlas": "worldgen",
+      "x": 4,
+      "y": 0
+    }
+  },
+  {
+    "key": "beefalo",
+    "label": "皮弗娄牛",
+    "category": "worldgen",
+    "group": "animals",
+    "groupLabel": "生物以及刷新点",
+    "worlds": [
+      "master"
+    ],
+    "defaultValue": "default",
+    "choices": [
+      {
+        "value": "never",
+        "label": "无"
+      },
+      {
+        "value": "rare",
+        "label": "很少"
+      },
+      {
+        "value": "uncommon",
+        "label": "较少"
+      },
+      {
+        "value": "default",
+        "label": "默认"
+      },
+      {
+        "value": "often",
+        "label": "较多"
+      },
+      {
+        "value": "mostly",
+        "label": "很多"
+      },
+      {
+        "value": "always",
+        "label": "大量"
+      },
+      {
+        "value": "insane",
+        "label": "疯狂"
+      }
+    ],
+    "icon": {
+      "atlas": "worldgen",
+      "x": 3,
+      "y": 0
+    }
+  },
+  {
+    "key": "moon_fruitdragon",
+    "label": "沙拉蝾螈",
+    "category": "worldgen",
+    "group": "animals",
+    "groupLabel": "生物以及刷新点",
+    "worlds": [
+      "master"
+    ],
+    "defaultValue": "default",
+    "choices": [
+      {
+        "value": "never",
+        "label": "无"
+      },
+      {
+        "value": "rare",
+        "label": "很少"
+      },
+      {
+        "value": "uncommon",
+        "label": "较少"
+      },
+      {
+        "value": "default",
+        "label": "默认"
+      },
+      {
+        "value": "often",
+        "label": "较多"
+      },
+      {
+        "value": "mostly",
+        "label": "很多"
+      },
+      {
+        "value": "always",
+        "label": "大量"
+      },
+      {
+        "value": "insane",
+        "label": "疯狂"
+      }
+    ],
+    "icon": {
+      "atlas": "worldgen",
+      "x": 3,
+      "y": 2
+    }
+  },
+  {
+    "key": "rocky",
+    "label": "石虾",
+    "category": "worldgen",
+    "group": "animals",
+    "groupLabel": "生物以及刷新点",
+    "worlds": [
+      "caves"
+    ],
+    "defaultValue": "default",
+    "choices": [
+      {
+        "value": "never",
+        "label": "无"
+      },
+      {
+        "value": "rare",
+        "label": "很少"
+      },
+      {
+        "value": "uncommon",
+        "label": "较少"
+      },
+      {
+        "value": "default",
+        "label": "默认"
+      },
+      {
+        "value": "often",
+        "label": "较多"
+      },
+      {
+        "value": "mostly",
+        "label": "很多"
+      },
+      {
+        "value": "always",
+        "label": "大量"
+      },
+      {
+        "value": "insane",
+        "label": "疯狂"
+      }
+    ],
+    "icon": {
+      "atlas": "worldgen",
+      "x": 9,
+      "y": 3
+    }
+  },
+  {
+    "key": "ocean_otterdens",
+    "label": "水獭掠夺者窝点",
+    "category": "worldgen",
+    "group": "animals",
+    "groupLabel": "生物以及刷新点",
+    "worlds": [
+      "master"
+    ],
+    "defaultValue": "default",
+    "choices": [
+      {
+        "value": "never",
+        "label": "无"
+      },
+      {
+        "value": "rare",
+        "label": "很少"
+      },
+      {
+        "value": "uncommon",
+        "label": "较少"
+      },
+      {
+        "value": "default",
+        "label": "默认"
+      },
+      {
+        "value": "often",
+        "label": "较多"
+      },
+      {
+        "value": "mostly",
+        "label": "很多"
+      },
+      {
+        "value": "always",
+        "label": "大量"
+      },
+      {
+        "value": "insane",
+        "label": "疯狂"
+      }
+    ],
+    "icon": {
+      "atlas": "worldgen",
+      "x": 13,
+      "y": 2
+    }
+  },
+  {
+    "key": "buzzard",
+    "label": "秃鹫",
+    "category": "worldgen",
+    "group": "animals",
+    "groupLabel": "生物以及刷新点",
+    "worlds": [
+      "master"
+    ],
+    "defaultValue": "default",
+    "choices": [
+      {
+        "value": "never",
+        "label": "无"
+      },
+      {
+        "value": "rare",
+        "label": "很少"
+      },
+      {
+        "value": "uncommon",
+        "label": "较少"
+      },
+      {
+        "value": "default",
+        "label": "默认"
+      },
+      {
+        "value": "often",
+        "label": "较多"
+      },
+      {
+        "value": "mostly",
+        "label": "很多"
+      },
+      {
+        "value": "always",
+        "label": "大量"
+      },
+      {
+        "value": "insane",
+        "label": "疯狂"
+      }
+    ],
+    "icon": {
+      "atlas": "worldgen",
+      "x": 8,
+      "y": 0
+    }
+  },
+  {
+    "key": "rabbits",
+    "label": "兔洞",
+    "category": "worldgen",
+    "group": "animals",
+    "groupLabel": "生物以及刷新点",
+    "worlds": [
+      "master"
+    ],
+    "defaultValue": "default",
+    "choices": [
+      {
+        "value": "never",
+        "label": "无"
+      },
+      {
+        "value": "rare",
+        "label": "很少"
+      },
+      {
+        "value": "uncommon",
+        "label": "较少"
+      },
+      {
+        "value": "default",
+        "label": "默认"
+      },
+      {
+        "value": "often",
+        "label": "较多"
+      },
+      {
+        "value": "mostly",
+        "label": "很多"
+      },
+      {
+        "value": "always",
+        "label": "大量"
+      },
+      {
+        "value": "insane",
+        "label": "疯狂"
+      }
+    ],
+    "icon": {
+      "atlas": "worldgen",
+      "x": 5,
+      "y": 3
+    }
+  },
+  {
+    "key": "bunnymen",
+    "label": "兔屋",
+    "category": "worldgen",
+    "group": "animals",
+    "groupLabel": "生物以及刷新点",
+    "worlds": [
+      "caves"
+    ],
+    "defaultValue": "default",
+    "choices": [
+      {
+        "value": "never",
+        "label": "无"
+      },
+      {
+        "value": "rare",
+        "label": "很少"
+      },
+      {
+        "value": "uncommon",
+        "label": "较少"
+      },
+      {
+        "value": "default",
+        "label": "默认"
+      },
+      {
+        "value": "often",
+        "label": "较多"
+      },
+      {
+        "value": "mostly",
+        "label": "很多"
+      },
+      {
+        "value": "always",
+        "label": "大量"
+      },
+      {
+        "value": "insane",
+        "label": "疯狂"
+      }
+    ],
+    "icon": {
+      "atlas": "worldgen",
+      "x": 6,
+      "y": 0
+    }
+  },
+  {
+    "key": "monkey",
+    "label": "穴居猴桶",
+    "category": "worldgen",
+    "group": "animals",
+    "groupLabel": "生物以及刷新点",
+    "worlds": [
+      "caves"
+    ],
+    "defaultValue": "default",
+    "choices": [
+      {
+        "value": "never",
+        "label": "无"
+      },
+      {
+        "value": "rare",
+        "label": "很少"
+      },
+      {
+        "value": "uncommon",
+        "label": "较少"
+      },
+      {
+        "value": "default",
+        "label": "默认"
+      },
+      {
+        "value": "often",
+        "label": "较多"
+      },
+      {
+        "value": "mostly",
+        "label": "很多"
+      },
+      {
+        "value": "always",
+        "label": "大量"
+      },
+      {
+        "value": "insane",
+        "label": "疯狂"
+      }
+    ],
+    "icon": {
+      "atlas": "worldgen",
+      "x": 14,
+      "y": 1
+    }
+  },
+  {
+    "key": "moles",
+    "label": "鼹鼠丘",
+    "category": "worldgen",
+    "group": "animals",
+    "groupLabel": "生物以及刷新点",
+    "worlds": [
+      "master"
+    ],
+    "defaultValue": "default",
+    "choices": [
+      {
+        "value": "never",
+        "label": "无"
+      },
+      {
+        "value": "rare",
+        "label": "很少"
+      },
+      {
+        "value": "uncommon",
+        "label": "较少"
+      },
+      {
+        "value": "default",
+        "label": "默认"
+      },
+      {
+        "value": "often",
+        "label": "较多"
+      },
+      {
+        "value": "mostly",
+        "label": "很多"
+      },
+      {
+        "value": "always",
+        "label": "大量"
+      },
+      {
+        "value": "insane",
+        "label": "疯狂"
+      }
+    ],
+    "icon": {
+      "atlas": "worldgen",
+      "x": 13,
+      "y": 1
+    }
+  },
+  {
+    "key": "ocean_shoal",
+    "label": "鱼群",
+    "category": "worldgen",
+    "group": "animals",
+    "groupLabel": "生物以及刷新点",
+    "worlds": [
+      "master"
+    ],
+    "defaultValue": "default",
+    "choices": [
+      {
+        "value": "never",
+        "label": "无"
+      },
+      {
+        "value": "rare",
+        "label": "很少"
+      },
+      {
+        "value": "uncommon",
+        "label": "较少"
+      },
+      {
+        "value": "default",
+        "label": "默认"
+      },
+      {
+        "value": "often",
+        "label": "较多"
+      },
+      {
+        "value": "mostly",
+        "label": "很多"
+      },
+      {
+        "value": "always",
+        "label": "大量"
+      },
+      {
+        "value": "insane",
+        "label": "疯狂"
+      }
+    ],
+    "icon": {
+      "atlas": "worldgen",
+      "x": 15,
+      "y": 2
+    }
+  },
+  {
+    "key": "pigs",
+    "label": "猪屋",
+    "category": "worldgen",
+    "group": "animals",
+    "groupLabel": "生物以及刷新点",
+    "worlds": [
+      "master"
+    ],
+    "defaultValue": "default",
+    "choices": [
+      {
+        "value": "never",
+        "label": "无"
+      },
+      {
+        "value": "rare",
+        "label": "很少"
+      },
+      {
+        "value": "uncommon",
+        "label": "较少"
+      },
+      {
+        "value": "default",
+        "label": "默认"
+      },
+      {
+        "value": "often",
+        "label": "较多"
+      },
+      {
+        "value": "mostly",
+        "label": "很多"
+      },
+      {
+        "value": "always",
+        "label": "大量"
+      },
+      {
+        "value": "insane",
+        "label": "疯狂"
+      }
+    ],
+    "icon": {
+      "atlas": "worldgen",
+      "x": 3,
+      "y": 3
+    }
+  },
+  {
+    "key": "season_start",
+    "label": "起始季节",
+    "category": "worldgen",
+    "group": "global",
+    "groupLabel": "全局",
+    "worlds": [
+      "master"
+    ],
+    "defaultValue": "default",
+    "choices": [
+      {
+        "value": "default",
+        "label": "默认"
+      },
+      {
+        "value": "winter",
+        "label": "冬季"
+      },
+      {
+        "value": "spring",
+        "label": "春季"
+      },
+      {
+        "value": "summer",
+        "label": "夏季"
+      },
+      {
+        "value": "autumn|spring",
+        "label": "秋季或春季"
+      },
+      {
+        "value": "winter|summer",
+        "label": "冬季或夏季"
+      },
+      {
+        "value": "autumn|winter|spring|summer",
+        "label": "随机"
+      }
+    ],
+    "icon": {
+      "atlas": "worldgen",
+      "x": 13,
+      "y": 3
+    }
+  },
+  {
+    "key": "start_location",
+    "label": "出生点",
+    "category": "worldgen",
+    "group": "misc",
+    "groupLabel": "世界",
+    "worlds": [
+      "master",
+      "caves"
+    ],
+    "defaultValue": "default",
+    "choices": [
+      {
+        "value": "default",
+        "label": "默认"
+      },
+      {
+        "value": "plus",
+        "label": "额外资源"
+      },
+      {
+        "value": "darkness",
+        "label": "黑暗"
+      },
+      {
+        "value": "caves",
+        "label": "洞穴"
+      }
+    ],
+    "icon": {
+      "atlas": "worldgen",
+      "x": 0,
+      "y": 5
+    }
+  },
+  {
+    "key": "roads",
+    "label": "道路",
+    "category": "worldgen",
+    "group": "misc",
+    "groupLabel": "世界",
+    "worlds": [
+      "master"
+    ],
+    "defaultValue": "default",
+    "choices": [
+      {
+        "value": "never",
+        "label": "关闭"
+      },
+      {
+        "value": "default",
+        "label": "默认"
+      }
+    ],
+    "icon": {
+      "atlas": "worldgen",
+      "x": 7,
+      "y": 3
+    }
+  },
+  {
+    "key": "cavelight",
+    "label": "洞穴光照",
+    "category": "worldgen",
+    "group": "misc",
+    "groupLabel": "世界",
+    "worlds": [
+      "caves"
+    ],
+    "defaultValue": "default",
+    "choices": [
+      {
+        "value": "never",
+        "label": "无"
+      },
+      {
+        "value": "veryslow",
+        "label": "非常慢"
+      },
+      {
+        "value": "slow",
+        "label": "慢"
+      },
+      {
+        "value": "default",
+        "label": "默认"
+      },
+      {
+        "value": "fast",
+        "label": "快"
+      },
+      {
+        "value": "veryfast",
+        "label": "非常快"
+      }
+    ],
+    "icon": {
+      "atlas": "worldgen",
+      "x": 12,
+      "y": 0
+    }
+  },
+  {
+    "key": "branching",
+    "label": "分支",
+    "category": "worldgen",
+    "group": "misc",
+    "groupLabel": "世界",
+    "worlds": [
+      "master",
+      "caves"
+    ],
+    "defaultValue": "default",
+    "choices": [
+      {
+        "value": "never",
+        "label": "无"
+      },
+      {
+        "value": "least",
+        "label": "最少"
+      },
+      {
+        "value": "default",
+        "label": "默认"
+      },
+      {
+        "value": "most",
+        "label": "最多"
+      },
+      {
+        "value": "random",
+        "label": "随机"
+      }
+    ],
+    "icon": {
+      "atlas": "worldgen",
+      "x": 12,
+      "y": 4
+    }
+  },
+  {
+    "key": "terrariumchest",
+    "label": "盒中泰拉",
+    "category": "worldgen",
+    "group": "misc",
+    "groupLabel": "世界",
+    "worlds": [
+      "master"
+    ],
+    "defaultValue": "default",
+    "choices": [
+      {
+        "value": "never",
+        "label": "关闭"
+      },
+      {
+        "value": "default",
+        "label": "默认"
+      }
+    ],
+    "icon": {
+      "atlas": "worldgen",
+      "x": 6,
+      "y": 4
+    }
+  },
+  {
+    "key": "loop",
+    "label": "环形",
+    "category": "worldgen",
+    "group": "misc",
+    "groupLabel": "世界",
+    "worlds": [
+      "master",
+      "caves"
+    ],
+    "defaultValue": "default",
+    "choices": [
+      {
+        "value": "never",
+        "label": "无"
+      },
+      {
+        "value": "default",
+        "label": "默认"
+      },
+      {
+        "value": "always",
+        "label": "始终"
+      }
+    ],
+    "icon": {
+      "atlas": "worldgen",
+      "x": 13,
+      "y": 4
+    }
+  },
+  {
+    "key": "prefabswaps_start",
+    "label": "开始资源多样化",
+    "category": "worldgen",
+    "group": "misc",
+    "groupLabel": "世界",
+    "worlds": [
+      "master",
+      "caves"
+    ],
+    "defaultValue": "default",
+    "choices": [
+      {
+        "value": "classic",
+        "label": "经典"
+      },
+      {
+        "value": "default",
+        "label": "默认"
+      },
+      {
+        "value": "highly random",
+        "label": "高度随机"
+      }
+    ],
+    "icon": {
+      "atlas": "worldgen",
+      "x": 3,
+      "y": 4
+    }
+  },
+  {
+    "key": "junkyard",
+    "label": "垃圾场",
+    "category": "worldgen",
+    "group": "misc",
+    "groupLabel": "世界",
+    "worlds": [
+      "master"
+    ],
+    "defaultValue": "default",
+    "choices": [
+      {
+        "value": "never",
+        "label": "关闭"
+      },
+      {
+        "value": "default",
+        "label": "默认"
+      }
+    ],
+    "icon": {
+      "atlas": "worldgen",
+      "x": 7,
+      "y": 1
+    }
+  },
+  {
+    "key": "task_set",
+    "label": "生物群落",
+    "category": "worldgen",
+    "group": "misc",
+    "groupLabel": "世界",
+    "worlds": [
+      "master",
+      "caves"
+    ],
+    "defaultValue": "default",
+    "choices": [
+      {
+        "value": "default",
+        "label": "默认"
+      },
+      {
+        "value": "classic",
+        "label": "经典"
+      },
+      {
+        "value": "cave_default",
+        "label": "默认洞穴"
+      }
+    ],
+    "icon": {
+      "atlas": "worldgen",
+      "x": 14,
+      "y": 4
+    }
+  },
+  {
+    "key": "boons",
+    "label": "失败的冒险家",
+    "category": "worldgen",
+    "group": "misc",
+    "groupLabel": "世界",
+    "worlds": [
+      "master",
+      "caves"
+    ],
+    "defaultValue": "default",
+    "choices": [
+      {
+        "value": "never",
+        "label": "无"
+      },
+      {
+        "value": "rare",
+        "label": "很少"
+      },
+      {
+        "value": "uncommon",
+        "label": "较少"
+      },
+      {
+        "value": "default",
+        "label": "默认"
+      },
+      {
+        "value": "often",
+        "label": "较多"
+      },
+      {
+        "value": "mostly",
+        "label": "很多"
+      },
+      {
+        "value": "always",
+        "label": "大量"
+      },
+      {
+        "value": "insane",
+        "label": "疯狂"
+      }
+    ],
+    "icon": {
+      "atlas": "worldgen",
+      "x": 14,
+      "y": 3
+    }
+  },
+  {
+    "key": "world_size",
+    "label": "世界大小",
+    "category": "worldgen",
+    "group": "misc",
+    "groupLabel": "世界",
+    "worlds": [
+      "master",
+      "caves"
+    ],
+    "defaultValue": "default",
+    "choices": [
+      {
+        "value": "small",
+        "label": "小"
+      },
+      {
+        "value": "medium",
+        "label": "中"
+      },
+      {
+        "value": "default",
+        "label": "大（默认）"
+      },
+      {
+        "value": "huge",
+        "label": "巨大"
+      }
+    ],
+    "icon": {
+      "atlas": "worldgen",
+      "x": 15,
+      "y": 4
+    }
+  },
+  {
+    "key": "touchstone",
+    "label": "试金石",
+    "category": "worldgen",
+    "group": "misc",
+    "groupLabel": "世界",
+    "worlds": [
+      "master",
+      "caves"
+    ],
+    "defaultValue": "default",
+    "choices": [
+      {
+        "value": "never",
+        "label": "无"
+      },
+      {
+        "value": "rare",
+        "label": "很少"
+      },
+      {
+        "value": "uncommon",
+        "label": "较少"
+      },
+      {
+        "value": "default",
+        "label": "默认"
+      },
+      {
+        "value": "often",
+        "label": "较多"
+      },
+      {
+        "value": "mostly",
+        "label": "很多"
+      },
+      {
+        "value": "always",
+        "label": "大量"
+      },
+      {
+        "value": "insane",
+        "label": "疯狂"
+      }
+    ],
+    "icon": {
+      "atlas": "worldgen",
+      "x": 7,
+      "y": 4
+    }
+  },
+  {
+    "key": "moon_fissure",
+    "label": "天体裂缝",
+    "category": "worldgen",
+    "group": "misc",
+    "groupLabel": "世界",
+    "worlds": [
+      "master"
+    ],
+    "defaultValue": "default",
+    "choices": [
+      {
+        "value": "never",
+        "label": "无"
+      },
+      {
+        "value": "rare",
+        "label": "很少"
+      },
+      {
+        "value": "uncommon",
+        "label": "较少"
+      },
+      {
+        "value": "default",
+        "label": "默认"
+      },
+      {
+        "value": "often",
+        "label": "较多"
+      },
+      {
+        "value": "mostly",
+        "label": "很多"
+      },
+      {
+        "value": "always",
+        "label": "大量"
+      },
+      {
+        "value": "insane",
+        "label": "疯狂"
+      }
+    ],
+    "icon": {
+      "atlas": "worldgen",
+      "x": 2,
+      "y": 2
+    }
+  },
+  {
+    "key": "stageplays",
+    "label": "舞台剧",
+    "category": "worldgen",
+    "group": "misc",
+    "groupLabel": "世界",
+    "worlds": [
+      "master"
+    ],
+    "defaultValue": "default",
+    "choices": [
+      {
+        "value": "never",
+        "label": "关闭"
+      },
+      {
+        "value": "default",
+        "label": "默认"
+      }
+    ],
+    "icon": {
+      "atlas": "worldgen",
+      "x": 2,
+      "y": 4
+    }
+  },
+  {
+    "key": "balatro",
+    "label": "小丑",
+    "category": "worldgen",
+    "group": "misc",
+    "groupLabel": "世界",
+    "worlds": [
+      "master"
+    ],
+    "defaultValue": "default",
+    "choices": [
+      {
+        "value": "never",
+        "label": "关闭"
+      },
+      {
+        "value": "default",
+        "label": "默认"
+      }
+    ],
+    "icon": {
+      "atlas": "worldgen",
+      "x": 0,
+      "y": 0
+    }
+  },
+  {
+    "key": "bats",
+    "label": "蝙蝠",
+    "category": "worldgen",
+    "group": "monsters",
+    "groupLabel": "敌对生物以及刷新点",
+    "worlds": [
+      "caves"
+    ],
+    "defaultValue": "default",
+    "choices": [
+      {
+        "value": "never",
+        "label": "无"
+      },
+      {
+        "value": "rare",
+        "label": "很少"
+      },
+      {
+        "value": "uncommon",
+        "label": "较少"
+      },
+      {
+        "value": "default",
+        "label": "默认"
+      },
+      {
+        "value": "often",
+        "label": "较多"
+      },
+      {
+        "value": "mostly",
+        "label": "很多"
+      },
+      {
+        "value": "always",
+        "label": "大量"
+      },
+      {
+        "value": "insane",
+        "label": "疯狂"
+      }
+    ],
+    "icon": {
+      "atlas": "worldgen",
+      "x": 2,
+      "y": 0
+    }
+  },
+  {
+    "key": "tentacles",
+    "label": "触手",
+    "category": "worldgen",
+    "group": "monsters",
+    "groupLabel": "敌对生物以及刷新点",
+    "worlds": [
+      "master",
+      "caves"
+    ],
+    "defaultValue": "default",
+    "choices": [
+      {
+        "value": "never",
+        "label": "无"
+      },
+      {
+        "value": "rare",
+        "label": "很少"
+      },
+      {
+        "value": "uncommon",
+        "label": "较少"
+      },
+      {
+        "value": "default",
+        "label": "默认"
+      },
+      {
+        "value": "often",
+        "label": "较多"
+      },
+      {
+        "value": "mostly",
+        "label": "很多"
+      },
+      {
+        "value": "always",
+        "label": "大量"
+      },
+      {
+        "value": "insane",
+        "label": "疯狂"
+      }
+    ],
+    "icon": {
+      "atlas": "worldgen",
+      "x": 5,
+      "y": 4
+    }
+  },
+  {
+    "key": "worms",
+    "label": "洞穴蠕虫",
+    "category": "worldgen",
+    "group": "monsters",
+    "groupLabel": "敌对生物以及刷新点",
+    "worlds": [
+      "caves"
+    ],
+    "defaultValue": "default",
+    "choices": [
+      {
+        "value": "never",
+        "label": "无"
+      },
+      {
+        "value": "rare",
+        "label": "很少"
+      },
+      {
+        "value": "uncommon",
+        "label": "较少"
+      },
+      {
+        "value": "default",
+        "label": "默认"
+      },
+      {
+        "value": "often",
+        "label": "较多"
+      },
+      {
+        "value": "mostly",
+        "label": "很多"
+      },
+      {
+        "value": "always",
+        "label": "大量"
+      },
+      {
+        "value": "insane",
+        "label": "疯狂"
+      }
+    ],
+    "icon": {
+      "atlas": "worldgen",
+      "x": 2,
+      "y": 5
+    }
+  },
+  {
+    "key": "chess",
+    "label": "发条装置",
+    "category": "worldgen",
+    "group": "monsters",
+    "groupLabel": "敌对生物以及刷新点",
+    "worlds": [
+      "master",
+      "caves"
+    ],
+    "defaultValue": "default",
+    "choices": [
+      {
+        "value": "never",
+        "label": "无"
+      },
+      {
+        "value": "rare",
+        "label": "很少"
+      },
+      {
+        "value": "uncommon",
+        "label": "较少"
+      },
+      {
+        "value": "default",
+        "label": "默认"
+      },
+      {
+        "value": "often",
+        "label": "较多"
+      },
+      {
+        "value": "mostly",
+        "label": "很多"
+      },
+      {
+        "value": "always",
+        "label": "大量"
+      },
+      {
+        "value": "insane",
+        "label": "疯狂"
+      }
+    ],
+    "icon": {
+      "atlas": "worldgen",
+      "x": 14,
+      "y": 0
+    }
+  },
+  {
+    "key": "tallbirds",
+    "label": "高脚鸟",
+    "category": "worldgen",
+    "group": "monsters",
+    "groupLabel": "敌对生物以及刷新点",
+    "worlds": [
+      "master"
+    ],
+    "defaultValue": "default",
+    "choices": [
+      {
+        "value": "never",
+        "label": "无"
+      },
+      {
+        "value": "rare",
+        "label": "很少"
+      },
+      {
+        "value": "uncommon",
+        "label": "较少"
+      },
+      {
+        "value": "default",
+        "label": "默认"
+      },
+      {
+        "value": "often",
+        "label": "较多"
+      },
+      {
+        "value": "mostly",
+        "label": "很多"
+      },
+      {
+        "value": "always",
+        "label": "大量"
+      },
+      {
+        "value": "insane",
+        "label": "疯狂"
+      }
+    ],
+    "icon": {
+      "atlas": "worldgen",
+      "x": 4,
+      "y": 4
+    }
+  },
+  {
+    "key": "ocean_waterplant",
+    "label": "海草",
+    "category": "worldgen",
+    "group": "monsters",
+    "groupLabel": "敌对生物以及刷新点",
+    "worlds": [
+      "master"
+    ],
+    "defaultValue": "ocean_default",
+    "choices": [
+      {
+        "value": "ocean_never",
+        "label": "无"
+      },
+      {
+        "value": "ocean_rare",
+        "label": "很少"
+      },
+      {
+        "value": "ocean_uncommon",
+        "label": "较少"
+      },
+      {
+        "value": "ocean_default",
+        "label": "默认"
+      },
+      {
+        "value": "ocean_often",
+        "label": "较多"
+      },
+      {
+        "value": "ocean_mostly",
+        "label": "很多"
+      },
+      {
+        "value": "ocean_always",
+        "label": "大量"
+      },
+      {
+        "value": "ocean_insane",
+        "label": "疯狂"
+      }
+    ],
+    "icon": {
+      "atlas": "worldgen",
+      "x": 0,
+      "y": 3
+    }
+  },
+  {
+    "key": "walrus",
+    "label": "海象营地",
+    "category": "worldgen",
+    "group": "monsters",
+    "groupLabel": "敌对生物以及刷新点",
+    "worlds": [
+      "master"
+    ],
+    "defaultValue": "default",
+    "choices": [
+      {
+        "value": "never",
+        "label": "无"
+      },
+      {
+        "value": "rare",
+        "label": "很少"
+      },
+      {
+        "value": "uncommon",
+        "label": "较少"
+      },
+      {
+        "value": "default",
+        "label": "默认"
+      },
+      {
+        "value": "often",
+        "label": "较多"
+      },
+      {
+        "value": "mostly",
+        "label": "很多"
+      },
+      {
+        "value": "always",
+        "label": "大量"
+      },
+      {
+        "value": "insane",
+        "label": "疯狂"
+      }
+    ],
+    "icon": {
+      "atlas": "worldgen",
+      "x": 10,
+      "y": 1
+    }
+  },
+  {
+    "key": "houndmound",
+    "label": "猎犬丘",
+    "category": "worldgen",
+    "group": "monsters",
+    "groupLabel": "敌对生物以及刷新点",
+    "worlds": [
+      "master"
+    ],
+    "defaultValue": "default",
+    "choices": [
+      {
+        "value": "never",
+        "label": "无"
+      },
+      {
+        "value": "rare",
+        "label": "很少"
+      },
+      {
+        "value": "uncommon",
+        "label": "较少"
+      },
+      {
+        "value": "default",
+        "label": "默认"
+      },
+      {
+        "value": "often",
+        "label": "较多"
+      },
+      {
+        "value": "mostly",
+        "label": "很多"
+      },
+      {
+        "value": "always",
+        "label": "大量"
+      },
+      {
+        "value": "insane",
+        "label": "疯狂"
+      }
+    ],
+    "icon": {
+      "atlas": "worldgen",
+      "x": 5,
+      "y": 1
+    }
+  },
+  {
+    "key": "merm",
+    "label": "漏雨的小屋",
+    "category": "worldgen",
+    "group": "monsters",
+    "groupLabel": "敌对生物以及刷新点",
+    "worlds": [
+      "master"
+    ],
+    "defaultValue": "default",
+    "choices": [
+      {
+        "value": "never",
+        "label": "无"
+      },
+      {
+        "value": "rare",
+        "label": "很少"
+      },
+      {
+        "value": "uncommon",
+        "label": "较少"
+      },
+      {
+        "value": "default",
+        "label": "默认"
+      },
+      {
+        "value": "often",
+        "label": "较多"
+      },
+      {
+        "value": "mostly",
+        "label": "很多"
+      },
+      {
+        "value": "always",
+        "label": "大量"
+      },
+      {
+        "value": "insane",
+        "label": "疯狂"
+      }
+    ],
+    "icon": {
+      "atlas": "worldgen",
+      "x": 12,
+      "y": 1
+    }
+  },
+  {
+    "key": "fissure",
+    "label": "梦魇裂缝",
+    "category": "worldgen",
+    "group": "monsters",
+    "groupLabel": "敌对生物以及刷新点",
+    "worlds": [
+      "caves"
+    ],
+    "defaultValue": "default",
+    "choices": [
+      {
+        "value": "never",
+        "label": "无"
+      },
+      {
+        "value": "rare",
+        "label": "很少"
+      },
+      {
+        "value": "uncommon",
+        "label": "较少"
+      },
+      {
+        "value": "default",
+        "label": "默认"
+      },
+      {
+        "value": "often",
+        "label": "较多"
+      },
+      {
+        "value": "mostly",
+        "label": "很多"
+      },
+      {
+        "value": "always",
+        "label": "大量"
+      },
+      {
+        "value": "insane",
+        "label": "疯狂"
+      }
+    ],
+    "icon": {
+      "atlas": "worldgen",
+      "x": 0,
+      "y": 1
+    }
+  },
+  {
+    "key": "moon_spiders",
+    "label": "破碎蜘蛛洞",
+    "category": "worldgen",
+    "group": "monsters",
+    "groupLabel": "敌对生物以及刷新点",
+    "worlds": [
+      "master"
+    ],
+    "defaultValue": "default",
+    "choices": [
+      {
+        "value": "never",
+        "label": "无"
+      },
+      {
+        "value": "rare",
+        "label": "很少"
+      },
+      {
+        "value": "uncommon",
+        "label": "较少"
+      },
+      {
+        "value": "default",
+        "label": "默认"
+      },
+      {
+        "value": "often",
+        "label": "较多"
+      },
+      {
+        "value": "mostly",
+        "label": "很多"
+      },
+      {
+        "value": "always",
+        "label": "大量"
+      },
+      {
+        "value": "insane",
+        "label": "疯狂"
+      }
+    ],
+    "icon": {
+      "atlas": "worldgen",
+      "x": 7,
+      "y": 2
+    }
+  },
+  {
+    "key": "angrybees",
+    "label": "杀人蜂蜂窝",
+    "category": "worldgen",
+    "group": "monsters",
+    "groupLabel": "敌对生物以及刷新点",
+    "worlds": [
+      "master"
+    ],
+    "defaultValue": "default",
+    "choices": [
+      {
+        "value": "never",
+        "label": "无"
+      },
+      {
+        "value": "rare",
+        "label": "很少"
+      },
+      {
+        "value": "uncommon",
+        "label": "较少"
+      },
+      {
+        "value": "default",
+        "label": "默认"
+      },
+      {
+        "value": "often",
+        "label": "较多"
+      },
+      {
+        "value": "mostly",
+        "label": "很多"
+      },
+      {
+        "value": "always",
+        "label": "大量"
+      },
+      {
+        "value": "insane",
+        "label": "疯狂"
+      }
+    ],
+    "icon": {
+      "atlas": "worldgen",
+      "x": 11,
+      "y": 4
+    }
+  },
+  {
+    "key": "spiders",
+    "label": "蜘蛛巢",
+    "category": "worldgen",
+    "group": "monsters",
+    "groupLabel": "敌对生物以及刷新点",
+    "worlds": [
+      "master",
+      "caves"
+    ],
+    "defaultValue": "default",
+    "choices": [
+      {
+        "value": "never",
+        "label": "无"
+      },
+      {
+        "value": "rare",
+        "label": "很少"
+      },
+      {
+        "value": "uncommon",
+        "label": "较少"
+      },
+      {
+        "value": "default",
+        "label": "默认"
+      },
+      {
+        "value": "often",
+        "label": "较多"
+      },
+      {
+        "value": "mostly",
+        "label": "很多"
+      },
+      {
+        "value": "always",
+        "label": "大量"
+      },
+      {
+        "value": "insane",
+        "label": "疯狂"
+      }
+    ],
+    "icon": {
+      "atlas": "worldgen",
+      "x": 1,
+      "y": 4
+    }
+  },
+  {
+    "key": "cave_spiders",
+    "label": "蛛网岩",
+    "category": "worldgen",
+    "group": "monsters",
+    "groupLabel": "敌对生物以及刷新点",
+    "worlds": [
+      "caves"
+    ],
+    "defaultValue": "default",
+    "choices": [
+      {
+        "value": "never",
+        "label": "无"
+      },
+      {
+        "value": "rare",
+        "label": "很少"
+      },
+      {
+        "value": "uncommon",
+        "label": "较少"
+      },
+      {
+        "value": "default",
+        "label": "默认"
+      },
+      {
+        "value": "often",
+        "label": "较多"
+      },
+      {
+        "value": "mostly",
+        "label": "很多"
+      },
+      {
+        "value": "always",
+        "label": "大量"
+      },
+      {
+        "value": "insane",
+        "label": "疯狂"
+      }
+    ],
+    "icon": {
+      "atlas": "worldgen",
+      "x": 13,
+      "y": 0
+    }
+  },
+  {
+    "key": "grass",
+    "label": "草",
+    "category": "worldgen",
+    "group": "resources",
+    "groupLabel": "资源",
+    "worlds": [
+      "master",
+      "caves"
+    ],
+    "defaultValue": "default",
+    "choices": [
+      {
+        "value": "never",
+        "label": "无"
+      },
+      {
+        "value": "rare",
+        "label": "很少"
+      },
+      {
+        "value": "uncommon",
+        "label": "较少"
+      },
+      {
+        "value": "default",
+        "label": "默认"
+      },
+      {
+        "value": "often",
+        "label": "较多"
+      },
+      {
+        "value": "mostly",
+        "label": "很多"
+      },
+      {
+        "value": "always",
+        "label": "大量"
+      },
+      {
+        "value": "insane",
+        "label": "疯狂"
+      }
+    ],
+    "icon": {
+      "atlas": "worldgen",
+      "x": 4,
+      "y": 1
+    }
+  },
+  {
+    "key": "ponds",
+    "label": "池塘",
+    "category": "worldgen",
+    "group": "resources",
+    "groupLabel": "资源",
+    "worlds": [
+      "master"
+    ],
+    "defaultValue": "default",
+    "choices": [
+      {
+        "value": "never",
+        "label": "无"
+      },
+      {
+        "value": "rare",
+        "label": "很少"
+      },
+      {
+        "value": "uncommon",
+        "label": "较少"
+      },
+      {
+        "value": "default",
+        "label": "默认"
+      },
+      {
+        "value": "often",
+        "label": "较多"
+      },
+      {
+        "value": "mostly",
+        "label": "很多"
+      },
+      {
+        "value": "always",
+        "label": "大量"
+      },
+      {
+        "value": "insane",
+        "label": "疯狂"
+      }
+    ],
+    "icon": {
+      "atlas": "worldgen",
+      "x": 4,
+      "y": 3
+    }
+  },
+  {
+    "key": "cave_ponds",
+    "label": "池塘",
+    "category": "worldgen",
+    "group": "resources",
+    "groupLabel": "资源",
+    "worlds": [
+      "caves"
+    ],
+    "defaultValue": "default",
+    "choices": [
+      {
+        "value": "never",
+        "label": "无"
+      },
+      {
+        "value": "rare",
+        "label": "很少"
+      },
+      {
+        "value": "uncommon",
+        "label": "较少"
+      },
+      {
+        "value": "default",
+        "label": "默认"
+      },
+      {
+        "value": "often",
+        "label": "较多"
+      },
+      {
+        "value": "mostly",
+        "label": "很多"
+      },
+      {
+        "value": "always",
+        "label": "大量"
+      },
+      {
+        "value": "insane",
+        "label": "疯狂"
+      }
+    ],
+    "icon": {
+      "atlas": "worldgen",
+      "x": 4,
+      "y": 3
+    }
+  },
+  {
+    "key": "fern",
+    "label": "洞穴蕨类",
+    "category": "worldgen",
+    "group": "resources",
+    "groupLabel": "资源",
+    "worlds": [
+      "caves"
+    ],
+    "defaultValue": "default",
+    "choices": [
+      {
+        "value": "never",
+        "label": "无"
+      },
+      {
+        "value": "rare",
+        "label": "很少"
+      },
+      {
+        "value": "uncommon",
+        "label": "较少"
+      },
+      {
+        "value": "default",
+        "label": "默认"
+      },
+      {
+        "value": "often",
+        "label": "较多"
+      },
+      {
+        "value": "mostly",
+        "label": "很多"
+      },
+      {
+        "value": "always",
+        "label": "大量"
+      },
+      {
+        "value": "insane",
+        "label": "疯狂"
+      }
+    ],
+    "icon": {
+      "atlas": "worldgen",
+      "x": 15,
+      "y": 0
+    }
+  },
+  {
+    "key": "wormlights",
+    "label": "发光浆果",
+    "category": "worldgen",
+    "group": "resources",
+    "groupLabel": "资源",
+    "worlds": [
+      "caves"
+    ],
+    "defaultValue": "default",
+    "choices": [
+      {
+        "value": "never",
+        "label": "无"
+      },
+      {
+        "value": "rare",
+        "label": "很少"
+      },
+      {
+        "value": "uncommon",
+        "label": "较少"
+      },
+      {
+        "value": "default",
+        "label": "默认"
+      },
+      {
+        "value": "often",
+        "label": "较多"
+      },
+      {
+        "value": "mostly",
+        "label": "很多"
+      },
+      {
+        "value": "always",
+        "label": "大量"
+      },
+      {
+        "value": "insane",
+        "label": "疯狂"
+      }
+    ],
+    "icon": {
+      "atlas": "worldgen",
+      "x": 1,
+      "y": 5
+    }
+  },
+  {
+    "key": "tumbleweed",
+    "label": "风滚草",
+    "category": "worldgen",
+    "group": "resources",
+    "groupLabel": "资源",
+    "worlds": [
+      "master"
+    ],
+    "defaultValue": "default",
+    "choices": [
+      {
+        "value": "never",
+        "label": "无"
+      },
+      {
+        "value": "rare",
+        "label": "很少"
+      },
+      {
+        "value": "uncommon",
+        "label": "较少"
+      },
+      {
+        "value": "default",
+        "label": "默认"
+      },
+      {
+        "value": "often",
+        "label": "较多"
+      },
+      {
+        "value": "mostly",
+        "label": "很多"
+      },
+      {
+        "value": "always",
+        "label": "大量"
+      },
+      {
+        "value": "insane",
+        "label": "疯狂"
+      }
+    ],
+    "icon": {
+      "atlas": "worldgen",
+      "x": 10,
+      "y": 4
+    }
+  },
+  {
+    "key": "ocean_bullkelp",
+    "label": "公牛海带",
+    "category": "worldgen",
+    "group": "resources",
+    "groupLabel": "资源",
+    "worlds": [
+      "master"
+    ],
+    "defaultValue": "default",
+    "choices": [
+      {
+        "value": "never",
+        "label": "无"
+      },
+      {
+        "value": "rare",
+        "label": "很少"
+      },
+      {
+        "value": "uncommon",
+        "label": "较少"
+      },
+      {
+        "value": "default",
+        "label": "默认"
+      },
+      {
+        "value": "often",
+        "label": "较多"
+      },
+      {
+        "value": "mostly",
+        "label": "很多"
+      },
+      {
+        "value": "always",
+        "label": "大量"
+      },
+      {
+        "value": "insane",
+        "label": "疯狂"
+      }
+    ],
+    "icon": {
+      "atlas": "worldgen",
+      "x": 12,
+      "y": 2
+    }
+  },
+  {
+    "key": "moon_bullkelp",
+    "label": "海岸公牛海带",
+    "category": "worldgen",
+    "group": "resources",
+    "groupLabel": "资源",
+    "worlds": [
+      "master"
+    ],
+    "defaultValue": "default",
+    "choices": [
+      {
+        "value": "never",
+        "label": "无"
+      },
+      {
+        "value": "rare",
+        "label": "很少"
+      },
+      {
+        "value": "uncommon",
+        "label": "较少"
+      },
+      {
+        "value": "default",
+        "label": "默认"
+      },
+      {
+        "value": "often",
+        "label": "较多"
+      },
+      {
+        "value": "mostly",
+        "label": "很多"
+      },
+      {
+        "value": "always",
+        "label": "大量"
+      },
+      {
+        "value": "insane",
+        "label": "疯狂"
+      }
+    ],
+    "icon": {
+      "atlas": "worldgen",
+      "x": 0,
+      "y": 2
+    }
+  },
+  {
+    "key": "ocean_seastack",
+    "label": "海蚀柱",
+    "category": "worldgen",
+    "group": "resources",
+    "groupLabel": "资源",
+    "worlds": [
+      "master"
+    ],
+    "defaultValue": "ocean_default",
+    "choices": [
+      {
+        "value": "ocean_never",
+        "label": "无"
+      },
+      {
+        "value": "ocean_rare",
+        "label": "很少"
+      },
+      {
+        "value": "ocean_uncommon",
+        "label": "较少"
+      },
+      {
+        "value": "ocean_default",
+        "label": "默认"
+      },
+      {
+        "value": "ocean_often",
+        "label": "较多"
+      },
+      {
+        "value": "ocean_mostly",
+        "label": "很多"
+      },
+      {
+        "value": "ocean_always",
+        "label": "大量"
+      },
+      {
+        "value": "ocean_insane",
+        "label": "疯狂"
+      }
+    ],
+    "icon": {
+      "atlas": "worldgen",
+      "x": 14,
+      "y": 2
+    }
+  },
+  {
+    "key": "moon_starfish",
+    "label": "海星",
+    "category": "worldgen",
+    "group": "resources",
+    "groupLabel": "资源",
+    "worlds": [
+      "master"
+    ],
+    "defaultValue": "default",
+    "choices": [
+      {
+        "value": "never",
+        "label": "无"
+      },
+      {
+        "value": "rare",
+        "label": "很少"
+      },
+      {
+        "value": "uncommon",
+        "label": "较少"
+      },
+      {
+        "value": "default",
+        "label": "默认"
+      },
+      {
+        "value": "often",
+        "label": "较多"
+      },
+      {
+        "value": "mostly",
+        "label": "很多"
+      },
+      {
+        "value": "always",
+        "label": "大量"
+      },
+      {
+        "value": "insane",
+        "label": "疯狂"
+      }
+    ],
+    "icon": {
+      "atlas": "worldgen",
+      "x": 8,
+      "y": 2
+    }
+  },
+  {
+    "key": "carrot",
+    "label": "胡萝卜",
+    "category": "worldgen",
+    "group": "resources",
+    "groupLabel": "资源",
+    "worlds": [
+      "master"
+    ],
+    "defaultValue": "default",
+    "choices": [
+      {
+        "value": "never",
+        "label": "无"
+      },
+      {
+        "value": "rare",
+        "label": "很少"
+      },
+      {
+        "value": "uncommon",
+        "label": "较少"
+      },
+      {
+        "value": "default",
+        "label": "默认"
+      },
+      {
+        "value": "often",
+        "label": "较多"
+      },
+      {
+        "value": "mostly",
+        "label": "很多"
+      },
+      {
+        "value": "always",
+        "label": "大量"
+      },
+      {
+        "value": "insane",
+        "label": "疯狂"
+      }
+    ],
+    "icon": {
+      "atlas": "worldgen",
+      "x": 10,
+      "y": 0
+    }
+  },
+  {
+    "key": "flowers",
+    "label": "花，邪恶花",
+    "category": "worldgen",
+    "group": "resources",
+    "groupLabel": "资源",
+    "worlds": [
+      "master"
+    ],
+    "defaultValue": "default",
+    "choices": [
+      {
+        "value": "never",
+        "label": "无"
+      },
+      {
+        "value": "rare",
+        "label": "很少"
+      },
+      {
+        "value": "uncommon",
+        "label": "较少"
+      },
+      {
+        "value": "default",
+        "label": "默认"
+      },
+      {
+        "value": "often",
+        "label": "较多"
+      },
+      {
+        "value": "mostly",
+        "label": "很多"
+      },
+      {
+        "value": "always",
+        "label": "大量"
+      },
+      {
+        "value": "insane",
+        "label": "疯狂"
+      }
+    ],
+    "icon": {
+      "atlas": "worldgen",
+      "x": 2,
+      "y": 1
+    }
+  },
+  {
+    "key": "marshbush",
+    "label": "尖刺灌木",
+    "category": "worldgen",
+    "group": "resources",
+    "groupLabel": "资源",
+    "worlds": [
+      "master",
+      "caves"
+    ],
+    "defaultValue": "default",
+    "choices": [
+      {
+        "value": "never",
+        "label": "无"
+      },
+      {
+        "value": "rare",
+        "label": "很少"
+      },
+      {
+        "value": "uncommon",
+        "label": "较少"
+      },
+      {
+        "value": "default",
+        "label": "默认"
+      },
+      {
+        "value": "often",
+        "label": "较多"
+      },
+      {
+        "value": "mostly",
+        "label": "很多"
+      },
+      {
+        "value": "always",
+        "label": "大量"
+      },
+      {
+        "value": "insane",
+        "label": "疯狂"
+      }
+    ],
+    "icon": {
+      "atlas": "worldgen",
+      "x": 11,
+      "y": 1
+    }
+  },
+  {
+    "key": "berrybush",
+    "label": "浆果丛",
+    "category": "worldgen",
+    "group": "resources",
+    "groupLabel": "资源",
+    "worlds": [
+      "master",
+      "caves"
+    ],
+    "defaultValue": "default",
+    "choices": [
+      {
+        "value": "never",
+        "label": "无"
+      },
+      {
+        "value": "rare",
+        "label": "很少"
+      },
+      {
+        "value": "uncommon",
+        "label": "较少"
+      },
+      {
+        "value": "default",
+        "label": "默认"
+      },
+      {
+        "value": "often",
+        "label": "较多"
+      },
+      {
+        "value": "mostly",
+        "label": "很多"
+      },
+      {
+        "value": "always",
+        "label": "大量"
+      },
+      {
+        "value": "insane",
+        "label": "疯狂"
+      }
+    ],
+    "icon": {
+      "atlas": "worldgen",
+      "x": 5,
+      "y": 0
+    }
+  },
+  {
+    "key": "rock",
+    "label": "巨石",
+    "category": "worldgen",
+    "group": "resources",
+    "groupLabel": "资源",
+    "worlds": [
+      "master",
+      "caves"
+    ],
+    "defaultValue": "default",
+    "choices": [
+      {
+        "value": "never",
+        "label": "无"
+      },
+      {
+        "value": "rare",
+        "label": "很少"
+      },
+      {
+        "value": "uncommon",
+        "label": "较少"
+      },
+      {
+        "value": "default",
+        "label": "默认"
+      },
+      {
+        "value": "often",
+        "label": "较多"
+      },
+      {
+        "value": "mostly",
+        "label": "很多"
+      },
+      {
+        "value": "always",
+        "label": "大量"
+      },
+      {
+        "value": "insane",
+        "label": "疯狂"
+      }
+    ],
+    "icon": {
+      "atlas": "worldgen",
+      "x": 8,
+      "y": 3
+    }
+  },
+  {
+    "key": "tree_rock",
+    "label": "巨石枝",
+    "category": "worldgen",
+    "group": "resources",
+    "groupLabel": "资源",
+    "worlds": [
+      "caves"
+    ],
+    "defaultValue": "default",
+    "choices": [
+      {
+        "value": "never",
+        "label": "无"
+      },
+      {
+        "value": "rare",
+        "label": "很少"
+      },
+      {
+        "value": "uncommon",
+        "label": "较少"
+      },
+      {
+        "value": "default",
+        "label": "默认"
+      },
+      {
+        "value": "often",
+        "label": "较多"
+      },
+      {
+        "value": "mostly",
+        "label": "很多"
+      },
+      {
+        "value": "always",
+        "label": "大量"
+      },
+      {
+        "value": "insane",
+        "label": "疯狂"
+      }
+    ],
+    "icon": {
+      "atlas": "worldgen",
+      "x": 9,
+      "y": 4
+    }
+  },
+  {
+    "key": "meteorspawner",
+    "label": "流星区域",
+    "category": "worldgen",
+    "group": "resources",
+    "groupLabel": "资源",
+    "worlds": [
+      "master"
+    ],
+    "defaultValue": "default",
+    "choices": [
+      {
+        "value": "never",
+        "label": "无"
+      },
+      {
+        "value": "rare",
+        "label": "很少"
+      },
+      {
+        "value": "uncommon",
+        "label": "较少"
+      },
+      {
+        "value": "default",
+        "label": "默认"
+      },
+      {
+        "value": "often",
+        "label": "较多"
+      },
+      {
+        "value": "mostly",
+        "label": "很多"
+      },
+      {
+        "value": "always",
+        "label": "大量"
+      },
+      {
+        "value": "insane",
+        "label": "疯狂"
+      }
+    ],
+    "icon": {
+      "atlas": "worldgen",
+      "x": 7,
+      "y": 0
+    }
+  },
+  {
+    "key": "reeds",
+    "label": "芦苇",
+    "category": "worldgen",
+    "group": "resources",
+    "groupLabel": "资源",
+    "worlds": [
+      "master",
+      "caves"
+    ],
+    "defaultValue": "default",
+    "choices": [
+      {
+        "value": "never",
+        "label": "无"
+      },
+      {
+        "value": "rare",
+        "label": "很少"
+      },
+      {
+        "value": "uncommon",
+        "label": "较少"
+      },
+      {
+        "value": "default",
+        "label": "默认"
+      },
+      {
+        "value": "often",
+        "label": "较多"
+      },
+      {
+        "value": "mostly",
+        "label": "很多"
+      },
+      {
+        "value": "always",
+        "label": "大量"
+      },
+      {
+        "value": "insane",
+        "label": "疯狂"
+      }
+    ],
+    "icon": {
+      "atlas": "worldgen",
+      "x": 6,
+      "y": 3
+    }
+  },
+  {
+    "key": "rock_ice",
+    "label": "迷你冰川",
+    "category": "worldgen",
+    "group": "resources",
+    "groupLabel": "资源",
+    "worlds": [
+      "master"
+    ],
+    "defaultValue": "default",
+    "choices": [
+      {
+        "value": "never",
+        "label": "无"
+      },
+      {
+        "value": "rare",
+        "label": "很少"
+      },
+      {
+        "value": "uncommon",
+        "label": "较少"
+      },
+      {
+        "value": "default",
+        "label": "默认"
+      },
+      {
+        "value": "often",
+        "label": "较多"
+      },
+      {
+        "value": "mostly",
+        "label": "很多"
+      },
+      {
+        "value": "always",
+        "label": "大量"
+      },
+      {
+        "value": "insane",
+        "label": "疯狂"
+      }
+    ],
+    "icon": {
+      "atlas": "worldgen",
+      "x": 6,
+      "y": 1
+    }
+  },
+  {
+    "key": "mushroom",
+    "label": "蘑菇",
+    "category": "worldgen",
+    "group": "resources",
+    "groupLabel": "资源",
+    "worlds": [
+      "master",
+      "caves"
+    ],
+    "defaultValue": "default",
+    "choices": [
+      {
+        "value": "never",
+        "label": "无"
+      },
+      {
+        "value": "rare",
+        "label": "很少"
+      },
+      {
+        "value": "uncommon",
+        "label": "较少"
+      },
+      {
+        "value": "default",
+        "label": "默认"
+      },
+      {
+        "value": "often",
+        "label": "较多"
+      },
+      {
+        "value": "mostly",
+        "label": "很多"
+      },
+      {
+        "value": "always",
+        "label": "大量"
+      },
+      {
+        "value": "insane",
+        "label": "疯狂"
+      }
+    ],
+    "icon": {
+      "atlas": "worldgen",
+      "x": 10,
+      "y": 2
+    }
+  },
+  {
+    "key": "mushtree",
+    "label": "蘑菇树",
+    "category": "worldgen",
+    "group": "resources",
+    "groupLabel": "资源",
+    "worlds": [
+      "caves"
+    ],
+    "defaultValue": "default",
+    "choices": [
+      {
+        "value": "never",
+        "label": "无"
+      },
+      {
+        "value": "rare",
+        "label": "很少"
+      },
+      {
+        "value": "uncommon",
+        "label": "较少"
+      },
+      {
+        "value": "default",
+        "label": "默认"
+      },
+      {
+        "value": "often",
+        "label": "较多"
+      },
+      {
+        "value": "mostly",
+        "label": "很多"
+      },
+      {
+        "value": "always",
+        "label": "大量"
+      },
+      {
+        "value": "insane",
+        "label": "疯狂"
+      }
+    ],
+    "icon": {
+      "atlas": "worldgen",
+      "x": 11,
+      "y": 2
+    }
+  },
+  {
+    "key": "moon_berrybush",
+    "label": "石果灌木丛",
+    "category": "worldgen",
+    "group": "resources",
+    "groupLabel": "资源",
+    "worlds": [
+      "master"
+    ],
+    "defaultValue": "default",
+    "choices": [
+      {
+        "value": "never",
+        "label": "无"
+      },
+      {
+        "value": "rare",
+        "label": "很少"
+      },
+      {
+        "value": "uncommon",
+        "label": "较少"
+      },
+      {
+        "value": "default",
+        "label": "默认"
+      },
+      {
+        "value": "often",
+        "label": "较多"
+      },
+      {
+        "value": "mostly",
+        "label": "很多"
+      },
+      {
+        "value": "always",
+        "label": "大量"
+      },
+      {
+        "value": "insane",
+        "label": "疯狂"
+      }
+    ],
+    "icon": {
+      "atlas": "worldgen",
+      "x": 15,
+      "y": 1
+    }
+  },
+  {
+    "key": "trees",
+    "label": "树（所有）",
+    "category": "worldgen",
+    "group": "resources",
+    "groupLabel": "资源",
+    "worlds": [
+      "master",
+      "caves"
+    ],
+    "defaultValue": "default",
+    "choices": [
+      {
+        "value": "never",
+        "label": "无"
+      },
+      {
+        "value": "rare",
+        "label": "很少"
+      },
+      {
+        "value": "uncommon",
+        "label": "较少"
+      },
+      {
+        "value": "default",
+        "label": "默认"
+      },
+      {
+        "value": "often",
+        "label": "较多"
+      },
+      {
+        "value": "mostly",
+        "label": "很多"
+      },
+      {
+        "value": "always",
+        "label": "大量"
+      },
+      {
+        "value": "insane",
+        "label": "疯狂"
+      }
+    ],
+    "icon": {
+      "atlas": "worldgen",
+      "x": 8,
+      "y": 4
+    }
+  },
+  {
+    "key": "sapling",
+    "label": "树苗",
+    "category": "worldgen",
+    "group": "resources",
+    "groupLabel": "资源",
+    "worlds": [
+      "master",
+      "caves"
+    ],
+    "defaultValue": "default",
+    "choices": [
+      {
+        "value": "never",
+        "label": "无"
+      },
+      {
+        "value": "rare",
+        "label": "很少"
+      },
+      {
+        "value": "uncommon",
+        "label": "较少"
+      },
+      {
+        "value": "default",
+        "label": "默认"
+      },
+      {
+        "value": "often",
+        "label": "较多"
+      },
+      {
+        "value": "mostly",
+        "label": "很多"
+      },
+      {
+        "value": "always",
+        "label": "大量"
+      },
+      {
+        "value": "insane",
+        "label": "疯狂"
+      }
+    ],
+    "icon": {
+      "atlas": "worldgen",
+      "x": 12,
+      "y": 3
+    }
+  },
+  {
+    "key": "flint",
+    "label": "燧石",
+    "category": "worldgen",
+    "group": "resources",
+    "groupLabel": "资源",
+    "worlds": [
+      "master",
+      "caves"
+    ],
+    "defaultValue": "default",
+    "choices": [
+      {
+        "value": "never",
+        "label": "无"
+      },
+      {
+        "value": "rare",
+        "label": "很少"
+      },
+      {
+        "value": "uncommon",
+        "label": "较少"
+      },
+      {
+        "value": "default",
+        "label": "默认"
+      },
+      {
+        "value": "often",
+        "label": "较多"
+      },
+      {
+        "value": "mostly",
+        "label": "很多"
+      },
+      {
+        "value": "always",
+        "label": "大量"
+      },
+      {
+        "value": "insane",
+        "label": "疯狂"
+      }
+    ],
+    "icon": {
+      "atlas": "worldgen",
+      "x": 1,
+      "y": 1
+    }
+  },
+  {
+    "key": "lichen",
+    "label": "苔藓",
+    "category": "worldgen",
+    "group": "resources",
+    "groupLabel": "资源",
+    "worlds": [
+      "caves"
+    ],
+    "defaultValue": "default",
+    "choices": [
+      {
+        "value": "never",
+        "label": "无"
+      },
+      {
+        "value": "rare",
+        "label": "很少"
+      },
+      {
+        "value": "uncommon",
+        "label": "较少"
+      },
+      {
+        "value": "default",
+        "label": "默认"
+      },
+      {
+        "value": "often",
+        "label": "较多"
+      },
+      {
+        "value": "mostly",
+        "label": "很多"
+      },
+      {
+        "value": "always",
+        "label": "大量"
+      },
+      {
+        "value": "insane",
+        "label": "疯狂"
+      }
+    ],
+    "icon": {
+      "atlas": "worldgen",
+      "x": 8,
+      "y": 1
+    }
+  },
+  {
+    "key": "moon_hotspring",
+    "label": "温泉",
+    "category": "worldgen",
+    "group": "resources",
+    "groupLabel": "资源",
+    "worlds": [
+      "master"
+    ],
+    "defaultValue": "default",
+    "choices": [
+      {
+        "value": "never",
+        "label": "无"
+      },
+      {
+        "value": "rare",
+        "label": "很少"
+      },
+      {
+        "value": "uncommon",
+        "label": "较少"
+      },
+      {
+        "value": "default",
+        "label": "默认"
+      },
+      {
+        "value": "often",
+        "label": "较多"
+      },
+      {
+        "value": "mostly",
+        "label": "很多"
+      },
+      {
+        "value": "always",
+        "label": "大量"
+      },
+      {
+        "value": "insane",
+        "label": "疯狂"
+      }
+    ],
+    "icon": {
+      "atlas": "worldgen",
+      "x": 4,
+      "y": 2
+    }
+  },
+  {
+    "key": "cactus",
+    "label": "仙人掌",
+    "category": "worldgen",
+    "group": "resources",
+    "groupLabel": "资源",
+    "worlds": [
+      "master"
+    ],
+    "defaultValue": "default",
+    "choices": [
+      {
+        "value": "never",
+        "label": "无"
+      },
+      {
+        "value": "rare",
+        "label": "很少"
+      },
+      {
+        "value": "uncommon",
+        "label": "较少"
+      },
+      {
+        "value": "default",
+        "label": "默认"
+      },
+      {
+        "value": "often",
+        "label": "较多"
+      },
+      {
+        "value": "mostly",
+        "label": "很多"
+      },
+      {
+        "value": "always",
+        "label": "大量"
+      },
+      {
+        "value": "insane",
+        "label": "疯狂"
+      }
+    ],
+    "icon": {
+      "atlas": "worldgen",
+      "x": 9,
+      "y": 0
+    }
+  },
+  {
+    "key": "banana",
+    "label": "香蕉",
+    "category": "worldgen",
+    "group": "resources",
+    "groupLabel": "资源",
+    "worlds": [
+      "caves"
+    ],
+    "defaultValue": "default",
+    "choices": [
+      {
+        "value": "never",
+        "label": "无"
+      },
+      {
+        "value": "rare",
+        "label": "很少"
+      },
+      {
+        "value": "uncommon",
+        "label": "较少"
+      },
+      {
+        "value": "default",
+        "label": "默认"
+      },
+      {
+        "value": "often",
+        "label": "较多"
+      },
+      {
+        "value": "mostly",
+        "label": "很多"
+      },
+      {
+        "value": "always",
+        "label": "大量"
+      },
+      {
+        "value": "insane",
+        "label": "疯狂"
+      }
+    ],
+    "icon": {
+      "atlas": "worldgen",
+      "x": 1,
+      "y": 0
+    }
+  },
+  {
+    "key": "flower_cave",
+    "label": "荧光花",
+    "category": "worldgen",
+    "group": "resources",
+    "groupLabel": "资源",
+    "worlds": [
+      "caves"
+    ],
+    "defaultValue": "default",
+    "choices": [
+      {
+        "value": "never",
+        "label": "无"
+      },
+      {
+        "value": "rare",
+        "label": "很少"
+      },
+      {
+        "value": "uncommon",
+        "label": "较少"
+      },
+      {
+        "value": "default",
+        "label": "默认"
+      },
+      {
+        "value": "often",
+        "label": "较多"
+      },
+      {
+        "value": "mostly",
+        "label": "很多"
+      },
+      {
+        "value": "always",
+        "label": "大量"
+      },
+      {
+        "value": "insane",
+        "label": "疯狂"
+      }
+    ],
+    "icon": {
+      "atlas": "worldgen",
+      "x": 3,
+      "y": 1
+    }
+  },
+  {
+    "key": "moon_rock",
+    "label": "月亮石",
+    "category": "worldgen",
+    "group": "resources",
+    "groupLabel": "资源",
+    "worlds": [
+      "master"
+    ],
+    "defaultValue": "default",
+    "choices": [
+      {
+        "value": "never",
+        "label": "无"
+      },
+      {
+        "value": "rare",
+        "label": "很少"
+      },
+      {
+        "value": "uncommon",
+        "label": "较少"
+      },
+      {
+        "value": "default",
+        "label": "默认"
+      },
+      {
+        "value": "often",
+        "label": "较多"
+      },
+      {
+        "value": "mostly",
+        "label": "很多"
+      },
+      {
+        "value": "always",
+        "label": "大量"
+      },
+      {
+        "value": "insane",
+        "label": "疯狂"
+      }
+    ],
+    "icon": {
+      "atlas": "worldgen",
+      "x": 5,
+      "y": 2
+    }
+  },
+  {
+    "key": "moon_sapling",
+    "label": "月亮树苗",
+    "category": "worldgen",
+    "group": "resources",
+    "groupLabel": "资源",
+    "worlds": [
+      "master"
+    ],
+    "defaultValue": "default",
+    "choices": [
+      {
+        "value": "never",
+        "label": "无"
+      },
+      {
+        "value": "rare",
+        "label": "很少"
+      },
+      {
+        "value": "uncommon",
+        "label": "较少"
+      },
+      {
+        "value": "default",
+        "label": "默认"
+      },
+      {
+        "value": "often",
+        "label": "较多"
+      },
+      {
+        "value": "mostly",
+        "label": "很多"
+      },
+      {
+        "value": "always",
+        "label": "大量"
+      },
+      {
+        "value": "insane",
+        "label": "疯狂"
+      }
+    ],
+    "icon": {
+      "atlas": "worldgen",
+      "x": 6,
+      "y": 2
+    }
+  },
+  {
+    "key": "moon_tree",
+    "label": "月树",
+    "category": "worldgen",
+    "group": "resources",
+    "groupLabel": "资源",
+    "worlds": [
+      "master"
+    ],
+    "defaultValue": "default",
+    "choices": [
+      {
+        "value": "never",
+        "label": "无"
+      },
+      {
+        "value": "rare",
+        "label": "很少"
+      },
+      {
+        "value": "uncommon",
+        "label": "较少"
+      },
+      {
+        "value": "default",
+        "label": "默认"
+      },
+      {
+        "value": "often",
+        "label": "较多"
+      },
+      {
+        "value": "mostly",
+        "label": "很多"
+      },
+      {
+        "value": "always",
+        "label": "大量"
+      },
+      {
+        "value": "insane",
+        "label": "疯狂"
+      }
+    ],
+    "icon": {
+      "atlas": "worldgen",
+      "x": 9,
+      "y": 2
+    }
+  },
+  {
+    "key": "palmconetree",
+    "label": "棕榈松果树",
+    "category": "worldgen",
+    "group": "resources",
+    "groupLabel": "资源",
+    "worlds": [
+      "master"
+    ],
+    "defaultValue": "default",
+    "choices": [
+      {
+        "value": "never",
+        "label": "无"
+      },
+      {
+        "value": "rare",
+        "label": "很少"
+      },
+      {
+        "value": "uncommon",
+        "label": "较少"
+      },
+      {
+        "value": "default",
+        "label": "默认"
+      },
+      {
+        "value": "often",
+        "label": "较多"
+      },
+      {
+        "value": "mostly",
+        "label": "很多"
+      },
+      {
+        "value": "always",
+        "label": "大量"
+      },
+      {
+        "value": "insane",
+        "label": "疯狂"
+      }
+    ],
+    "icon": {
+      "atlas": "worldgen",
+      "x": 2,
+      "y": 3
+    }
+  }
+]
