@@ -35,6 +35,7 @@ type Notify = (type: "success" | "error", message: string) => void;
 export function DashboardPage({ notify, role }: { notify: Notify; role: "admin" | "user" }) {
   const [data, setData] = useState<DashboardData | null>(null);
   const [busy, setBusy] = useState("");
+  const [starting, setStarting] = useState<Shard | "all" | "">("");
   const [confirm, setConfirm] = useState<ConfirmState | null>(null);
   const [copied, setCopied] = useState(false);
 
@@ -53,17 +54,42 @@ export function DashboardPage({ notify, role }: { notify: Notify; role: "admin" 
   }, [load]);
 
   async function action(actionName: "start" | "stop" | "restart", shard: Shard | "all") {
+    const waitingForStart = actionName === "start";
     setBusy(`${actionName}-${shard}`);
+    if (waitingForStart) setStarting(shard);
     try {
       const status = await api.post<ServerStatus>("/server/action", { action: actionName, shard });
       setData((current) => current ? { ...current, server: status } : current);
+      if (waitingForStart) {
+        await waitForStart(shard);
+        return;
+      }
       notify("success", actionName === "start" ? "分片已启动" : actionName === "stop" ? "分片已停止" : "分片已重启");
     } catch (error) {
+      if (waitingForStart) setStarting("");
       notify("error", error instanceof Error ? error.message : "操作失败");
     } finally {
       setBusy("");
       void load(true);
     }
+  }
+
+  async function waitForStart(target: Shard | "all") {
+    for (let attempt = 0; attempt < 120; attempt += 1) {
+      await new Promise((resolve) => window.setTimeout(resolve, 1000));
+      const next = await api.get<DashboardData>(`/dashboard?startup=${Date.now()}`);
+      setData(next);
+      const masterReady = next.server.master.running && next.world !== null;
+      const cavesReady = !next.room.cavesEnabled || next.server.caves.running;
+      const ready = target === "master" ? masterReady : target === "caves" ? next.server.caves.running : masterReady && cavesReady;
+      if (ready) {
+        setStarting("");
+        notify("success", "世界已启动完毕");
+        return;
+      }
+    }
+    setStarting("");
+    notify("error", "世界启动超时，请检查游戏日志");
   }
 
   async function saveWorld() {
@@ -215,6 +241,7 @@ export function DashboardPage({ notify, role }: { notify: Notify; role: "admin" 
       {!server.configured && <div className="notice warning"><Server size={18} /><span>Cluster Token 尚未配置，游戏分片无法启动。</span></div>}
       {data.activeJob && <div className="notice job"><RefreshCw className="spin" size={18} /><span>正在执行 {jobName(data.activeJob.type)}</span><code>{data.activeJob.logs.at(-1) || "准备中"}</code></div>}
 
+      {starting && <div className="notice job"><RefreshCw className="spin" size={18} /><span>世界启动中，请稍候...</span><code>{starting === "all" ? "地面与洞穴分片正在启动" : `${starting === "master" ? "地面" : "洞穴"}世界正在启动`}</code></div>}
       <section className="world-summary-grid">
         <Summary icon={Gamepad2} label="玩法模式" value={playstyleName(room.playstyle)} detail={`${system.hostname} · ${system.platform}`} />
         <Summary icon={CalendarDays} label="世界进度" value={world ? `第 ${world.day} 天` : "未运行"} detail={world ? `${seasonName(world.season)}${world.seasonRemainingDays === null ? "" : ` · 剩余 ${world.seasonRemainingDays} 天`}` : "等待地面世界启动"} />
