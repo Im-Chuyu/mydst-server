@@ -74,7 +74,7 @@ download_script() {
 
 log_step "Preparing Ubuntu packages"
 dpkg --add-architecture i386
-apt-get -o Acquire::Retries=5 -o Acquire::http::Timeout=30 -o Acquire::https::Timeout=30 update
+apt-get -o Acquire::ForceIPv4=true -o Acquire::Retries=5 -o Acquire::http::Timeout=30 -o Acquire::https::Timeout=30 update
 CURL32_PACKAGE=""
 for candidate in libcurl3t64-gnutls:i386 libcurl3-gnutls:i386 libcurl4-gnutls-dev:i386; do
   if apt-cache show "$candidate" >/dev/null 2>&1; then
@@ -87,7 +87,7 @@ if [[ -z "$CURL32_PACKAGE" ]]; then
   exit 1
 fi
 log_step "Installing Ubuntu packages"
-apt-get -o Acquire::Retries=5 -o Acquire::http::Timeout=30 -o Acquire::https::Timeout=30 install -y --no-install-recommends \
+apt-get -o Acquire::ForceIPv4=true -o Acquire::Retries=5 -o Acquire::http::Timeout=30 -o Acquire::https::Timeout=30 install -y --no-install-recommends \
   ca-certificates curl xz-utils tar tmux openssl rsync \
   lib32gcc-s1 libstdc++6:i386 "$CURL32_PACKAGE"
 
@@ -96,7 +96,7 @@ SETUP_TOKEN="$(openssl rand -hex 12)"
 if ! command -v node >/dev/null 2>&1 || [[ "$(node -p 'Number(process.versions.node.split(`.`)[0])')" -lt 22 ]]; then
   log_step "Installing Node.js 22"
   download_script "https://deb.nodesource.com/setup_22.x"
-  apt-get -o Acquire::Retries=5 -o Acquire::http::Timeout=30 -o Acquire::https::Timeout=30 install -y nodejs
+  apt-get -o Acquire::ForceIPv4=true -o Acquire::Retries=5 -o Acquire::http::Timeout=30 -o Acquire::https::Timeout=30 install -y nodejs
 fi
 
 if ! id dst >/dev/null 2>&1; then
