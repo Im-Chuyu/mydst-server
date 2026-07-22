@@ -111,11 +111,11 @@ api.get("/admin/ports", requireAdmin, (_req, res) => {
   res.json(gameConfig.getPorts());
 });
 
-api.get("/panel/update", requireAdmin, (_req, res) => {
+api.get("/panel/update", requireAuth, (_req, res) => {
   res.json(readPanelUpdateState());
 });
 
-api.post("/panel/update", requireAdmin, (req, res) => {
+api.post("/panel/update", requireAuth, (req, res) => {
   if (!fs.existsSync(path.join(config.sourceRoot, ".git"))) throw new Error("服务器源码目录不是 Git 仓库，无法从后台更新");
   const state = readPanelUpdateState();
   if (state.status === "pending" || state.status === "running" || fs.existsSync(config.panelUpdateRequest)) {
