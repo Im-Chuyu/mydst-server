@@ -16,6 +16,10 @@ export interface ParsedModOverride {
   configuration: string;
 }
 
+export interface ModInfoMetadata {
+  name: string;
+}
+
 type LuaKey = string | number;
 type LuaValue = ModConfigValue | LuaTable | null | undefined;
 
@@ -58,6 +62,13 @@ export function parseModInfoOptions(source: string): ModConfigOption[] {
       choices: choices.length ? choices : [{ description: String(defaultValue), data: defaultValue }]
     }];
   });
+}
+
+export function parseModInfoMetadata(source: string): ModInfoMetadata {
+  const chunk = parseLua(source);
+  const interpreter = new StaticLuaInterpreter();
+  interpreter.run(chunk.body);
+  return { name: primitiveString(interpreter.env.get("name")).trim() };
 }
 
 export function parseConfigurationValues(source: string): Record<string, ModConfigValue> {

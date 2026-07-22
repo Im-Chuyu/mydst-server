@@ -49,6 +49,11 @@ async function assertViewport(page, name) {
     const errors = [];
     page.on("pageerror", (error) => errors.push(error.message));
     page.on("requestfailed", (request) => errors.push(`${request.url()} ${request.failure()?.errorText}`));
+    await page.route("https://images.steamusercontent.com/**", (route) => route.fulfill({
+      status: 200,
+      contentType: "image/png",
+      body: Buffer.from("iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mNk+A8AAQUBAScY42YAAAAASUVORK5CYII=", "base64")
+    }));
     await page.goto(`http://127.0.0.1:${port}`, { waitUntil: "networkidle" });
     await page.screenshot({ path: path.join(results, "login-desktop.png"), fullPage: true });
     await assertViewport(page, "desktop login");
@@ -109,6 +114,7 @@ async function assertViewport(page, name) {
     await page.screenshot({ path: path.join(results, "mods-downloading-desktop.png"), fullPage: true });
     const modRow = page.locator("#server-mod-351325790");
     await modRow.waitFor({ timeout: 10_000 });
+    await modRow.locator(".server-mod-preview img").waitFor();
     await modRow.getByRole("button", { name: /配置/ }).click();
     await modRow.getByText("显示语言", { exact: true }).waitFor();
     await page.screenshot({ path: path.join(results, "mods-desktop.png"), fullPage: true });
@@ -135,6 +141,11 @@ async function assertViewport(page, name) {
 
     const mobile = await browser.newContext({ viewport: { width: 390, height: 844 }, deviceScaleFactor: 1 });
     const mobilePage = await mobile.newPage();
+    await mobilePage.route("https://images.steamusercontent.com/**", (route) => route.fulfill({
+      status: 200,
+      contentType: "image/png",
+      body: Buffer.from("iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mNk+A8AAQUBAScY42YAAAAASUVORK5CYII=", "base64")
+    }));
     await mobilePage.goto(`http://127.0.0.1:${port}`, { waitUntil: "networkidle" });
     await mobilePage.getByLabel("管理员账号").fill("admin");
     await mobilePage.getByLabel("管理员密码").fill("StrongPass123!");

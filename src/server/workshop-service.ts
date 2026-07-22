@@ -15,11 +15,13 @@ const workshopSearchOrigins = [
   "https://steamcommunity.com"
 ];
 const offlineCatalog = catalogData as WorkshopItem[];
+const offlineById = new Map(offlineCatalog.map((item) => [item.id, item]));
 const searchCache = new Map<string, { expiresAt: number; items: WorkshopItem[] }>();
+const detailsCache = new Map<string, { expiresAt: number; item: WorkshopItem | null }>();
 
 export async function searchWorkshop(query: string, limit = 12): Promise<WorkshopItem[]> {
   const text = query.trim();
-  if (/^\d{5,12}$/.test(text)) return getWorkshopDetails([text]);
+  if (/^\d{5,12}$/.test(text)) return resolveWorkshopDetails([text]);
 
   const cacheKey = `${normalize(text)}:${limit}`;
   const cached = searchCache.get(cacheKey);
@@ -57,6 +59,40 @@ export async function searchWorkshop(query: string, limit = 12): Promise<Worksho
     searchCache.set(cacheKey, { expiresAt: Date.now() + 60_000, items });
     return items;
   }
+}
+
+export async function resolveWorkshopDetails(ids: readonly string[]): Promise<WorkshopItem[]> {
+  const uniqueIds = [...new Set(ids.filter((id) => /^\d{5,12}$/.test(id)))];
+  const resolved = new Map<string, WorkshopItem>();
+  const pending: string[] = [];
+  for (const id of uniqueIds) {
+    const offline = offlineById.get(id);
+    if (offline) {
+      resolved.set(id, offline);
+      continue;
+    }
+    const cached = detailsCache.get(id);
+    if (cached && cached.expiresAt > Date.now()) {
+      if (cached.item) resolved.set(id, cached.item);
+      continue;
+    }
+    pending.push(id);
+  }
+  for (let offset = 0; offset < pending.length; offset += 50) {
+    const batch = pending.slice(offset, offset + 50);
+    try {
+      const live = await getWorkshopDetails(batch);
+      const liveById = new Map(live.map((item) => [item.id, item]));
+      for (const id of batch) {
+        const item = liveById.get(id) || null;
+        detailsCache.set(id, { expiresAt: Date.now() + (item ? 30 * 60_000 : 5 * 60_000), item });
+        if (item) resolved.set(id, item);
+      }
+    } catch {
+      for (const id of batch) detailsCache.set(id, { expiresAt: Date.now() + 60_000, item: null });
+    }
+  }
+  return uniqueIds.flatMap((id) => resolved.get(id) || []);
 }
 
 async function searchWorkshopIds(text: string, limit: number): Promise<string[]> {
@@ -110,6 +146,7 @@ function score(title: string, query: string): number {
 }
 
 export async function getWorkshopDetails(ids: string[]): Promise<WorkshopItem[]> {
+  if (!ids.length) return [];
   const body = new URLSearchParams({ itemcount: String(ids.length) });
   ids.forEach((id, index) => body.set(`publishedfileids[${index}]`, id));
   const response = await fetch(detailsEndpoint, {

@@ -90,6 +90,7 @@ export interface GameConfig {
 export interface ModRecord {
   id: string;
   name: string;
+  previewUrl?: string;
   enabled: boolean;
   configuration: string;
 }

@@ -308,16 +308,18 @@ export class GameConfigService {
   }
 
   importRestoredMods(): ModRecord[] {
-    const knownNames = new Map(this.getMods().map((mod) => [mod.id, mod.name]));
+    const knownMods = new Map(this.getMods().map((mod) => [mod.id, mod]));
     const merged = new Map<string, ModRecord>();
     for (const shard of ["master", "caves"] as const) {
       const file = path.join(this.shardDir(shard), "modoverrides.lua");
       if (!fs.existsSync(file)) continue;
       for (const restored of parseModOverrides(fs.readFileSync(file, "utf8"))) {
         const current = merged.get(restored.id);
+        const known = knownMods.get(restored.id);
         merged.set(restored.id, {
           id: restored.id,
-          name: knownNames.get(restored.id) || `Workshop ${restored.id}`,
+          name: known?.name || `Workshop ${restored.id}`,
+          previewUrl: known?.previewUrl || "",
           enabled: restored.enabled || current?.enabled === true,
           configuration: current && current.configuration !== "{}" ? current.configuration : restored.configuration
         });

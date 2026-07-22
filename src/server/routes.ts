@@ -13,7 +13,7 @@ import { config } from "./config.js";
 import { gameConfig } from "./game-config.js";
 import { game } from "./game-service.js";
 import { jobs } from "./jobs.js";
-import { downloadAndAddMod, getModConfiguration, installRestoredMods } from "./mod-workshop-service.js";
+import { downloadAndAddMod, enrichModMetadata, getModConfiguration, installRestoredMods } from "./mod-workshop-service.js";
 import { store } from "./store.js";
 import { getSystemInfo } from "./system-service.js";
 import { consoleSchema, credentialsSchema, gameConfigSchema, modSchema, panelPortsSchema, schedulesSchema, shardActionSchema } from "./validation.js";
@@ -284,8 +284,8 @@ api.put("/world/:shard/visual", (req, res) => {
   res.json(gameConfig.getWorldVisual(shard));
 });
 
-api.get("/mods", (_req, res) => {
-  res.json(gameConfig.getMods());
+api.get("/mods", async (_req, res) => {
+  res.json(await enrichModMetadata(gameConfig.getMods()));
 });
 
 api.get("/mods/workshop/search", async (req, res) => {
@@ -295,11 +295,20 @@ api.get("/mods/workshop/search", async (req, res) => {
 
 api.post("/mods/workshop/:id/download", (req, res) => {
   const id = z.string().regex(/^\d{5,12}$/).parse(req.params.id);
-  const title = z.object({ title: z.string().trim().min(1).max(160) }).parse(req.body).title;
+  const item = z.object({
+    title: z.string().trim().min(1).max(160),
+    previewUrl: z.string().trim().url("MOD 封面地址格式无效").max(1000).refine((value) => /^https:\/\//i.test(value), "MOD 封面必须使用 HTTPS 地址").or(z.literal("")).default("")
+  }).parse(req.body);
   if (gameConfig.getMods().some((mod) => mod.id === id)) throw new Error("这个 MOD 已在服务器列表中");
-  const job = jobs.run(`mod-download:${id}`, (log) => downloadAndAddMod(id, title, log));
-  audit(req, "mods.download", `${id}: ${title}`);
+  const job = jobs.run(`mod-download:${id}`, (log) => downloadAndAddMod(id, item.title, item.previewUrl, log));
+  audit(req, "mods.download", `${id}: ${item.title}`);
   res.status(202).json(job);
+});
+
+api.post("/mods/metadata/refresh", async (req, res) => {
+  const mods = await enrichModMetadata(gameConfig.getMods(), undefined, true);
+  audit(req, "mods.metadata.refresh", `${mods.length} mods`);
+  res.json(mods);
 });
 
 api.get("/mods/:id/configuration", (req, res) => {
@@ -307,12 +316,12 @@ api.get("/mods/:id/configuration", (req, res) => {
   res.json(getModConfiguration(id));
 });
 
-api.put("/mods", (req, res) => {
+api.put("/mods", async (req, res) => {
   const mods = z.array(modSchema).max(200).parse(req.body);
   if (new Set(mods.map((mod) => mod.id)).size !== mods.length) throw new Error("MOD ID 不能重复");
   gameConfig.saveMods(mods);
   audit(req, "mods.save", `${mods.length} mods`);
-  res.json(mods);
+  res.json(await enrichModMetadata(mods));
 });
 
 api.get("/logs/:shard", async (req, res) => {
@@ -409,6 +418,7 @@ api.post("/backups/:name/restore", async (req, res) => {
     if (restoredMods.length) {
       log(`从存档中识别到 ${restoredMods.length} 个 MOD，正在检查并下载启用项`);
       await installRestoredMods(restoredMods, log);
+      await enrichModMetadata(gameConfig.getMods(), log);
       log("存档 MOD 已同步到服务器 MOD 列表和游戏目录");
     } else {
       log("存档中没有启用的 Workshop MOD，服务器 MOD 列表已同步为空");

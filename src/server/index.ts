@@ -21,7 +21,7 @@ app.use(helmet({
   contentSecurityPolicy: {
     directives: {
       defaultSrc: ["'self'"],
-      imgSrc: ["'self'", "data:", "https://images.steamusercontent.com", "https://steamuserimages-a.akamaihd.net"],
+      imgSrc: ["'self'", "data:", "https://images.steamusercontent.com", "https://steamuserimages-a.akamaihd.net", "https://shared.fastly.steamstatic.com"],
       styleSrc: ["'self'", "'unsafe-inline'"],
       scriptSrc: ["'self'"],
       connectSrc: ["'self'"],

@@ -52,6 +52,7 @@ export const panelPortsSchema = z.object({
 export const modSchema = z.object({
   id: z.string().regex(/^\d{5,12}$/, "请输入有效的 Steam Workshop ID"),
   name: z.string().trim().max(160),
+  previewUrl: z.string().trim().url("MOD 封面地址格式无效").max(1000).refine((value) => /^https:\/\//i.test(value), "MOD 封面必须使用 HTTPS 地址").or(z.literal("")).optional(),
   enabled: z.boolean(),
   configuration: z.string().trim().max(20_000).default("{}")
 });

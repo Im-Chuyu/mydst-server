@@ -195,6 +195,8 @@ try {
   const mods = await call("/mods");
   assert.equal(mods.length, 1);
   assert.equal(mods[0].id, "351325790");
+  assert.equal(mods[0].name, "Geometric Placement");
+  assert.match(mods[0].previewUrl, /^https:\/\//);
   const modConfiguration = await call("/mods/351325790/configuration");
   assert.equal(modConfiguration.installed, true);
   assert.equal(modConfiguration.options.length, 2);
@@ -282,6 +284,8 @@ try {
   assert.equal(restoredMods.length, 1);
   assert.equal(restoredMods[0].id, "378160973");
   assert.equal(restoredMods[0].enabled, true);
+  assert.doesNotMatch(restoredMods[0].name, /^Workshop\s+\d+$/);
+  assert.match(restoredMods[0].previewUrl, /^https:\/\//);
   assert.match(restoredMods[0].configuration, /LANGUAGE/);
   assert.equal((await call("/mods/378160973/configuration")).installed, true);
 

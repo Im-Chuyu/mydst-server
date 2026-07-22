@@ -2,8 +2,10 @@ import fs from "node:fs";
 import path from "node:path";
 import { config } from "./config.js";
 import { gameConfig } from "./game-config.js";
-import { parseConfigurationValues, parseModInfoOptions, type ModConfigOption, type ModConfigValue } from "./lua-config.js";
+import { parseConfigurationValues, parseModInfoMetadata, parseModInfoOptions, type ModConfigOption, type ModConfigValue } from "./lua-config.js";
 import { runCommand } from "./process-runner.js";
+import type { ModRecord } from "./types.js";
+import { resolveWorkshopDetails } from "./workshop-service.js";
 
 export interface ModConfigurationInfo {
   installed: boolean;
@@ -12,15 +14,39 @@ export interface ModConfigurationInfo {
   warning?: string;
 }
 
-export async function downloadAndAddMod(id: string, requestedTitle: string, onLine: (line: string) => void): Promise<void> {
+export async function downloadAndAddMod(id: string, requestedTitle: string, requestedPreviewUrl: string, onLine: (line: string) => void): Promise<void> {
   if (gameConfig.getMods().some((mod) => mod.id === id)) throw new Error("这个 MOD 已在服务器列表中");
   const item = { title: requestedTitle || `Workshop ${id}` };
   await ensureWorkshopMod(id, item.title, onLine);
   const current = gameConfig.getMods();
   if (!current.some((mod) => mod.id === id)) {
-    gameConfig.saveMods([...current, { id, name: item.title.slice(0, 160), enabled: true, configuration: "{}" }]);
+    gameConfig.saveMods([...current, { id, name: item.title.slice(0, 160), previewUrl: requestedPreviewUrl, enabled: true, configuration: "{}" }]);
   }
+  await enrichModMetadata(gameConfig.getMods(), onLine);
   onLine("MOD 下载完成并已加入服务器列表");
+}
+
+export async function enrichModMetadata(mods: readonly ModRecord[], onLine?: (line: string) => void, force = false): Promise<ModRecord[]> {
+  const targets = mods.filter((mod) => /^\d{5,12}$/.test(mod.id) && (force || isPlaceholderName(mod.name, mod.id) || !mod.previewUrl));
+  if (!targets.length) return [...mods];
+  const targetIds = new Set(targets.map((mod) => mod.id));
+  const details = await resolveWorkshopDetails(targets.map((mod) => mod.id));
+  const detailsById = new Map(details.map((item) => [item.id, item]));
+  let changed = false;
+  const enriched = mods.map((mod) => {
+    if (!targetIds.has(mod.id)) return mod;
+    const detail = detailsById.get(mod.id);
+    const localName = readInstalledModName(mod.id);
+    const name = isPlaceholderName(mod.name, mod.id) ? (detail?.title || localName || mod.name) : mod.name;
+    const previewUrl = detail?.previewUrl || mod.previewUrl || "";
+    if (name !== mod.name || previewUrl !== (mod.previewUrl || "")) changed = true;
+    return { ...mod, name: name.slice(0, 160), previewUrl };
+  });
+  if (changed) {
+    gameConfig.saveMods(enriched);
+    onLine?.("已根据 Workshop ID 更新 MOD 名称和封面");
+  }
+  return enriched;
 }
 
 export async function installRestoredMods(mods: readonly { id: string; name: string; enabled: boolean }[], onLine: (line: string) => void): Promise<void> {
@@ -97,6 +123,18 @@ export function getModConfiguration(id: string): ModConfigurationInfo {
 function findModInfo(id: string): string | null {
   const directory = findModDirectory(id);
   return directory ? path.join(directory, "modinfo.lua") : null;
+}
+
+function readInstalledModName(id: string): string {
+  const file = findModInfo(id);
+  if (!file) return "";
+  try { return parseModInfoMetadata(fs.readFileSync(file, "utf8")).name; }
+  catch { return ""; }
+}
+
+function isPlaceholderName(name: string, id: string): boolean {
+  const value = name.trim();
+  return !value || value === id || new RegExp(`^(?:Workshop|MOD)\\s+${id}$`, "i").test(value);
 }
 
 function findModDirectory(id: string): string | null {

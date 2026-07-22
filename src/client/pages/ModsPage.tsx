@@ -12,6 +12,7 @@ export function ModsPage({ notify }: { notify: (type: "success" | "error", messa
   const [searched, setSearched] = useState(false);
   const [searching, setSearching] = useState(false);
   const [saving, setSaving] = useState(false);
+  const [refreshingMetadata, setRefreshingMetadata] = useState(false);
   const [downloads, setDownloads] = useState<Record<string, DownloadState>>({});
   const [expanded, setExpanded] = useState<string | null>(null);
   const trackedJobs = useRef(new Set<string>());
@@ -55,13 +56,13 @@ export function ModsPage({ notify }: { notify: (type: "success" | "error", messa
   }, [loadMods, notify]);
 
   function addManual() {
-    setMods((current) => [...(current || []), { id: "", name: "", enabled: true, configuration: "{}" }]);
+    setMods((current) => [...(current || []), { id: "", name: "", previewUrl: "", enabled: true, configuration: "{}" }]);
   }
 
   async function download(item: WorkshopItem) {
     setDownloads((current) => ({ ...current, [item.id]: { id: "starting", status: "running", message: "正在创建下载任务..." } }));
     try {
-      const job = await api.post<JobRecord>(`/mods/workshop/${item.id}/download`, { title: item.title });
+      const job = await api.post<JobRecord>(`/mods/workshop/${item.id}/download`, { title: item.title, previewUrl: item.previewUrl });
       trackedJobs.current.add(job.id);
       setDownloads((current) => ({ ...current, [item.id]: { id: job.id, status: job.status, message: "正在连接 SteamCMD..." } }));
       notify("success", `${item.title} 已加入下载队列`);
@@ -93,6 +94,15 @@ export function ModsPage({ notify }: { notify: (type: "success" | "error", messa
     finally { setSaving(false); }
   }
 
+  async function refreshMetadata() {
+    setRefreshingMetadata(true);
+    try {
+      setMods(await api.post<ModRecord[]>("/mods/metadata/refresh"));
+      notify("success", "MOD 名称和封面已刷新");
+    } catch (error) { notify("error", error instanceof Error ? error.message : "刷新 MOD 信息失败"); }
+    finally { setRefreshingMetadata(false); }
+  }
+
   if (!mods) return <div className="page-loading"><RefreshCw className="spin" size={20} />正在读取 MOD</div>;
   return <div className="mods-page">
     <section className="panel workshop-search-panel">
@@ -103,7 +113,7 @@ export function ModsPage({ notify }: { notify: (type: "success" | "error", messa
         const task = downloads[item.id];
         const downloading = task?.status === "running";
         return <article className="workshop-result" key={item.id}>
-          <div className="workshop-preview">{item.previewUrl ? <img src={item.previewUrl} alt="" loading="lazy" /> : <Boxes size={24} />}</div>
+          <ModCover className="workshop-preview" url={item.previewUrl} name={item.title} />
           <div><strong title={item.title}>{item.title}</strong><span>Workshop · {item.id}</span></div>
           <button type="button" className="icon-button" title="打开创意工坊页面" onClick={() => window.open(`https://steamcommunity.com/sharedfiles/filedetails/?id=${item.id}`, "_blank", "noopener,noreferrer")}><ExternalLink size={16} /></button>
           <button type="button" className="button secondary" disabled={added || downloading} onClick={() => void download(item)}>{downloading ? <RefreshCw className="spin" size={16} /> : added ? <CheckCircle2 size={16} /> : <Download size={16} />}{downloading ? "下载中" : added ? "已添加" : task?.status === "failed" ? "重试" : "添加"}</button>
@@ -112,11 +122,12 @@ export function ModsPage({ notify }: { notify: (type: "success" | "error", messa
       })}</div>}
     </section>
 
-    <section className="panel"><div className="panel-header"><div><Boxes size={19} /><h2>服务器 MOD</h2><span className="count-label">{mods.length}</span></div><div className="button-row"><button type="button" className="button secondary" onClick={addManual}><Plus size={17} />手动添加</button><button type="button" className="button primary" disabled={saving} onClick={() => void save()}>{saving ? <RefreshCw className="spin" size={17} /> : <Save size={17} />}保存</button></div></div>
+    <section className="panel"><div className="panel-header"><div><Boxes size={19} /><h2>服务器 MOD</h2><span className="count-label">{mods.length}</span></div><div className="button-row"><button type="button" className="button secondary" onClick={addManual}><Plus size={17} />手动添加</button><button type="button" className="button secondary" disabled={refreshingMetadata || mods.length === 0} onClick={() => void refreshMetadata()}><RefreshCw className={refreshingMetadata ? "spin" : ""} size={17} />刷新信息</button><button type="button" className="button primary" disabled={saving} onClick={() => void save()}>{saving ? <RefreshCw className="spin" size={17} /> : <Save size={17} />}保存</button></div></div>
       <div className="mod-list">{mods.length === 0 ? <div className="empty-state"><Boxes size={28} /><strong>暂无服务器 MOD</strong></div> : mods.map((mod, index) => <div className={`mod-row ${expanded === mod.id ? "expanded" : ""}`} id={mod.id ? `server-mod-${mod.id}` : undefined} key={`${index}-${mod.id}`}>
         <div className="mod-row-main">
           <div className="mod-enable-control"><button type="button" role="switch" aria-label={`${mod.name || "未命名 MOD"}启用状态`} aria-checked={mod.enabled} className={`switch ${mod.enabled ? "on" : ""}`} onClick={() => update(index, { enabled: !mod.enabled })}><i /></button><small>{mod.enabled ? "已启用" : "已停用"}</small></div>
-          <div className="mod-fields"><label><span>Workshop ID</span><input value={mod.id} inputMode="numeric" onChange={(event) => update(index, { id: event.target.value.replace(/\D/g, "") })} /></label><label><span>显示名称</span><input value={mod.name} onChange={(event) => update(index, { name: event.target.value })} /></label></div>
+          <ModCover className="server-mod-preview" url={mod.previewUrl || ""} name={mod.name || `Workshop ${mod.id}`} />
+          <div className="mod-fields"><label><span>Workshop ID</span><input value={mod.id} inputMode="numeric" onChange={(event) => { const id = event.target.value.replace(/\D/g, ""); update(index, id === mod.id ? { id } : { id, name: "", previewUrl: "" }); }} /></label><label><span>显示名称</span><input value={mod.name} onChange={(event) => update(index, { name: event.target.value })} /></label></div>
           <button type="button" className="button small secondary" disabled={!/^\d{5,12}$/.test(mod.id)} onClick={() => setExpanded((current) => current === mod.id ? null : mod.id)}><SlidersHorizontal size={15} />配置{expanded === mod.id ? <ChevronUp size={14} /> : <ChevronDown size={14} />}</button>
           <button type="button" className="icon-button danger-text" title="移除" onClick={() => setMods((current) => current?.filter((_, itemIndex) => itemIndex !== index) || null)}><Trash2 size={17} /></button>
         </div>
@@ -124,6 +135,12 @@ export function ModsPage({ notify }: { notify: (type: "success" | "error", messa
       </div>)}</div>
     </section>
   </div>;
+}
+
+function ModCover({ url, name, className }: { url: string; name: string; className: string }) {
+  const [failed, setFailed] = useState(false);
+  useEffect(() => { setFailed(false); }, [url]);
+  return <div className={className}><Boxes className="mod-cover-placeholder" size={24} />{url && !failed && <img src={url} alt={`${name} 封面`} loading="lazy" onError={() => setFailed(true)} />}</div>;
 }
 
 function ModConfigurationEditor({ mod, onChange, notify }: { mod: ModRecord; onChange: (configuration: string) => void; notify: (type: "success" | "error", message: string) => void }) {
