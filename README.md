@@ -69,6 +69,8 @@ sudo ./install.sh
 
 安装器会自动完成以下工作：安装系统依赖和 SteamCMD 所需的兼容库、安装 Node.js 22、创建无特权 `dst` 用户、安装或更新 DST Dedicated Server、构建管理后台、创建 systemd 服务，并在 UFW 已启用时添加面板和 Steam 通信规则。启动游戏时会优先使用 DST 的 64 位 `bin64` 程序；只有服务器端没有 64 位程序时才回退到 `bin` 入口。
 
+安装过程会显示当前阶段。网络下载使用超时、重试和断点续传；SteamCMD 压缩包会先下载到 `/opt/mydst/.steamcmd_linux.tar.gz.part`，验证完整后才解压。因此下载中断后不要同时运行第二个安装器，重新执行同一条安装命令即可继续已有文件。
+
 面板 TCP 端口可以在安装时指定，例如：
 
 ```bash

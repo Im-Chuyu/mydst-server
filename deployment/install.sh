@@ -35,8 +35,46 @@ if [[ "$STEAM_MASTER_PORT" == "$STEAM_CAVES_PORT" ]]; then
 fi
 
 export DEBIAN_FRONTEND=noninteractive
+log_step() { printf '\n[%s] %s\n' "$(date '+%F %T')" "$*"; }
+
+download_file() {
+  local url="$1"
+  local destination="$2"
+  local attempt
+  for attempt in 1 2 3 4 5; do
+    if [[ -s "$destination" ]] && { [[ "$destination" != *.tar.gz.part ]] || gzip -t "$destination" >/dev/null 2>&1; }; then
+      return 0
+    fi
+    echo "Downloading $(basename "$destination") (attempt $attempt/5)..."
+    if curl -4 --http1.1 -fL --retry 3 --retry-all-errors --retry-delay 4 \
+      --connect-timeout 20 --max-time 600 --continue-at - \
+      -o "$destination" "$url"; then
+      return 0
+    fi
+    sleep 5
+  done
+  echo "Download failed after retries: $url" >&2
+  return 1
+}
+
+download_script() {
+  local url="$1"
+  local destination
+  destination="$(mktemp)"
+  if ! curl -4 --http1.1 -fL --retry 5 --retry-all-errors --retry-delay 4 \
+    --connect-timeout 20 --max-time 300 -o "$destination" "$url"; then
+    rm -f "$destination"
+    return 1
+  fi
+  local status=0
+  bash "$destination" || status=$?
+  rm -f "$destination"
+  return "$status"
+}
+
+log_step "Preparing Ubuntu packages"
 dpkg --add-architecture i386
-apt-get update
+apt-get -o Acquire::Retries=5 -o Acquire::http::Timeout=30 -o Acquire::https::Timeout=30 update
 CURL32_PACKAGE=""
 for candidate in libcurl3t64-gnutls:i386 libcurl3-gnutls:i386 libcurl4-gnutls-dev:i386; do
   if apt-cache show "$candidate" >/dev/null 2>&1; then
@@ -48,15 +86,17 @@ if [[ -z "$CURL32_PACKAGE" ]]; then
   echo "Unable to locate a supported 32-bit libcurl package." >&2
   exit 1
 fi
-apt-get install -y --no-install-recommends \
+log_step "Installing Ubuntu packages"
+apt-get -o Acquire::Retries=5 -o Acquire::http::Timeout=30 -o Acquire::https::Timeout=30 install -y --no-install-recommends \
   ca-certificates curl xz-utils tar tmux openssl rsync \
   lib32gcc-s1 libstdc++6:i386 "$CURL32_PACKAGE"
 
 SETUP_TOKEN="$(openssl rand -hex 12)"
 
 if ! command -v node >/dev/null 2>&1 || [[ "$(node -p 'Number(process.versions.node.split(`.`)[0])')" -lt 22 ]]; then
-  curl -fsSL https://deb.nodesource.com/setup_22.x | bash -
-  apt-get install -y nodejs
+  log_step "Installing Node.js 22"
+  download_script "https://deb.nodesource.com/setup_22.x"
+  apt-get -o Acquire::Retries=5 -o Acquire::http::Timeout=30 -o Acquire::https::Timeout=30 install -y nodejs
 fi
 
 if ! id dst >/dev/null 2>&1; then
@@ -65,15 +105,19 @@ fi
 
 install -d -o dst -g dst -m 0750 "$ROOT" "$ROOT/game" "$ROOT/data" "$ROOT/backups" "$ROOT/steamcmd" "$ROOT/tmux"
 install -d -o root -g dst -m 0750 "$PANEL_DIR"
+log_step "Copying panel source"
 rsync -a --delete \
   --exclude node_modules \
   --exclude dist \
   --exclude .runtime \
+  --exclude '.runtime-*' \
   --exclude .git \
   "$SOURCE_DIR/" "$PANEL_DIR/"
 
 cd "$PANEL_DIR"
-npm ci
+log_step "Installing panel dependencies"
+npm_config_fetch_retries=5 npm_config_fetch_retry_mintimeout=5000 npm_config_fetch_retry_maxtimeout=60000 npm ci
+log_step "Building panel"
 npm run build
 npm prune --omit=dev
 chmod 0755 deployment/run-shard.sh
@@ -81,17 +125,32 @@ chown -R root:dst "$PANEL_DIR"
 chmod -R g+rX,o-rwx "$PANEL_DIR"
 
 if [[ ! -x "$ROOT/steamcmd/steamcmd.sh" ]]; then
-  curl -fsSL https://steamcdn-a.akamaihd.net/client/installer/steamcmd_linux.tar.gz \
-    | tar -xz -C "$ROOT/steamcmd"
+  log_step "Downloading SteamCMD"
+  STEAMCMD_ARCHIVE="$ROOT/.steamcmd_linux.tar.gz.part"
+  download_file "https://steamcdn-a.akamaihd.net/client/installer/steamcmd_linux.tar.gz" "$STEAMCMD_ARCHIVE"
+  gzip -t "$STEAMCMD_ARCHIVE"
+  tar -tzf "$STEAMCMD_ARCHIVE" >/dev/null
+  tar -xzf "$STEAMCMD_ARCHIVE" -C "$ROOT/steamcmd"
+  rm -f "$STEAMCMD_ARCHIVE"
   chown -R dst:dst "$ROOT/steamcmd"
 fi
 
-echo "Installing or updating Don't Starve Together Dedicated Server..."
-runuser -u dst -- "$ROOT/steamcmd/steamcmd.sh" \
-  +force_install_dir "$ROOT/game" \
-  +login anonymous \
-  +app_update 343050 validate \
-  +quit
+log_step "Installing or updating Don't Starve Together Dedicated Server"
+for attempt in 1 2 3; do
+  if runuser -u dst -- "$ROOT/steamcmd/steamcmd.sh" \
+    +force_install_dir "$ROOT/game" \
+    +login anonymous \
+    +app_update 343050 validate \
+    +quit; then
+    break
+  fi
+  if [[ "$attempt" == 3 ]]; then
+    echo "DST download/update failed after retries." >&2
+    exit 1
+  fi
+  echo "DST update failed; SteamCMD will retry and resume partial files (attempt $((attempt + 1))/3)..." >&2
+  sleep 10
+done
 
 chown -R dst:dst "$ROOT/game" "$ROOT/data" "$ROOT/backups" "$ROOT/steamcmd"
 
