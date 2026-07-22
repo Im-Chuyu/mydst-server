@@ -165,7 +165,7 @@ export function DashboardPage({ notify }: { notify: Notify }) {
           <div>
             <div className="room-title-line"><h2>{room.name}</h2><span>{online ? "运行中" : "已停止"}</span></div>
             <p>{room.description || "暂无房间描述"}</p>
-            <div className="direct-connect-block"><span>直连代码</span><div className="direct-connect"><code>{room.directConnect}</code><button className="icon-button" type="button" title="复制直连代码" aria-label="复制直连代码" onClick={() => void copyDirectConnect()}>{copied ? <Check size={15} /> : <Copy size={15} />}</button></div></div>
+            <div className="direct-connect-block"><span>直连代码</span><div className="direct-connect"><code>{room.directConnect || "请先配置地面端口"}</code><button className="icon-button" type="button" title="复制直连代码" aria-label="复制直连代码" disabled={!room.directConnect} onClick={() => void copyDirectConnect()}>{copied ? <Check size={15} /> : <Copy size={15} />}</button></div></div>
           </div>
         </div>
         <div className="button-row">

@@ -9,7 +9,7 @@ export const gameConfigSchema = z.object({
   clusterName: z.string().trim().min(1).max(80),
   clusterDescription: z.string().trim().max(200),
   clusterPassword: z.string().max(64),
-  clusterToken: z.string().trim().min(10).max(512),
+  clusterToken: z.string().trim().max(512).refine((value) => value.length === 0 || value.length >= 10, "Cluster Token 至少 10 位，或留空"),
   gameMode: z.string().trim().min(1).max(64).regex(/^[a-zA-Z0-9_-]+$/, "游戏模式格式无效"),
   playstyle: z.enum(["relaxed", "endless", "survival", "wilderness", "lightsout"]),
   clusterLanguage: z.enum(["zh", "zht", "en", "fr", "de", "es", "it", "pt", "pl", "ru", "ko"]),
@@ -28,24 +28,24 @@ export const gameConfigSchema = z.object({
   voteKick: z.boolean(),
   consoleEnabled: z.boolean(),
   maxSnapshots: z.number().int().min(1).max(20),
-  masterPort: z.number().int().min(1024).max(65535),
-  cavesPort: z.number().int().min(1024).max(65535),
+  masterPort: z.number().int().min(0).max(65535),
+  cavesPort: z.number().int().min(0).max(65535),
   steamMasterPort: z.number().int().min(1024).max(65535),
   steamCavesPort: z.number().int().min(1024).max(65535)
 }).superRefine((value, ctx) => {
-  const ports = [value.masterPort, value.cavesPort, value.steamMasterPort, value.steamCavesPort];
+  const ports = [value.masterPort, value.cavesPort, value.steamMasterPort, value.steamCavesPort].filter((port) => port > 0);
   if (new Set(ports).size !== ports.length) {
     ctx.addIssue({ code: "custom", message: "游戏端口不能重复", path: ["masterPort"] });
   }
 });
 
 export const panelPortsSchema = z.object({
-  masterPort: z.number().int().min(1024).max(65535),
-  cavesPort: z.number().int().min(1024).max(65535),
+  masterPort: z.number().int().min(0).max(65535),
+  cavesPort: z.number().int().min(0).max(65535),
   steamMasterPort: z.number().int().min(1024).max(65535),
   steamCavesPort: z.number().int().min(1024).max(65535)
 }).superRefine((value, ctx) => {
-  const ports = Object.values(value);
+  const ports = Object.values(value).filter((port) => port > 0);
   if (new Set(ports).size !== ports.length) ctx.addIssue({ code: "custom", message: "游戏端口不能重复", path: ["masterPort"] });
 });
 

@@ -81,16 +81,19 @@ try {
   const adminLogin = await call("/auth/login", { method: "POST", body: { username: "admin", password: "StrongPass123!" } });
   assert.equal(adminLogin.role, "admin");
   const initialPorts = await call("/admin/ports");
-  assert.equal(initialPorts.masterPort, 8489);
-  assert.equal(initialPorts.cavesPort, 8114);
+  assert.equal(initialPorts.masterPort, 0);
+  assert.equal(initialPorts.cavesPort, 0);
 
   const configBeforePortAttempt = await call("/config");
+  assert.equal(configBeforePortAttempt.clusterToken, "");
+  assert.equal(configBeforePortAttempt.masterPort, 0);
+  assert.equal(configBeforePortAttempt.cavesPort, 0);
   configBeforePortAttempt.clusterToken = "pds-g^smoke-test-token";
   configBeforePortAttempt.masterPort = 9000;
   configBeforePortAttempt.cavesPort = 9001;
   const configAfterPortAttempt = await call("/config", { method: "PUT", body: configBeforePortAttempt });
-  assert.equal(configAfterPortAttempt.masterPort, 8489);
-  assert.equal(configAfterPortAttempt.cavesPort, 8114);
+  assert.equal(configAfterPortAttempt.masterPort, 0);
+  assert.equal(configAfterPortAttempt.cavesPort, 0);
   const adminPorts = { ...initialPorts, masterPort: 8490, cavesPort: 8115 };
   const savedAdminPorts = await call("/admin/ports", { method: "PUT", body: adminPorts });
   assert.equal(savedAdminPorts.masterPort, 8490);

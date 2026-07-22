@@ -20,7 +20,7 @@ export class GameService {
     const currentConfig = gameConfig.get();
     return {
       installed: config.demo || fs.existsSync(config.gameBinary),
-      configured: currentConfig.clusterToken.length >= 10,
+      configured: currentConfig.clusterToken.length >= 10 && currentConfig.masterPort >= 1024 && (!currentConfig.cavesEnabled || currentConfig.cavesPort >= 1024),
       master: { running: master, session: config.sessions.master },
       caves: { running: caves, session: config.sessions.caves }
     };
@@ -33,15 +33,17 @@ export class GameService {
   }
 
   async start(shard: Shard): Promise<void> {
-    if (shard === "caves" && !gameConfig.get().cavesEnabled) throw new Error("洞穴世界未开启，请先在房间设置中开启");
+    const currentConfig = gameConfig.get();
+    if (shard === "caves" && !currentConfig.cavesEnabled) throw new Error("洞穴世界未开启，请先在房间设置中开启");
+    if (shard === "master" && currentConfig.masterPort < 1024) throw new Error("请先在系统设置中配置地面端口");
+    if (shard === "caves" && currentConfig.cavesPort < 1024) throw new Error("请先在系统设置中配置洞穴端口");
+    if (currentConfig.clusterToken.length < 10) throw new Error("请先配置 Cluster Token");
     if (config.demo) {
       this.demoStatus[shard] = true;
       return;
     }
     if (!fs.existsSync(config.gameBinary)) throw new Error("尚未安装 DST 服务端");
     if (await this.isRunning(shard)) return;
-    const token = gameConfig.get().clusterToken;
-    if (token.length < 10) throw new Error("请先配置 Cluster Token");
     const runner = path.join(config.panelRoot, "deployment", "run-shard.sh");
     const result = await runCommand("tmux", ["new-session", "-d", "-s", this.session(shard), runner, shard === "master" ? "Master" : "Caves"], { timeoutMs: 5000 });
     if (result.code !== 0) throw new Error(result.stderr || "分片启动失败");

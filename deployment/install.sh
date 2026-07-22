@@ -20,18 +20,16 @@ ROOT="/opt/mydst"
 PANEL_DIR="$ROOT/panel"
 SOURCE_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 PANEL_PORT="${MYDST_PANEL_PORT:-8114}"
-MASTER_PORT="${MYDST_MASTER_PORT:-8489}"
-CAVES_PORT="${MYDST_CAVES_PORT:-8114}"
 STEAM_MASTER_PORT="${MYDST_STEAM_MASTER_PORT:-12346}"
 STEAM_CAVES_PORT="${MYDST_STEAM_CAVES_PORT:-12347}"
 
-for value in "$PANEL_PORT" "$MASTER_PORT" "$CAVES_PORT" "$STEAM_MASTER_PORT" "$STEAM_CAVES_PORT"; do
+for value in "$PANEL_PORT" "$STEAM_MASTER_PORT" "$STEAM_CAVES_PORT"; do
   if ! [[ "$value" =~ ^[0-9]+$ ]] || (( value < 1024 || value > 65535 )); then
     echo "Invalid port: $value" >&2
     exit 1
   fi
 done
-if [[ "$MASTER_PORT" == "$CAVES_PORT" || "$MASTER_PORT" == "$STEAM_MASTER_PORT" || "$MASTER_PORT" == "$STEAM_CAVES_PORT" || "$CAVES_PORT" == "$STEAM_MASTER_PORT" || "$CAVES_PORT" == "$STEAM_CAVES_PORT" || "$STEAM_MASTER_PORT" == "$STEAM_CAVES_PORT" ]]; then
+if [[ "$STEAM_MASTER_PORT" == "$STEAM_CAVES_PORT" ]]; then
   echo "Game ports must be unique." >&2
   exit 1
 fi
@@ -103,8 +101,6 @@ PORT=$PANEL_PORT
 MYDST_ROOT=$ROOT
 MYDST_DEMO=false
 MYDST_SETUP_TOKEN=$SETUP_TOKEN
-MYDST_MASTER_PORT=$MASTER_PORT
-MYDST_CAVES_PORT=$CAVES_PORT
 MYDST_STEAM_MASTER_PORT=$STEAM_MASTER_PORT
 MYDST_STEAM_CAVES_PORT=$STEAM_CAVES_PORT
 TMUX_TMPDIR=$ROOT/tmux
@@ -121,8 +117,6 @@ systemctl enable --now mydst-panel.service
 
 if command -v ufw >/dev/null 2>&1 && ufw status | grep -q "Status: active"; then
   ufw allow "$PANEL_PORT/tcp" comment "MyDST panel"
-  ufw allow "$MASTER_PORT/udp" comment "MyDST Master"
-  ufw allow "$CAVES_PORT/udp" comment "MyDST Caves"
   ufw allow "$STEAM_MASTER_PORT/udp" comment "MyDST Steam Master"
   ufw allow "$STEAM_CAVES_PORT/udp" comment "MyDST Steam Caves"
 fi
@@ -130,7 +124,5 @@ fi
 echo
 echo "MyDST installation completed."
 echo "Panel URL: http://$(hostname -I | awk '{print $1}'):$PANEL_PORT"
-echo "Master UDP port: $MASTER_PORT"
-echo "Caves UDP port: $CAVES_PORT"
 echo "One-time setup token: $SETUP_TOKEN"
 echo "Service status: systemctl status mydst-panel"

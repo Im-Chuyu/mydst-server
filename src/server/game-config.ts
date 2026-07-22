@@ -430,5 +430,5 @@ function unescapeLua(value: string): string {
 }
 
 function isPorts(value: Partial<PanelPorts>): value is PanelPorts {
-  return [value.masterPort, value.cavesPort, value.steamMasterPort, value.steamCavesPort].every((port) => Number.isInteger(port) && Number(port) >= 1024 && Number(port) <= 65535);
+  return [value.masterPort, value.cavesPort, value.steamMasterPort, value.steamCavesPort].every((port) => Number.isInteger(port) && Number(port) >= 0 && Number(port) <= 65535);
 }

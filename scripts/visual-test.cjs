@@ -57,9 +57,7 @@ async function assertViewport(page, name) {
     await page.getByRole("button", { name: "创建管理员" }).click();
     await page.getByText("MyServer", { exact: true }).waitFor();
     await page.getByText("直连代码", { exact: true }).waitFor();
-    await page.evaluate(() => Object.defineProperty(navigator, "clipboard", { configurable: true, value: undefined }));
-    await page.getByRole("button", { name: "复制直连代码" }).click();
-    await page.getByRole("status").filter({ hasText: "直连命令已复制" }).waitFor();
+    await page.getByText("请先配置地面端口", { exact: true }).waitFor();
     await page.screenshot({ path: path.join(results, "dashboard-desktop.png"), fullPage: true });
     await assertViewport(page, "desktop dashboard");
     await page.getByRole("button", { name: "重置世界" }).waitFor();
@@ -121,6 +119,15 @@ async function assertViewport(page, name) {
     await assertViewport(page, "desktop backups");
     await page.getByRole("button", { name: "系统设置" }).click();
     await page.getByText("管理员端口", { exact: true }).waitFor();
+    await page.locator("label.field").filter({ hasText: "地面端口" }).locator("input").fill("8489");
+    await page.locator("label.field").filter({ hasText: "洞穴端口" }).locator("input").fill("8114");
+    await page.getByRole("button", { name: "保存端口" }).click();
+    await page.getByRole("status").filter({ hasText: "管理员端口已保存" }).waitFor();
+    await page.getByRole("button", { name: "运行概览" }).click();
+    await page.getByText("c_connect('127.0.0.1',8489)", { exact: true }).waitFor();
+    await page.evaluate(() => Object.defineProperty(navigator, "clipboard", { configurable: true, value: undefined }));
+    await page.getByRole("button", { name: "复制直连代码" }).click();
+    await page.getByRole("status").filter({ hasText: "直连命令已复制" }).waitFor();
     await page.screenshot({ path: path.join(results, "admin-settings-desktop.png"), fullPage: true });
     await assertViewport(page, "desktop admin settings");
     assert.deepEqual(errors, [], `Browser errors: ${errors.join("\n")}`);

@@ -24,8 +24,8 @@ export const config = {
   cookieSecure: process.env.COOKIE_SECURE === "true",
   trustProxy: process.env.TRUST_PROXY === "true",
   initialPorts: {
-    masterPort: port("MYDST_MASTER_PORT", 8489),
-    cavesPort: port("MYDST_CAVES_PORT", 8114),
+    masterPort: port("MYDST_MASTER_PORT", 0),
+    cavesPort: port("MYDST_CAVES_PORT", 0),
     steamMasterPort: port("MYDST_STEAM_MASTER_PORT", 12346),
     steamCavesPort: port("MYDST_STEAM_CAVES_PORT", 12347)
   },

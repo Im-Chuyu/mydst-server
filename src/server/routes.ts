@@ -138,7 +138,7 @@ api.get("/dashboard", async (req, res) => {
       playstyle: roomConfig.playstyle,
       cavesEnabled: roomConfig.cavesEnabled,
       maxPlayers: roomConfig.maxPlayers,
-      directConnect: `c_connect('${publicHost}',${roomConfig.masterPort})`
+      directConnect: roomConfig.masterPort >= 1024 ? `c_connect('${publicHost}',${roomConfig.masterPort})` : ""
     },
     world,
     onlinePlayers: new Set(players.map((player) => player.userId)).size,
