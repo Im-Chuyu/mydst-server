@@ -319,4 +319,5 @@ echo
 echo "MyDST installation completed."
 echo "One-time setup token: $SETUP_TOKEN"
 echo "Panel access: configure and use the public TCP endpoint assigned by your server provider."
+echo "Panel port command: sudo bash set-panel-port.sh PORT"
 echo "Service status: systemctl status mydst-panel"

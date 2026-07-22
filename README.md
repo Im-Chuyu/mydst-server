@@ -147,6 +147,33 @@ sudo grep '^MYDST_SETUP_TOKEN=' /etc/mydst-panel.env
 
 可以使用 `grep '^PORT=' /etc/mydst-panel.env` 查看面板在 Ubuntu 内部监听的 TCP 端口。如果服务器使用 NAT 映射，浏览器应填写服务器商控制台显示的外网端口，而不是直接照抄内部监听端口。
 
+#### 一键配置管理后台端口
+
+Ubuntu 无法自动读取服务器商控制台中的端口转发名称、内网端口和外网端口。首次安装完成后，先在服务器商控制台找到一条允许 TCP 的映射规则，然后把该规则的**内网 TCP 端口**传给脚本。例如规则中的内网端口是 `8432`：
+
+```bash
+cd /opt/mydst-server
+sudo bash set-panel-port.sh 8432
+```
+
+脚本会依次完成端口格式校验、TCP 占用检查、更新 `/etc/mydst-panel.env`、放行启用状态下的 UFW、重启 `mydst-panel`，并请求本机健康检查接口确认面板已经监听新端口。成功时会显示：
+
+```text
+Panel internal TCP port updated: 8114 -> 8432
+Configure the provider's public TCP endpoint to forward to internal TCP port 8432.
+Panel service status: active
+```
+
+该命令只修改管理后台的 TCP 监听端口，不会修改后台“系统设置 → 管理员端口”中的 Master/Caves 游戏 UDP 端口。如果服务器商提供 `caves TCP+UDP 8432`，可以让管理后台使用 TCP `8432`、洞穴世界使用 UDP `8432`，两者协议不同，不会冲突。浏览器仍应使用映射规则中的**外网地址和外网端口**访问，外网端口不要求与内网端口相同。
+
+例如服务器商规则为：
+
+| 名称 | 协议 | 内网端口 | 外网地址 | 外网端口 |
+|---|---|---:|---|---:|
+| caves | TCP+UDP | 8432 | 45.125.47.27 | 8432 |
+
+执行上面的配置命令后，管理后台访问地址才是 `http://45.125.47.27:8432`，同时可在后台把 Caves 游戏端口设置为 `8432`。Master 游戏端口对应的服务器商规则必须包含 UDP，只有 TCP 的规则不能用于 DST 地面世界连接。
+
 首次打开后台时，填写自定义管理员用户名、管理员密码和安装验证码。管理员初始化完成后，退出管理员账号，登录页会显示“注册普通用户账号”入口。管理员账号、密码和验证码不会写入 GitHub 仓库。
 
 ### 4. 配置服务器商端口
@@ -205,6 +232,7 @@ journalctl -u mydst-panel -n 100 -f
 systemctl status mydst-panel
 journalctl -u mydst-panel -f
 systemctl restart mydst-panel
+cd /opt/mydst-server && sudo bash set-panel-port.sh 8432
 sudo -u dst env TMUX_TMPDIR=/opt/mydst/tmux tmux list-sessions
 ```
 
