@@ -1,5 +1,5 @@
 import { Code2, RefreshCw, RotateCcw, Save, Search, SlidersHorizontal } from "lucide-react";
-import { useCallback, useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { api } from "../api";
 import type { Shard, WorldOverrideValue, WorldSettingDefinition, WorldVisualConfig } from "../types";
 
@@ -15,9 +15,11 @@ export function WorldPage({ notify }: { notify: Notify }) {
   const [raw, setRaw] = useState("");
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
+  const dirty = useRef(false);
 
-  const load = useCallback(async () => {
-    setLoading(true);
+  const load = useCallback(async (quiet = false) => {
+    if (quiet && dirty.current) return;
+    if (!quiet) setLoading(true);
     try {
       const [nextVisual, nextRaw] = await Promise.all([
         api.get<WorldVisualConfig>(`/world/${shard}/visual`),
@@ -25,6 +27,7 @@ export function WorldPage({ notify }: { notify: Notify }) {
       ]);
       setVisual(nextVisual);
       setRaw(nextRaw);
+      dirty.current = false;
     } catch (error) {
       notify("error", error instanceof Error ? error.message : "读取世界配置失败");
     } finally {
@@ -32,7 +35,11 @@ export function WorldPage({ notify }: { notify: Notify }) {
     }
   }, [notify, shard]);
 
-  useEffect(() => { void load(); }, [load]);
+  useEffect(() => {
+    void load();
+    const timer = window.setInterval(() => void load(true), 5000);
+    return () => window.clearInterval(timer);
+  }, [load]);
 
   const definitions = useMemo(() => visual?.definitions.filter((item) => item.category === category) || [], [visual, category]);
   const groups = useMemo(() => [...new Map(definitions.map((item) => [item.group, item.groupLabel])).entries()], [definitions]);
@@ -49,6 +56,7 @@ export function WorldPage({ notify }: { notify: Notify }) {
       const overrides = { ...current.overrides };
       if (value === definition.defaultValue) delete overrides[definition.key];
       else overrides[definition.key] = value;
+      dirty.current = true;
       return { ...current, overrides };
     });
   }
@@ -58,6 +66,7 @@ export function WorldPage({ notify }: { notify: Notify }) {
       if (!current) return current;
       const overrides = { ...current.overrides };
       for (const definition of visible) delete overrides[definition.key];
+      dirty.current = true;
       return { ...current, overrides };
     });
   }
@@ -74,6 +83,7 @@ export function WorldPage({ notify }: { notify: Notify }) {
         await api.put(`/world/${shard}`, { content: raw });
         setVisual(await api.get<WorldVisualConfig>(`/world/${shard}/visual`));
       }
+      dirty.current = false;
       notify("success", visual.worldCreated ? `${shard === "master" ? "地面" : "洞穴"}世界规则已保存` : `${shard === "master" ? "地面" : "洞穴"}世界配置已保存，下次生成世界时生效`);
     } catch (error) {
       notify("error", error instanceof Error ? error.message : "保存失败");
@@ -90,7 +100,7 @@ export function WorldPage({ notify }: { notify: Notify }) {
       </div>
       <div className="button-row"><button className="button secondary" disabled={loading} onClick={() => void load()}><RefreshCw size={17} />重新读取</button><button className="button primary" disabled={saving || loading} onClick={() => void save()}>{saving ? <RefreshCw className="spin" size={17} /> : <Save size={17} />}保存</button></div>
     </div>
-    {loading || !visual ? <div className="page-loading"><RefreshCw className="spin" size={20} />读取配置</div> : mode === "raw" ? <div>{visual.worldCreated && <div className="notice warning">世界已经生成，保存 Lua 时不能修改世界生成设置，只能修改世界规则。</div>}<textarea className="code-editor" spellCheck={false} value={raw} onChange={(event) => setRaw(event.target.value)} /></div> : <div className="world-visual-layout">
+    {loading || !visual ? <div className="page-loading"><RefreshCw className="spin" size={20} />读取配置</div> : mode === "raw" ? <div>{visual.worldCreated && <div className="notice warning">世界已经生成，保存 Lua 时不能修改世界生成设置，只能修改世界规则。</div>}<textarea className="code-editor" spellCheck={false} value={raw} onChange={(event) => { dirty.current = true; setRaw(event.target.value); }} /></div> : <div className="world-visual-layout">
       <aside className="world-sidebar">
         <div className="world-category-tabs"><button className={category === "settings" ? "active" : ""} onClick={() => setCategory("settings")}>世界设置</button><button className={category === "worldgen" ? "active" : ""} disabled={visual.worldCreated} title={visual.worldCreated ? "世界已经生成，不能修改世界生成设置" : ""} onClick={() => setCategory("worldgen")}>世界生成</button></div>
         <nav>{groups.map(([key, label]) => <button key={key} className={group === key && !search ? "active" : ""} onClick={() => { setSearch(""); setGroup(key); }}><span>{label}</span><small>{definitions.filter((item) => item.group === key).length}</small></button>)}</nav>
