@@ -150,10 +150,18 @@ sudo -u dst env TMUX_TMPDIR=/opt/mydst/tmux tmux list-sessions
 更新后台源码：
 
 ```bash
-sudo ./deployment/update.sh
+cd /opt/mydst-server
+git pull --ff-only
+sudo bash deployment/update.sh
 ```
 
-`update.sh` 只更新面板程序并重建前端/后端，不会删除 `/opt/mydst/data`、备份和面板状态。更新前建议先在后台生成一次备份。
+也可以合并成一行：
+
+```bash
+cd /opt/mydst-server && git pull --ff-only && sudo bash deployment/update.sh
+```
+
+其中 `git pull` 负责从 GitHub 获取最新代码，`update.sh` 负责将本地代码同步到 `/opt/mydst/panel` 并重建前端/后端。`update.sh` 本身不会自动访问 GitHub，也不会删除 `/opt/mydst/data`、备份和面板状态。更新前建议先在后台生成一次备份。
 
 ## 本地开发
 
