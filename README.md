@@ -112,6 +112,32 @@ sudo -u dst env TMUX_TMPDIR=/opt/mydst/tmux tmux list-sessions
 
 首次安装后没有自动创建游戏世界，登录后台配置 Master/Caves 端口、Cluster Token、房间和世界设置后，再从主页启动分片。
 
+## 服务器重启后恢复运行
+
+如果只是重启服务器、重置物理机或恢复系统，而 `/opt/mydst/` 数据目录仍然保留，则不需要重新克隆项目，也不需要重新安装 SteamCMD 或 DST。登录服务器后启动已有面板服务：
+
+```bash
+systemctl daemon-reload
+systemctl enable --now mydst-panel
+systemctl status mydst-panel --no-pager
+```
+
+面板恢复后，使用浏览器打开原来的后台地址并登录，在主页点击“全部启动”即可启动 Master/Caves。游戏分片默认不会因为服务器重启自动创建新世界，原有存档、MOD、房间配置和面板账号会继续使用。
+
+检查游戏分片是否正在运行：
+
+```bash
+sudo -u dst env TMUX_TMPDIR=/opt/mydst/tmux tmux list-sessions
+```
+
+查看面板启动日志：
+
+```bash
+journalctl -u mydst-panel -n 100 -f
+```
+
+只有在 `/opt/mydst/` 数据目录确实不存在，或系统已经重新安装并清空了原有磁盘时，才需要重新执行“一键安装”。
+
 ## 常用命令
 
 ```bash
