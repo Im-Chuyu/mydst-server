@@ -8,7 +8,7 @@ export function AuthScreen({ initialized, setupTokenRequired, onAuthenticated }:
   setupTokenRequired: boolean;
   onAuthenticated: (session: Session) => void;
 }) {
-  const [username, setUsername] = useState("admin");
+  const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
   const [setupToken, setSetupToken] = useState("");
   const [registering, setRegistering] = useState(false);
