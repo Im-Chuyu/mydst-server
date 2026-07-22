@@ -40,20 +40,37 @@ log_step() { printf '\n[%s] %s\n' "$(date '+%F %T')" "$*"; }
 download_file() {
   local url="$1"
   local destination="$2"
+  local attempts="${3:-2}"
   local attempt
-  for attempt in 1 2 3 4 5; do
+  for ((attempt = 1; attempt <= attempts; attempt += 1)); do
     if [[ -s "$destination" ]] && { [[ "$destination" != *.tar.gz.part ]] || gzip -t "$destination" >/dev/null 2>&1; }; then
       return 0
     fi
-    echo "Downloading $(basename "$destination") (attempt $attempt/5)..."
-    if curl -4 --http1.1 -fL --retry 3 --retry-all-errors --retry-delay 4 \
-      --connect-timeout 20 --max-time 600 --continue-at - \
+    echo "Downloading $(basename "$destination") from $url (attempt $attempt/$attempts)..."
+    if curl -4 --http1.1 -fL --retry 1 --retry-all-errors --retry-delay 3 \
+      --connect-timeout 12 --max-time 600 --speed-limit 1024 --speed-time 45 --continue-at - \
       -o "$destination" "$url"; then
-      return 0
+      if [[ "$destination" != *.tar.gz.part ]] || gzip -t "$destination" >/dev/null 2>&1; then
+        return 0
+      fi
+      echo "The downloaded archive is incomplete; another endpoint or attempt will resume it." >&2
     fi
-    sleep 5
+    sleep 3
   done
   echo "Download failed after retries: $url" >&2
+  return 1
+}
+
+download_from_urls() {
+  local destination="$1"
+  shift
+  local url
+  for url in "$@"; do
+    if download_file "$url" "$destination" 2; then
+      return 0
+    fi
+    echo "Switching SteamCMD download endpoint..." >&2
+  done
   return 1
 }
 
@@ -209,7 +226,16 @@ chmod -R g+rX,o-rwx "$PANEL_DIR"
 if [[ ! -x "$ROOT/steamcmd/steamcmd.sh" ]]; then
   log_step "Downloading SteamCMD"
   STEAMCMD_ARCHIVE="$ROOT/.steamcmd_linux.tar.gz.part"
-  download_file "https://steamcdn-a.akamaihd.net/client/installer/steamcmd_linux.tar.gz" "$STEAMCMD_ARCHIVE"
+  STEAMCMD_URLS=()
+  [[ -n "${MYDST_STEAMCMD_URL:-}" ]] && STEAMCMD_URLS+=("$MYDST_STEAMCMD_URL")
+  STEAMCMD_URLS+=(
+    "https://media.steampowered.com/installer/steamcmd_linux.tar.gz"
+    "https://steamcdn-a.akamaihd.net/client/installer/steamcmd_linux.tar.gz"
+  )
+  if ! download_from_urls "$STEAMCMD_ARCHIVE" "${STEAMCMD_URLS[@]}"; then
+    echo "SteamCMD download failed on every configured endpoint. Re-run the installer to resume the partial file." >&2
+    exit 1
+  fi
   gzip -t "$STEAMCMD_ARCHIVE"
   tar -tzf "$STEAMCMD_ARCHIVE" >/dev/null
   tar -xzf "$STEAMCMD_ARCHIVE" -C "$ROOT/steamcmd"
