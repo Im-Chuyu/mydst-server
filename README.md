@@ -71,6 +71,32 @@ sudo ./install.sh
 
 安装过程会显示当前阶段。安装器会从阿里云、腾讯云、清华镜像和 Ubuntu 官方源中选择可访问的软件源，安装期间临时跳过不需要的 backports 和语言索引，完成后恢复服务器原来的 APT 源配置。如果系统依赖已经安装，再次执行安装器会跳过 `apt update`。网络下载使用超时、重试和断点续传；SteamCMD 会在两个官方地址间自动切换，压缩包先下载到 `/opt/mydst/.steamcmd_linux.tar.gz.part`，每次下载后验证完整性，通过后才解压。因此下载中断后不要同时运行第二个安装器，重新执行同一条安装命令即可继续已有文件。
 
+#### 安装中断后更新代码并继续
+
+如果首次安装尚未显示 `MyDST installation completed.`，此时 GitHub 仓库又发布了修复，不能运行 `deployment/update.sh`。先确认旧安装器已经退出，不要同时启动两个安装器：
+
+```bash
+ps -ef | grep -E '[i]nstall.sh|[s]teamcmd|[c]url|[t]ar'
+```
+
+没有旧安装任务后，拉取最新代码并重新执行首次安装脚本：
+
+```bash
+cd /opt/mydst-server
+git -c http.version=HTTP/1.1 pull --ff-only
+sudo bash deployment/install.sh
+```
+
+也可以合并成一行：
+
+```bash
+cd /opt/mydst-server && git -c http.version=HTTP/1.1 pull --ff-only && sudo bash deployment/install.sh
+```
+
+`git -c http.version=HTTP/1.1` 只对本次拉取生效，可减少部分国内线路上的 GitHub TLS 中断。重新执行 `install.sh` 不会无条件从头下载：已经安装的 Ubuntu 依赖和 Node.js 会跳过，面板使用新源码重新构建，有效的 SteamCMD 断点会继续，DST 已有文件由 SteamCMD 校验后只补齐缺失内容。旧版本留下的无效 SteamCMD 残片会自动清理。
+
+首次安装完成前通常还没有 `/etc/mydst-panel.env`，所以运行 `deployment/update.sh` 会报找不到该文件。只有安装器最终显示 `MyDST installation completed.` 后，才改用文档后面的日常更新命令。
+
 需要指定固定 Ubuntu 镜像时，可以传入完整镜像地址：
 
 ```bash
@@ -183,7 +209,7 @@ systemctl restart mydst-panel
 sudo -u dst env TMUX_TMPDIR=/opt/mydst/tmux tmux list-sessions
 ```
 
-更新后台源码：
+更新后台源码（仅适用于首次安装已经完整结束，并且 `/etc/mydst-panel.env` 存在的服务器）：
 
 ```bash
 cd /opt/mydst-server
@@ -197,7 +223,7 @@ sudo bash deployment/update.sh
 cd /opt/mydst-server && git pull --ff-only && sudo bash deployment/update.sh
 ```
 
-其中 `git pull` 负责从 GitHub 获取最新代码，`update.sh` 负责将本地代码同步到 `/opt/mydst/panel` 并重建前端/后端。`update.sh` 本身不会自动访问 GitHub，也不会删除 `/opt/mydst/data`、备份和面板状态。更新前建议先在后台生成一次备份。
+其中 `git pull` 负责从 GitHub 获取最新代码，`update.sh` 负责将本地代码同步到 `/opt/mydst/panel` 并重建前端/后端。`update.sh` 本身不会自动访问 GitHub，也不会删除 `/opt/mydst/data`、备份和面板状态。更新前建议先在后台生成一次备份。如果首次安装仍未完成或 `/etc/mydst-panel.env` 不存在，请回到“一键安装”中的“安装中断后更新代码并继续”，拉取代码后重新运行 `deployment/install.sh`。
 
 ## 本地开发
 
