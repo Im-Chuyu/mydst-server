@@ -108,6 +108,7 @@ export interface WorldSettingDefinition {
 }
 export interface WorldVisualConfig {
   shard: Shard;
+  worldCreated: boolean;
   preset: string;
   overrides: Record<string, WorldOverrideValue>;
   definitions: WorldSettingDefinition[];

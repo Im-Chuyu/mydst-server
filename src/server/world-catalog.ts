@@ -56,5 +56,5 @@ export function getPresetOverrides(shard: Shard, preset: string): Record<string,
 }
 
 export function playstyleFromPreset(preset: string): Playstyle {
-  return (Object.entries(playstylePresets).find(([, item]) => item.preset === preset)?.[0] as Playstyle | undefined) || "survival";
+  return (Object.entries(playstylePresets).find(([, item]) => item.preset === preset)?.[0] as Playstyle | undefined) || "endless";
 }

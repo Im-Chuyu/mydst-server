@@ -447,7 +447,11 @@ api.post("/backups/:name/restore", async (req, res) => {
     await backups.create("before-restore", log);
     await backups.restore(name, log);
     if (gameConfig.syncCavesFromRestoredSave()) log("检测到洞穴存档，已自动开启并锁定洞穴世界");
-    gameConfig.restorePanelPorts(panelPorts, panelConfig.clusterToken.length >= 10 ? panelConfig.clusterToken : undefined);
+    gameConfig.restorePanelPorts(panelPorts);
+    if (gameConfig.get().clusterToken.length < 10 && panelConfig.clusterToken.length >= 10) {
+      gameConfig.restorePanelPorts(panelPorts, panelConfig.clusterToken);
+      log("存档未包含有效 Cluster Token，已保留面板 Token");
+    }
     log("已用面板端口覆盖恢复存档中的 Master/Caves 端口");
     const restoredMods = gameConfig.importRestoredMods();
     if (restoredMods.length) {

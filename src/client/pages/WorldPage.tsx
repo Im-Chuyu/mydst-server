@@ -36,6 +36,7 @@ export function WorldPage({ notify }: { notify: Notify }) {
 
   const definitions = useMemo(() => visual?.definitions.filter((item) => item.category === category) || [], [visual, category]);
   const groups = useMemo(() => [...new Map(definitions.map((item) => [item.group, item.groupLabel])).entries()], [definitions]);
+  useEffect(() => { if (visual?.worldCreated && category === "worldgen") setCategory("settings"); }, [visual?.worldCreated, category]);
   useEffect(() => { if (groups.length && !groups.some(([key]) => key === group)) setGroup(groups[0]![0]); }, [group, groups]);
   const visible = definitions.filter((item) => (search.trim() ? `${item.label} ${item.key} ${item.groupLabel}`.toLowerCase().includes(search.trim().toLowerCase()) : item.group === group));
   const knownKeys = new Set(visual?.definitions.map((item) => item.key) || []);
@@ -73,7 +74,7 @@ export function WorldPage({ notify }: { notify: Notify }) {
         await api.put(`/world/${shard}`, { content: raw });
         setVisual(await api.get<WorldVisualConfig>(`/world/${shard}/visual`));
       }
-      notify("success", `${shard === "master" ? "地面" : "洞穴"}世界配置已保存，下次生成世界时生效`);
+      notify("success", visual.worldCreated ? `${shard === "master" ? "地面" : "洞穴"}世界规则已保存` : `${shard === "master" ? "地面" : "洞穴"}世界配置已保存，下次生成世界时生效`);
     } catch (error) {
       notify("error", error instanceof Error ? error.message : "保存失败");
     } finally {
@@ -89,13 +90,14 @@ export function WorldPage({ notify }: { notify: Notify }) {
       </div>
       <div className="button-row"><button className="button secondary" disabled={loading} onClick={() => void load()}><RefreshCw size={17} />重新读取</button><button className="button primary" disabled={saving || loading} onClick={() => void save()}>{saving ? <RefreshCw className="spin" size={17} /> : <Save size={17} />}保存</button></div>
     </div>
-    {loading || !visual ? <div className="page-loading"><RefreshCw className="spin" size={20} />读取配置</div> : mode === "raw" ? <textarea className="code-editor" spellCheck={false} value={raw} onChange={(event) => setRaw(event.target.value)} /> : <div className="world-visual-layout">
+    {loading || !visual ? <div className="page-loading"><RefreshCw className="spin" size={20} />读取配置</div> : mode === "raw" ? <div>{visual.worldCreated && <div className="notice warning">世界已经生成，保存 Lua 时不能修改世界生成设置，只能修改世界规则。</div>}<textarea className="code-editor" spellCheck={false} value={raw} onChange={(event) => setRaw(event.target.value)} /></div> : <div className="world-visual-layout">
       <aside className="world-sidebar">
-        <div className="world-category-tabs"><button className={category === "settings" ? "active" : ""} onClick={() => setCategory("settings")}>世界设置</button><button className={category === "worldgen" ? "active" : ""} onClick={() => setCategory("worldgen")}>世界生成</button></div>
+        <div className="world-category-tabs"><button className={category === "settings" ? "active" : ""} onClick={() => setCategory("settings")}>世界设置</button><button className={category === "worldgen" ? "active" : ""} disabled={visual.worldCreated} title={visual.worldCreated ? "世界已经生成，不能修改世界生成设置" : ""} onClick={() => setCategory("worldgen")}>世界生成</button></div>
         <nav>{groups.map(([key, label]) => <button key={key} className={group === key && !search ? "active" : ""} onClick={() => { setSearch(""); setGroup(key); }}><span>{label}</span><small>{definitions.filter((item) => item.group === key).length}</small></button>)}</nav>
         <div className="world-version">{visual.catalogVersion}<br />{modifiedCount} 项已修改{unknownCount ? ` · ${unknownCount} 项高级配置` : ""}</div>
       </aside>
       <div className="world-settings-pane">
+        {visual.worldCreated && <div className="notice warning">世界已经生成，世界生成设置已锁定；当前页面只允许修改世界规则。</div>}
         <div className="world-settings-toolbar"><label><Search size={16} /><input value={search} onChange={(event) => setSearch(event.target.value)} placeholder="搜索设置名称或键名" /></label><button className="button secondary" disabled={!visible.some((item) => item.key in visual.overrides)} onClick={resetVisible}><RotateCcw size={16} />重置当前</button></div>
         {unknownCount > 0 && <div className="world-advanced-note">检测到 {unknownCount} 个 MOD 或高级设置项，可视化保存会原样保留。</div>}
         <div className="world-setting-list">{visible.length === 0 ? <div className="empty-state"><Search size={26} /><strong>没有匹配的设置</strong></div> : visible.map((definition) => <WorldSetting key={definition.key} definition={definition} value={visual.overrides[definition.key]} onChange={(value) => update(definition, value)} />)}</div>
