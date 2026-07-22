@@ -19,7 +19,7 @@ export class GameService {
     const [master, caves] = await Promise.all([this.isRunning("master"), this.isRunning("caves")]);
     const currentConfig = gameConfig.get();
     return {
-      installed: config.demo || fs.existsSync(config.gameBinary),
+      installed: config.demo || fs.existsSync(config.gameBinary64) || fs.existsSync(config.gameBinary32),
       configured: currentConfig.clusterToken.length >= 10 && currentConfig.masterPort >= 1024 && (!currentConfig.cavesEnabled || currentConfig.cavesPort >= 1024),
       master: { running: master, session: config.sessions.master },
       caves: { running: caves, session: config.sessions.caves }
@@ -42,7 +42,7 @@ export class GameService {
       this.demoStatus[shard] = true;
       return;
     }
-    if (!fs.existsSync(config.gameBinary)) throw new Error("尚未安装 DST 服务端");
+    if (!fs.existsSync(config.gameBinary64) && !fs.existsSync(config.gameBinary32)) throw new Error("尚未安装 DST 服务端");
     if (await this.isRunning(shard)) return;
     const runner = path.join(config.panelRoot, "deployment", "run-shard.sh");
     const result = await runCommand("tmux", ["new-session", "-d", "-s", this.session(shard), runner, shard === "master" ? "Master" : "Caves"], { timeoutMs: 5000 });

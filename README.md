@@ -67,7 +67,7 @@ chmod +x install.sh
 sudo ./install.sh
 ```
 
-安装器会自动完成以下工作：安装系统依赖和 32 位运行库、安装 Node.js 22、创建无特权 `dst` 用户、安装 SteamCMD、下载或更新 DST Dedicated Server、构建管理后台、创建 systemd 服务，并在 UFW 已启用时添加面板和 Steam 通信规则。
+安装器会自动完成以下工作：安装系统依赖和 SteamCMD 所需的兼容库、安装 Node.js 22、创建无特权 `dst` 用户、安装或更新 DST Dedicated Server、构建管理后台、创建 systemd 服务，并在 UFW 已启用时添加面板和 Steam 通信规则。启动游戏时会优先使用 DST 的 64 位 `bin64` 程序；只有服务器端没有 64 位程序时才回退到 `bin` 入口。
 
 面板 TCP 端口可以在安装时指定，例如：
 
