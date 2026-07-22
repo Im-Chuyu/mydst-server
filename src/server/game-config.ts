@@ -2,7 +2,7 @@ import fs from "node:fs";
 import path from "node:path";
 import ini from "ini";
 import { config } from "./config.js";
-import { parseConfigurationValues } from "./lua-config.js";
+import { normalizeConfigurationTable, parseModOverrides } from "./lua-config.js";
 import type { GameConfig, ModRecord, PanelPorts, Shard } from "./types.js";
 import { getPresetOverrides, playstyleFromPreset, playstylePresets, worldCatalog, worldCatalogVersion, type WorldOverrideValue } from "./world-catalog.js";
 
@@ -307,8 +307,29 @@ export class GameConfigService {
     }
   }
 
+  importRestoredMods(): ModRecord[] {
+    const knownNames = new Map(this.getMods().map((mod) => [mod.id, mod.name]));
+    const merged = new Map<string, ModRecord>();
+    for (const shard of ["master", "caves"] as const) {
+      const file = path.join(this.shardDir(shard), "modoverrides.lua");
+      if (!fs.existsSync(file)) continue;
+      for (const restored of parseModOverrides(fs.readFileSync(file, "utf8"))) {
+        const current = merged.get(restored.id);
+        merged.set(restored.id, {
+          id: restored.id,
+          name: knownNames.get(restored.id) || `Workshop ${restored.id}`,
+          enabled: restored.enabled || current?.enabled === true,
+          configuration: current && current.configuration !== "{}" ? current.configuration : restored.configuration
+        });
+      }
+    }
+    const mods = [...merged.values()];
+    this.saveMods(mods);
+    return mods;
+  }
+
   saveMods(mods: ModRecord[]): void {
-    for (const mod of mods) parseConfigurationValues(mod.configuration || "{}");
+    for (const mod of mods) normalizeConfigurationTable(mod.configuration || "{}");
     writeAtomic(this.modsFile(), JSON.stringify(mods, null, 2) + "\n");
     const enabled = mods.filter((mod) => mod.enabled);
     const body = enabled.map((mod) => `  ["workshop-${mod.id}"] = { enabled = true, configuration_options = ${mod.configuration || "{}"} },`).join("\n");

@@ -72,31 +72,113 @@ download_script() {
   return "$status"
 }
 
+APT_NETWORK_CONFIG="/etc/apt/apt.conf.d/99mydst-install-network"
+APT_SOURCE_FILES=("/etc/apt/sources.list" "/etc/apt/sources.list.d/ubuntu.sources")
+APT_NETWORK_PREPARED=false
+
+restore_apt_configuration() {
+  rm -f "$APT_NETWORK_CONFIG"
+  local source backup
+  for source in "${APT_SOURCE_FILES[@]}"; do
+    backup="${source}.mydst-original"
+    if [[ -f "$backup" ]]; then
+      mv -f "$backup" "$source"
+    fi
+  done
+}
+
+select_ubuntu_mirror() {
+  if [[ -n "${MYDST_APT_MIRROR:-}" ]]; then
+    APT_MIRROR="${MYDST_APT_MIRROR%/}"
+    return
+  fi
+  local candidate probe
+  for candidate in \
+    "https://mirrors.aliyun.com/ubuntu" \
+    "https://mirrors.cloud.tencent.com/ubuntu" \
+    "https://mirrors.tuna.tsinghua.edu.cn/ubuntu" \
+    "http://archive.ubuntu.com/ubuntu"; do
+    probe="$candidate/dists/${VERSION_CODENAME}/InRelease"
+    if ! command -v curl >/dev/null 2>&1 || curl -4 --http1.1 -fsL --range 0-1023 --connect-timeout 4 --max-time 8 -o /dev/null "$probe"; then
+      APT_MIRROR="$candidate"
+      return
+    fi
+  done
+  APT_MIRROR="http://archive.ubuntu.com/ubuntu"
+}
+
+prepare_apt_network() {
+  [[ "$APT_NETWORK_PREPARED" == true ]] && return
+  restore_apt_configuration
+  select_ubuntu_mirror
+  local source backup
+  for source in "${APT_SOURCE_FILES[@]}"; do
+    [[ -f "$source" ]] || continue
+    backup="${source}.mydst-original"
+    cp -a "$source" "$backup"
+    sed -i -E "s#https?://(([a-zA-Z0-9.-]+\\.)?archive\\.ubuntu\\.com|security\\.ubuntu\\.com)/ubuntu#${APT_MIRROR}#g" "$source"
+    sed -i -E "s/[[:space:]]+${VERSION_CODENAME}-backports//g" "$source"
+  done
+  cat > "$APT_NETWORK_CONFIG" <<'EOF'
+Acquire::ForceIPv4 "true";
+Acquire::Retries "2";
+Acquire::http::Timeout "12";
+Acquire::https::Timeout "12";
+Acquire::Languages "none";
+EOF
+  APT_NETWORK_PREPARED=true
+  trap restore_apt_configuration EXIT
+  echo "Ubuntu package mirror: $APT_MIRROR"
+}
+
+package_installed() {
+  dpkg-query -W -f='${Status}' "$1" 2>/dev/null | grep -q '^install ok installed$'
+}
+
 log_step "Preparing Ubuntu packages"
 dpkg --add-architecture i386
-apt-get -o Acquire::ForceIPv4=true -o Acquire::Retries=5 -o Acquire::http::Timeout=30 -o Acquire::https::Timeout=30 update
+SYSTEM_PACKAGES=(ca-certificates curl xz-utils tar tmux openssl rsync lib32gcc-s1 libstdc++6:i386)
 CURL32_PACKAGE=""
 for candidate in libcurl3t64-gnutls:i386 libcurl3-gnutls:i386 libcurl4-gnutls-dev:i386; do
-  if apt-cache show "$candidate" >/dev/null 2>&1; then
+  if package_installed "$candidate"; then
     CURL32_PACKAGE="$candidate"
     break
   fi
 done
-if [[ -z "$CURL32_PACKAGE" ]]; then
-  echo "Unable to locate a supported 32-bit libcurl package." >&2
-  exit 1
+PACKAGES_READY=true
+for package in "${SYSTEM_PACKAGES[@]}"; do
+  package_installed "$package" || PACKAGES_READY=false
+done
+[[ -n "$CURL32_PACKAGE" ]] || PACKAGES_READY=false
+
+if [[ "$PACKAGES_READY" == true ]]; then
+  echo "Ubuntu and SteamCMD dependencies are already installed; skipping apt update."
+else
+  prepare_apt_network
+  apt-get update
+  if [[ -z "$CURL32_PACKAGE" ]]; then
+    for candidate in libcurl3t64-gnutls:i386 libcurl3-gnutls:i386 libcurl4-gnutls-dev:i386; do
+      if apt-cache show "$candidate" >/dev/null 2>&1; then
+        CURL32_PACKAGE="$candidate"
+        break
+      fi
+    done
+  fi
+  if [[ -z "$CURL32_PACKAGE" ]]; then
+    echo "Unable to locate a supported 32-bit libcurl package." >&2
+    exit 1
+  fi
+  log_step "Installing Ubuntu packages"
+  apt-get install -y --no-install-recommends "${SYSTEM_PACKAGES[@]}" "$CURL32_PACKAGE"
 fi
-log_step "Installing Ubuntu packages"
-apt-get -o Acquire::ForceIPv4=true -o Acquire::Retries=5 -o Acquire::http::Timeout=30 -o Acquire::https::Timeout=30 install -y --no-install-recommends \
-  ca-certificates curl xz-utils tar tmux openssl rsync \
-  lib32gcc-s1 libstdc++6:i386 "$CURL32_PACKAGE"
 
 SETUP_TOKEN="$(openssl rand -hex 12)"
 
 if ! command -v node >/dev/null 2>&1 || [[ "$(node -p 'Number(process.versions.node.split(`.`)[0])')" -lt 22 ]]; then
   log_step "Installing Node.js 22"
+  prepare_apt_network
   download_script "https://deb.nodesource.com/setup_22.x"
-  apt-get -o Acquire::ForceIPv4=true -o Acquire::Retries=5 -o Acquire::http::Timeout=30 -o Acquire::https::Timeout=30 install -y nodejs
+  apt-get install -y nodejs
 fi
 
 if ! id dst >/dev/null 2>&1; then

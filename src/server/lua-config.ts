@@ -10,6 +10,12 @@ export interface ModConfigOption {
   choices: ModConfigChoice[];
 }
 
+export interface ParsedModOverride {
+  id: string;
+  enabled: boolean;
+  configuration: string;
+}
+
 type LuaKey = string | number;
 type LuaValue = ModConfigValue | LuaTable | null | undefined;
 
@@ -55,11 +61,7 @@ export function parseModInfoOptions(source: string): ModConfigOption[] {
 }
 
 export function parseConfigurationValues(source: string): Record<string, ModConfigValue> {
-  const chunk = parseLua(`return ${source}`);
-  const statement = chunk.body[0] as unknown as { type?: string; arguments?: unknown[] } | undefined;
-  if (!statement || statement.type !== "ReturnStatement" || statement.arguments?.length !== 1) throw new Error("MOD Lua 配置必须是一个表");
-  const interpreter = new StaticLuaInterpreter();
-  const value = interpreter.evaluate(statement.arguments[0]);
+  const value = parseConfigurationTable(source);
   if (!(value instanceof LuaTable)) throw new Error("MOD Lua 配置必须是一个表");
   const result: Record<string, ModConfigValue> = {};
   for (const [key, entry] of value.entries) {
@@ -68,6 +70,56 @@ export function parseConfigurationValues(source: string): Record<string, ModConf
     result[key] = parsed;
   }
   return result;
+}
+
+export function normalizeConfigurationTable(source: string): string {
+  return serializeLuaValue(parseConfigurationTable(source));
+}
+
+export function parseModOverrides(source: string): ParsedModOverride[] {
+  const chunk = parseLua(source);
+  const statement = chunk.body.find((item: unknown) => (item as { type?: string }).type === "ReturnStatement") as unknown as { arguments?: unknown[] } | undefined;
+  if (!statement || statement.arguments?.length !== 1) throw new Error("modoverrides.lua 必须返回一个表");
+  const interpreter = new StaticLuaInterpreter();
+  const value = interpreter.evaluate(statement.arguments[0]);
+  if (!(value instanceof LuaTable)) throw new Error("modoverrides.lua 必须返回一个表");
+  const mods: ParsedModOverride[] = [];
+  for (const [key, entry] of value.entries) {
+    const id = typeof key === "string" ? key.match(/^workshop-(\d{5,12})$/)?.[1] : undefined;
+    if (!id || !(entry instanceof LuaTable)) continue;
+    const configuration = entry.get("configuration_options");
+    mods.push({
+      id,
+      enabled: entry.get("enabled") !== false,
+      configuration: configuration instanceof LuaTable ? serializeLuaValue(configuration) : "{}"
+    });
+  }
+  return mods;
+}
+
+function parseConfigurationTable(source: string): LuaTable {
+  const chunk = parseLua(`return ${source}`);
+  const statement = chunk.body[0] as unknown as { type?: string; arguments?: unknown[] } | undefined;
+  if (!statement || statement.type !== "ReturnStatement" || statement.arguments?.length !== 1) throw new Error("MOD Lua 配置必须是一个表");
+  const interpreter = new StaticLuaInterpreter();
+  const value = interpreter.evaluate(statement.arguments[0]);
+  if (!(value instanceof LuaTable)) throw new Error("MOD Lua 配置必须是一个表");
+  return value;
+}
+
+function serializeLuaValue(value: LuaValue, depth = 0): string {
+  if (depth > 20) throw new Error("MOD Lua 配置嵌套过深");
+  if (value === null) return "nil";
+  if (typeof value === "boolean" || typeof value === "number") return String(value);
+  if (typeof value === "string") return `"${value.replace(/\\/g, "\\\\").replace(/\"/g, '\\"').replace(/\r/g, "\\r").replace(/\n/g, "\\n")}"`;
+  if (!(value instanceof LuaTable)) throw new Error("MOD Lua 配置只能包含静态表、字符串、数字和布尔值");
+  const fields: string[] = [];
+  for (const [key, entry] of value.entries) {
+    const serialized = serializeLuaValue(entry, depth + 1);
+    if (typeof key === "number") fields.push(`[${key}] = ${serialized}`);
+    else fields.push(`[${serializeLuaValue(key, depth + 1)}] = ${serialized}`);
+  }
+  return fields.length ? `{ ${fields.join(", ")} }` : "{}";
 }
 
 class StaticLuaInterpreter {

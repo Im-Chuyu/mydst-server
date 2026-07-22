@@ -3,7 +3,7 @@ import { spawn } from "node:child_process";
 import fs from "node:fs";
 import path from "node:path";
 import yazl from "yazl";
-import { parseModInfoOptions } from "../dist/server/lua-config.js";
+import { parseModInfoOptions, parseModOverrides } from "../dist/server/lua-config.js";
 import { extractWorkshopIds } from "../dist/server/workshop-service.js";
 
 const root = path.resolve(".runtime-smoke");
@@ -55,6 +55,13 @@ try {
   `);
   assert.equal(parsedModOptions.length, 2);
   assert.equal(parsedModOptions[0].choices.length, 3);
+  const parsedOverrides = parseModOverrides(`return {
+    ["workshop-378160973"] = { enabled = true, configuration_options = { ["LANGUAGE"] = "zh", ["nested"] = { ["level"] = 2 } } },
+  }`);
+  assert.equal(parsedOverrides.length, 1);
+  assert.equal(parsedOverrides[0].id, "378160973");
+  assert.match(parsedOverrides[0].configuration, /LANGUAGE/);
+  assert.match(parsedOverrides[0].configuration, /nested/);
 
   for (let attempt = 0; attempt < 40; attempt += 1) {
     try {
@@ -243,6 +250,8 @@ try {
     "Cluster_1/cluster.ini": "[NETWORK]\ncluster_name=ZIP Test\n[GAMEPLAY]\ngame_mode=survival\n",
     "Cluster_1/Master/server.ini": "[SHARD]\nis_master=true\n[NETWORK]\nserver_port=8489\n",
     "Cluster_1/Caves/server.ini": "[SHARD]\nis_master=false\n[NETWORK]\nserver_port=8114\n",
+    "Cluster_1/Master/modoverrides.lua": `return { ["workshop-378160973"] = { enabled = true, configuration_options = { ["LANGUAGE"] = "zh" } } }`,
+    "Cluster_1/Caves/modoverrides.lua": `return { ["workshop-378160973"] = { enabled = true, configuration_options = { ["LANGUAGE"] = "zh" } } }`,
     "Cluster_1/Master/save/session/demo/0000000001": "save-data",
     "Cluster_1/Caves/save/session/demo/0000000001": "cave-save-data"
   });
@@ -269,6 +278,12 @@ try {
   assert.equal(configAfterRestore.masterPort, 8490);
   assert.equal(configAfterRestore.cavesPort, 8115);
   assert.equal((await call("/server/status")).caves.running, false);
+  const restoredMods = await call("/mods");
+  assert.equal(restoredMods.length, 1);
+  assert.equal(restoredMods[0].id, "378160973");
+  assert.equal(restoredMods[0].enabled, true);
+  assert.match(restoredMods[0].configuration, /LANGUAGE/);
+  assert.equal((await call("/mods/378160973/configuration")).installed, true);
 
   const invalidZip = await createZip({ "Cluster_1/readme.txt": "not a save" });
   const invalidBody = new FormData();

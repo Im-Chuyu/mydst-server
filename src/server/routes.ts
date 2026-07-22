@@ -13,7 +13,7 @@ import { config } from "./config.js";
 import { gameConfig } from "./game-config.js";
 import { game } from "./game-service.js";
 import { jobs } from "./jobs.js";
-import { downloadAndAddMod, getModConfiguration } from "./mod-workshop-service.js";
+import { downloadAndAddMod, getModConfiguration, installRestoredMods } from "./mod-workshop-service.js";
 import { store } from "./store.js";
 import { getSystemInfo } from "./system-service.js";
 import { consoleSchema, credentialsSchema, gameConfigSchema, modSchema, panelPortsSchema, schedulesSchema, shardActionSchema } from "./validation.js";
@@ -405,6 +405,14 @@ api.post("/backups/:name/restore", async (req, res) => {
     if (gameConfig.syncCavesFromRestoredSave()) log("检测到洞穴存档，已自动开启并锁定洞穴世界");
     gameConfig.restorePanelPorts(panelPorts, panelConfig.clusterToken.length >= 10 ? panelConfig.clusterToken : undefined);
     log("已用面板端口覆盖恢复存档中的 Master/Caves 端口");
+    const restoredMods = gameConfig.importRestoredMods();
+    if (restoredMods.length) {
+      log(`从存档中识别到 ${restoredMods.length} 个 MOD，正在检查并下载启用项`);
+      await installRestoredMods(restoredMods, log);
+      log("存档 MOD 已同步到服务器 MOD 列表和游戏目录");
+    } else {
+      log("存档中没有启用的 Workshop MOD，服务器 MOD 列表已同步为空");
+    }
     if (before.master.running) await game.start("master");
     if (before.caves.running && gameConfig.get().cavesEnabled) await game.start("caves");
   });
