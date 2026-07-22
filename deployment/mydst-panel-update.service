@@ -9,4 +9,3 @@ User=root
 ExecStart=/usr/bin/bash /opt/mydst/panel/deployment/panel-self-update.sh
 TimeoutStartSec=45min
 NoNewPrivileges=false
-
