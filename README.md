@@ -127,16 +127,15 @@ Success! App '343050' fully installed.
 
 ```text
 MyDST installation completed.
-Panel local URL: http://172.16.0.5:8114
-Panel public URL: use the public IP/domain and mapped external TCP port from your server provider.
 One-time setup token: be0604ecc2eb43549697a746
+Panel access: configure and use the public TCP endpoint assigned by your server provider.
 Service status: systemctl status mydst-panel
 ```
 
 其中：
 
-- `Panel local URL` 是 Ubuntu 内部地址，使用 NAT 服务器时通常不能直接从公网访问；
-- 实际管理后台地址应使用服务器公网 IP（或域名）以及服务器商映射的面板外网端口，例如 `http://公网IP:面板外网端口`；
+- 安装器不会输出管理后台 URL，因为它无法知道服务器商最终分配或映射的面板公网 TCP 端口；
+- 实际管理后台地址应以服务器商控制台确定的公网 IP（或域名）和面板外网端口为准；
 - `One-time setup token` 后面的字符串就是首次创建管理员时需要填写的安装验证码；
 - 安装验证码不是管理员密码，也不是 GitHub Token，只用于防止他人抢先初始化后台。
 
