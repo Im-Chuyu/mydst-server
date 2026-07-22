@@ -41,19 +41,34 @@ download_file() {
   local url="$1"
   local destination="$2"
   local attempts="${3:-2}"
-  local attempt
+  local marker="${destination}.url"
+  local recorded_url=""
+  local attempt status
+  if [[ -s "$destination" ]] && { [[ "$destination" != *.tar.gz.part ]] || gzip -t "$destination" >/dev/null 2>&1; }; then
+    rm -f "$marker"
+    return 0
+  fi
+  [[ -f "$marker" ]] && recorded_url="$(<"$marker")"
+  if [[ -s "$destination" && "$recorded_url" != "$url" ]]; then
+    echo "Discarding a partial download that belongs to a different or unknown endpoint." >&2
+    rm -f "$destination"
+  fi
+  printf '%s\n' "$url" > "$marker"
   for ((attempt = 1; attempt <= attempts; attempt += 1)); do
-    if [[ -s "$destination" ]] && { [[ "$destination" != *.tar.gz.part ]] || gzip -t "$destination" >/dev/null 2>&1; }; then
-      return 0
-    fi
     echo "Downloading $(basename "$destination") from $url (attempt $attempt/$attempts)..."
-    if curl -4 --http1.1 -fL --retry 1 --retry-all-errors --retry-delay 3 \
+    status=0
+    curl -4 --http1.1 -fL \
       --connect-timeout 12 --max-time 600 --speed-limit 1024 --speed-time 45 --continue-at - \
-      -o "$destination" "$url"; then
+      -o "$destination" "$url" || status=$?
+    if [[ "$status" -eq 0 ]]; then
       if [[ "$destination" != *.tar.gz.part ]] || gzip -t "$destination" >/dev/null 2>&1; then
+        rm -f "$marker"
         return 0
       fi
       echo "The downloaded archive is incomplete; another endpoint or attempt will resume it." >&2
+    elif [[ "$status" -eq 33 ]]; then
+      echo "This endpoint rejected the byte range; restarting its download from zero." >&2
+      rm -f "$destination"
     fi
     sleep 3
   done
@@ -64,8 +79,20 @@ download_file() {
 download_from_urls() {
   local destination="$1"
   shift
+  local marker="${destination}.url"
+  local saved_url=""
   local url
+  local -a ordered_urls=()
+  [[ -f "$marker" ]] && saved_url="$(<"$marker")"
+  if [[ -n "$saved_url" ]]; then
+    for url in "$@"; do
+      [[ "$url" == "$saved_url" ]] && ordered_urls+=("$url")
+    done
+  fi
   for url in "$@"; do
+    [[ "$url" != "$saved_url" ]] && ordered_urls+=("$url")
+  done
+  for url in "${ordered_urls[@]}"; do
     if download_file "$url" "$destination" 2; then
       return 0
     fi
