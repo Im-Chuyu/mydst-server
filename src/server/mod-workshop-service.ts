@@ -55,7 +55,7 @@ export async function installRestoredMods(mods: readonly { id: string; name: str
     const mod = enabled[index]!;
     onLine(`正在处理存档 MOD (${index + 1}/${enabled.length})：${mod.name || mod.id}`);
     try {
-      await ensureWorkshopMod(mod.id, mod.name || `Workshop ${mod.id}`, onLine, 1);
+      await ensureWorkshopMod(mod.id, mod.name || `Workshop ${mod.id}`, onLine, 3, true);
     } catch (error) {
       const detail = error instanceof Error ? error.message : String(error);
       onLine(`SteamCMD 预下载 ${mod.id} 未完成：${detail}`);
@@ -64,9 +64,9 @@ export async function installRestoredMods(mods: readonly { id: string; name: str
   }
 }
 
-async function ensureWorkshopMod(id: string, title: string, onLine: (line: string) => void, maxAttempts = 3): Promise<void> {
+async function ensureWorkshopMod(id: string, title: string, onLine: (line: string) => void, maxAttempts = 3, validateExisting = false): Promise<void> {
   const existing = findModDirectory(id);
-  if (existing) {
+  if (existing && !validateExisting) {
     installCachedMod(id, existing);
     onLine(`MOD ${id} 已存在于服务器缓存，已同步到游戏目录`);
     return;
@@ -91,7 +91,7 @@ async function ensureWorkshopMod(id: string, title: string, onLine: (line: strin
         "+login", "anonymous",
         "+workshop_download_item", "322330", id, "validate",
         "+quit"
-      ], { timeoutMs: 20 * 60_000, onLine });
+      ], { timeoutMs: validateExisting ? 60 * 60_000 : 20 * 60_000, onLine });
       const downloaded = findModDirectory(id);
       if (result.code === 0 && downloaded) {
         installCachedMod(id, downloaded);
