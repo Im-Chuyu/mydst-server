@@ -182,6 +182,7 @@ fi
 
 echo
 echo "MyDST installation completed."
-echo "Panel URL: http://$(hostname -I | awk '{print $1}'):$PANEL_PORT"
+echo "Panel local URL: http://$(hostname -I | awk '{print $1}'):$PANEL_PORT"
+echo "Panel public URL: use the public IP/domain and mapped external TCP port from your server provider."
 echo "One-time setup token: $SETUP_TOKEN"
 echo "Service status: systemctl status mydst-panel"

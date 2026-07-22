@@ -82,13 +82,38 @@ MYDST_PANEL_PORT=9000 sudo -E ./install.sh
 
 ### 3. 首次访问和初始化
 
-安装器结束时会输出：
+当 SteamCMD 显示下面一行时，代表 DST Dedicated Server 已经完整安装：
 
-- 面板实际监听的 TCP 端口和访问提示；管理后台地址应使用服务器公网 IP（或域名）以及服务器商映射的面板外网端口，例如 `http://公网 IP:面板外网端口`；
-- 一次性初始化验证码（如果启用了安装验证码）；
-- systemd 服务状态。
+```text
+Success! App '343050' fully installed.
+```
 
-可以使用 `grep '^PORT=' /etc/mydst-panel.env` 查看面板在 Ubuntu 内部监听的 TCP 端口。如果服务器使用 NAT 映射，浏览器应填写服务器商控制台显示的外网端口，而不是直接照抄内部监听端口。在浏览器打开后台地址后，首次进入时创建管理员账号和密码。管理员账号、密码和验证码不会写入 GitHub 仓库；验证码只应保留在安装服务器的终端输出中。初始化完成后，管理员可以在系统设置中修改密码，普通用户可以从登录页注册账号。
+随后安装器会创建并启动面板服务，最后输出类似内容：
+
+```text
+MyDST installation completed.
+Panel local URL: http://172.16.0.5:8114
+Panel public URL: use the public IP/domain and mapped external TCP port from your server provider.
+One-time setup token: be0604ecc2eb43549697a746
+Service status: systemctl status mydst-panel
+```
+
+其中：
+
+- `Panel local URL` 是 Ubuntu 内部地址，使用 NAT 服务器时通常不能直接从公网访问；
+- 实际管理后台地址应使用服务器公网 IP（或域名）以及服务器商映射的面板外网端口，例如 `http://公网IP:面板外网端口`；
+- `One-time setup token` 后面的字符串就是首次创建管理员时需要填写的安装验证码；
+- 安装验证码不是管理员密码，也不是 GitHub Token，只用于防止他人抢先初始化后台。
+
+如果关闭终端后忘记了安装验证码，可以在服务器执行：
+
+```bash
+sudo grep '^MYDST_SETUP_TOKEN=' /etc/mydst-panel.env
+```
+
+可以使用 `grep '^PORT=' /etc/mydst-panel.env` 查看面板在 Ubuntu 内部监听的 TCP 端口。如果服务器使用 NAT 映射，浏览器应填写服务器商控制台显示的外网端口，而不是直接照抄内部监听端口。
+
+首次打开后台时，填写自定义管理员用户名、管理员密码和安装验证码。管理员初始化完成后，退出管理员账号，登录页会显示“注册普通用户账号”入口。管理员账号、密码和验证码不会写入 GitHub 仓库。
 
 ### 4. 配置服务器商端口
 
