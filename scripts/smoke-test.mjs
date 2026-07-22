@@ -132,10 +132,13 @@ try {
   const dashboard = await call("/dashboard");
   assert.equal(dashboard.server.configured, true);
   assert.equal(dashboard.room.name, "Smoke Test Server");
+  assert.equal(dashboard.room.masterPort, 8490);
+  assert.equal(dashboard.room.cavesPort, 8115);
   assert.equal(dashboard.room.playstyle, "relaxed");
   assert.equal(dashboard.world.day, 23);
   assert.equal(dashboard.onlinePlayers, 1);
   assert.equal(dashboard.room.directConnect, "c_connect('127.0.0.1',8490)");
+  assert.equal(dashboard.panelUpdate.status, "idle");
   assert.ok(dashboard.system.cpu.cores >= 1);
 
   const visual = await call("/world/master/visual");

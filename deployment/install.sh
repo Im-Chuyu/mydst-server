@@ -181,7 +181,7 @@ package_installed() {
 
 log_step "Preparing Ubuntu packages"
 dpkg --add-architecture i386
-SYSTEM_PACKAGES=(ca-certificates curl xz-utils tar tmux openssl rsync lib32gcc-s1 libstdc++6:i386)
+SYSTEM_PACKAGES=(ca-certificates curl git xz-utils tar tmux openssl rsync lib32gcc-s1 libstdc++6:i386)
 CURL32_PACKAGE=""
 for candidate in libcurl3t64-gnutls:i386 libcurl3-gnutls:i386 libcurl4-gnutls-dev:i386; do
   if package_installed "$candidate"; then
@@ -293,6 +293,7 @@ cat > /etc/mydst-panel.env <<EOF
 NODE_ENV=production
 PORT=$PANEL_PORT
 MYDST_ROOT=$ROOT
+MYDST_SOURCE_DIR=$SOURCE_DIR
 MYDST_DEMO=false
 MYDST_SETUP_TOKEN=$SETUP_TOKEN
 MYDST_STEAM_MASTER_PORT=$STEAM_MASTER_PORT
@@ -306,8 +307,11 @@ chown root:dst /etc/mydst-panel.env
 chmod 0640 /etc/mydst-panel.env
 
 install -o root -g root -m 0644 deployment/mydst-panel.service /etc/systemd/system/mydst-panel.service
+install -o root -g root -m 0644 deployment/mydst-panel-update.service /etc/systemd/system/mydst-panel-update.service
+install -o root -g root -m 0644 deployment/mydst-panel-update.path /etc/systemd/system/mydst-panel-update.path
 systemctl daemon-reload
 systemctl enable --now mydst-panel.service
+systemctl enable --now mydst-panel-update.path
 
 if command -v ufw >/dev/null 2>&1 && ufw status | grep -q "Status: active"; then
   ufw allow "$PANEL_PORT/tcp" comment "MyDST panel"

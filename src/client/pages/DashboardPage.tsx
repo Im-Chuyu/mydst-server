@@ -28,11 +28,11 @@ import {
 import { useCallback, useEffect, useRef, useState, type FormEvent } from "react";
 import { api } from "../api";
 import { ConfirmDialog, type ConfirmState } from "../components/ConfirmDialog";
-import type { ChatMessage, DashboardData, ServerStatus, Shard } from "../types";
+import type { ChatMessage, DashboardData, PanelUpdateState, ServerStatus, Shard } from "../types";
 
 type Notify = (type: "success" | "error", message: string) => void;
 
-export function DashboardPage({ notify }: { notify: Notify }) {
+export function DashboardPage({ notify, role }: { notify: Notify; role: "admin" | "user" }) {
   const [data, setData] = useState<DashboardData | null>(null);
   const [busy, setBusy] = useState("");
   const [confirm, setConfirm] = useState<ConfirmState | null>(null);
@@ -105,11 +105,48 @@ export function DashboardPage({ notify }: { notify: Notify }) {
   async function updateGame() {
     try {
       await api.post("/server/update", { restartAfter: true });
-      notify("success", "更新任务已开始");
+      notify("success", "更新游戏服务端任务已开始");
       void load(true);
     } catch (error) {
       notify("error", error instanceof Error ? error.message : "任务启动失败");
     }
+  }
+
+  async function updatePanel() {
+    setBusy("panel-update");
+    try {
+      await api.post<PanelUpdateState>("/panel/update");
+      notify("success", "管理后台更新已提交，面板将短暂重启");
+      void waitForPanelUpdate();
+    } catch (error) {
+      setBusy("");
+      notify("error", error instanceof Error ? error.message : "管理后台更新启动失败");
+    }
+  }
+
+  async function waitForPanelUpdate() {
+    for (let attempt = 0; attempt < 90; attempt += 1) {
+      await new Promise((resolve) => window.setTimeout(resolve, 1000));
+      try {
+        const health = await fetch(`/api/health?refresh=${Date.now()}`, { cache: "no-store" });
+        if (!health.ok) continue;
+        const state = await api.get<PanelUpdateState>("/panel/update");
+        if (state.status === "failed") {
+          setBusy("");
+          notify("error", state.message || "管理后台更新失败");
+          return;
+        }
+        if (state.status === "success") {
+          notify("success", "管理后台更新完成");
+          window.location.reload();
+          return;
+        }
+      } catch {
+        // The panel is expected to be unavailable while update.sh rebuilds it.
+      }
+    }
+    setBusy("");
+    notify("error", "管理后台更新等待超时，请检查面板日志");
   }
 
   async function resetWorld() {
@@ -190,8 +227,8 @@ export function DashboardPage({ notify }: { notify: Notify }) {
           <section className="panel">
             <div className="panel-header"><div><Server size={19} /><h2>游戏分片</h2></div></div>
             <div className="shard-list">
-              <ShardRow name="地面世界" code="MASTER · UDP 8489" running={server.master.running} onStart={() => action("start", "master")} onStop={() => setConfirm({ title: "停止地面世界", message: "地面世界将保存并安全停止。", onConfirm: () => action("stop", "master") })} onRestart={() => action("restart", "master")} busy={Boolean(busy)} />
-              <ShardRow name="洞穴世界" code="CAVES · UDP 8114" enabled={room.cavesEnabled} running={server.caves.running} onStart={() => action("start", "caves")} onStop={() => setConfirm({ title: "停止洞穴世界", message: "洞穴世界将保存并安全停止。", onConfirm: () => action("stop", "caves") })} onRestart={() => action("restart", "caves")} busy={Boolean(busy)} />
+              <ShardRow name="地面世界" code={`MASTER · UDP ${room.masterPort || "未设置"}`} running={server.master.running} onStart={() => action("start", "master")} onStop={() => setConfirm({ title: "停止地面世界", message: "地面世界将保存并安全停止。", onConfirm: () => action("stop", "master") })} onRestart={() => action("restart", "master")} busy={Boolean(busy)} />
+              <ShardRow name="洞穴世界" code={`CAVES · UDP ${room.cavesPort || "未设置"}`} enabled={room.cavesEnabled} running={server.caves.running} onStart={() => action("start", "caves")} onStop={() => setConfirm({ title: "停止洞穴世界", message: "洞穴世界将保存并安全停止。", onConfirm: () => action("stop", "caves") })} onRestart={() => action("restart", "caves")} busy={Boolean(busy)} />
             </div>
           </section>
 
@@ -200,7 +237,8 @@ export function DashboardPage({ notify }: { notify: Notify }) {
             <div className="archive-primary-actions">
               <button className="button primary" disabled={!server.master.running || Boolean(busy)} onClick={() => void saveWorld()}><Save size={17} />立即存档</button>
               <button className="button secondary" disabled={Boolean(data.activeJob)} onClick={() => void createBackup()}><Archive size={17} />生成备份</button>
-              <button className="button secondary" disabled={Boolean(data.activeJob)} onClick={() => setConfirm({ title: "更新 DST 服务端", message: "更新期间会安全停止游戏，完成后恢复当前运行状态。", confirmText: "开始更新", onConfirm: updateGame })}><CloudDownload size={17} />更新服务端</button>
+              <button className="button secondary" disabled={Boolean(data.activeJob)} onClick={() => setConfirm({ title: "更新游戏服务端", message: "此操作通过 SteamCMD 更新 DST 游戏文件，期间会安全停止游戏，完成后恢复当前运行状态。", confirmText: "开始更新游戏", onConfirm: updateGame })}><CloudDownload size={17} />更新游戏服务端</button>
+              {role === "admin" && <button className="button secondary" disabled={Boolean(data.activeJob) || busy === "panel-update" || data.panelUpdate.status === "pending" || data.panelUpdate.status === "running"} onClick={() => setConfirm({ title: "更新管理后台", message: "后台会从 GitHub 拉取最新源码、重新构建并重启面板。游戏分片和存档不会被更新操作删除，面板会短暂无法访问。", confirmText: "开始更新后台", onConfirm: updatePanel })}><RefreshCw size={17} />更新管理后台</button>}
               <button className="button danger-outline" disabled={!room.cavesEnabled || !server.master.running || !server.caves.running || Boolean(data.activeJob) || Boolean(busy)} onClick={() => void resetWorld()}><RotateCcw size={17} />重置世界</button>
               <button className="button danger-outline" disabled={Boolean(data.activeJob) || Boolean(busy)} onClick={() => setConfirm({ title: "删除当前存档", message: "服务器会安全停止并自动备份，然后删除地面与洞穴的世界进度。房间配置、MOD 和名单会保留，完成后服务器不会自动启动。", confirmText: "备份并删除", danger: true, onConfirm: deleteSave })}><Trash2 size={17} />删除存档</button>
             </div>

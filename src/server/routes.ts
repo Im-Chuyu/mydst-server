@@ -111,6 +111,22 @@ api.get("/admin/ports", requireAdmin, (_req, res) => {
   res.json(gameConfig.getPorts());
 });
 
+api.get("/panel/update", requireAdmin, (_req, res) => {
+  res.json(readPanelUpdateState());
+});
+
+api.post("/panel/update", requireAdmin, (req, res) => {
+  if (!fs.existsSync(path.join(config.sourceRoot, ".git"))) throw new Error("服务器源码目录不是 Git 仓库，无法从后台更新");
+  const state = readPanelUpdateState();
+  if (state.status === "pending" || state.status === "running" || fs.existsSync(config.panelUpdateRequest)) {
+    throw new Error("管理后台更新已经在队列中");
+  }
+  writePanelUpdateState({ status: "pending", message: "等待系统更新服务启动" });
+  fs.writeFileSync(config.panelUpdateRequest, `${Date.now()}\n`, { encoding: "utf8", mode: 0o640 });
+  audit(req, "panel.update.request", "从首页请求更新管理后台");
+  res.status(202).json(readPanelUpdateState());
+});
+
 api.put("/admin/ports", requireAdmin, (req, res) => {
   const ports = panelPortsSchema.parse(req.body);
   const current = gameConfig.get();
@@ -138,15 +154,34 @@ api.get("/dashboard", async (req, res) => {
       playstyle: roomConfig.playstyle,
       cavesEnabled: roomConfig.cavesEnabled,
       maxPlayers: roomConfig.maxPlayers,
+      masterPort: roomConfig.masterPort,
+      cavesPort: roomConfig.cavesPort,
       directConnect: roomConfig.masterPort >= 1024 ? `c_connect('${publicHost}',${roomConfig.masterPort})` : ""
     },
     world,
     onlinePlayers: new Set(players.map((player) => player.userId)).size,
     snapshotCount: game.snapshotCount(),
     backups: backups.list().slice(0, 5),
-    activeJob: jobs.active() || null
+    activeJob: jobs.active() || null,
+    panelUpdate: readPanelUpdateState()
   });
 });
+
+function readPanelUpdateState(): { status: "idle" | "pending" | "running" | "success" | "failed"; message?: string; updatedAt?: string } {
+  try {
+    const parsed = JSON.parse(fs.readFileSync(config.panelUpdateState, "utf8")) as { status?: string; message?: string; updatedAt?: string };
+    if (["idle", "pending", "running", "success", "failed"].includes(parsed.status || "")) return parsed as ReturnType<typeof readPanelUpdateState>;
+  } catch {
+    // The state file is created by the installer and may not exist in demo mode.
+  }
+  return { status: "idle" };
+}
+
+function writePanelUpdateState(state: { status: "idle" | "pending" | "running" | "success" | "failed"; message: string }): void {
+  const temporary = `${config.panelUpdateState}.${process.pid}.tmp`;
+  fs.writeFileSync(temporary, JSON.stringify({ ...state, updatedAt: new Date().toISOString() }) + "\n", { mode: 0o640 });
+  fs.renameSync(temporary, config.panelUpdateState);
+}
 
 function resolvePublicHost(req: Request): string {
   return normalizePublicHost(config.publicHost) || normalizePublicHost(req.hostname) || "127.0.0.1";

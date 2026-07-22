@@ -51,7 +51,7 @@ export default function App() {
 
   const common = { notify };
   const pages: Record<PageKey, ReactNode> = {
-    dashboard: <DashboardPage {...common} />,
+    dashboard: <DashboardPage {...common} role={session.role} />,
     config: <ConfigPage {...common} />,
     world: <WorldPage {...common} />,
     mods: <ModsPage {...common} />,

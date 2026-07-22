@@ -16,7 +16,16 @@ if grep -q '^TMUX_TMPDIR=' /etc/mydst-panel.env; then
 else
   echo 'TMUX_TMPDIR=/opt/mydst/tmux' >> /etc/mydst-panel.env
 fi
+if grep -q '^MYDST_SOURCE_DIR=' /etc/mydst-panel.env; then
+  sed -i "s#^MYDST_SOURCE_DIR=.*#MYDST_SOURCE_DIR=$SOURCE_DIR#" /etc/mydst-panel.env
+else
+  echo "MYDST_SOURCE_DIR=$SOURCE_DIR" >> /etc/mydst-panel.env
+fi
 
+install -o root -g root -m 0644 "$SOURCE_DIR/deployment/mydst-panel-update.service" /etc/systemd/system/mydst-panel-update.service
+install -o root -g root -m 0644 "$SOURCE_DIR/deployment/mydst-panel-update.path" /etc/systemd/system/mydst-panel-update.path
+systemctl daemon-reload
+systemctl enable --now mydst-panel-update.path
 systemctl stop mydst-panel
 rsync -a --delete \
   --exclude node_modules \

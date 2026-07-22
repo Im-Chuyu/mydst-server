@@ -56,6 +56,8 @@ export interface DashboardData {
     playstyle: GameConfig["playstyle"];
     cavesEnabled: boolean;
     maxPlayers: number;
+    masterPort: number;
+    cavesPort: number;
     directConnect: string;
   };
   world: WorldState | null;
@@ -63,6 +65,13 @@ export interface DashboardData {
   snapshotCount: number;
   backups: BackupInfo[];
   activeJob: JobRecord | null;
+  panelUpdate: PanelUpdateState;
+}
+
+export interface PanelUpdateState {
+  status: "idle" | "pending" | "running" | "success" | "failed";
+  message?: string;
+  updatedAt?: string;
 }
 
 export interface WorldState {
