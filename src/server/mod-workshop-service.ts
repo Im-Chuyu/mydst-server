@@ -17,7 +17,7 @@ export interface ModConfigurationInfo {
 export async function downloadAndAddMod(id: string, requestedTitle: string, requestedPreviewUrl: string, onLine: (line: string) => void): Promise<void> {
   if (gameConfig.getMods().some((mod) => mod.id === id)) throw new Error("这个 MOD 已在服务器列表中");
   const item = { title: requestedTitle || `Workshop ${id}` };
-  await ensureWorkshopMod(id, item.title, onLine);
+  await ensureWorkshopMod(id, item.title, onLine, 3, true);
   const current = gameConfig.getMods();
   if (!current.some((mod) => mod.id === id)) {
     gameConfig.saveMods([...current, { id, name: item.title.slice(0, 160), previewUrl: requestedPreviewUrl, enabled: true, configuration: "{}" }]);
