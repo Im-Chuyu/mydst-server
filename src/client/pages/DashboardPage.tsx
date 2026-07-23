@@ -234,7 +234,7 @@ export function DashboardPage({ notify, role }: { notify: Notify; role: "admin" 
         <div className="button-row">
           <button className="button secondary" onClick={() => void load()}><RefreshCw size={17} />刷新</button>
           <button className="button primary" disabled={Boolean(busy)} onClick={() => void action("start", "all")}><Play size={17} />全部启动</button>
-          <button className="button secondary" disabled={Boolean(busy) || !online} onClick={() => setConfirm({ title: "停止全部分片", message: "地面和洞穴会在保存完成后安全停止。", confirmText: "安全停止", onConfirm: () => action("stop", "all") })}><CircleStop size={17} />全部停止</button>
+          <button className="button secondary" disabled={Boolean(busy) || !online} onClick={() => setConfirm({ title: "停止全部分片", message: "地面和洞穴会先保存当前世界，然后安全停止，不会创建存档备份。", confirmText: "保存并停止", onConfirm: () => action("stop", "all") })}><CircleStop size={17} />全部停止</button>
         </div>
       </section>
 

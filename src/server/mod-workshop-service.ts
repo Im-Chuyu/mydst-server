@@ -92,12 +92,14 @@ async function ensureWorkshopMod(id: string, title: string, onLine: (line: strin
         "+workshop_download_item", "322330", id, "validate",
         "+quit"
       ], { timeoutMs: validateExisting ? 60 * 60_000 : 20 * 60_000, onLine });
-      const downloaded = findModDirectory(id);
-      if (result.code === 0 && downloaded) {
+      const downloaded = findModDirectory(id, true);
+      const output = `${result.stdout}\n${result.stderr}`;
+      const steamcmdFailed = /ERROR!\s+(?:Failed to install workshop item|Download item .* failed)|Missing configuration/i.test(output);
+      if (result.code === 0 && !steamcmdFailed && downloaded) {
         installCachedMod(id, downloaded);
         return;
       }
-      lastError = result.stderr.trim() || "SteamCMD 已结束，但没有找到下载后的 modinfo.lua";
+      lastError = result.stderr.trim() || (steamcmdFailed ? "SteamCMD 报告 Workshop 下载失败" : "SteamCMD 已结束，但没有找到下载后的 modinfo.lua");
       if (attempt < maxAttempts) onLine("本次 MOD 下载未完成，SteamCMD 将继续已有进度重试");
     }
     throw new Error(`MOD ${id} 下载失败：${lastError}`);
@@ -137,9 +139,9 @@ function isPlaceholderName(name: string, id: string): boolean {
   return !value || value === id || new RegExp(`^(?:Workshop|MOD)\\s+${id}$`, "i").test(value);
 }
 
-function findModDirectory(id: string): string | null {
-  const candidates = [
-    path.join(config.gameRoot, "mods", `workshop-${id}`),
+function findModDirectory(id: string, preferCache = false): string | null {
+  const target = path.join(config.gameRoot, "mods", `workshop-${id}`);
+  const caches = [
     path.join(config.root, "Steam", "steamapps", "workshop", "content", "322330", id),
     path.join(config.root, "steamapps", "workshop", "content", "322330", id),
     path.join(path.dirname(config.steamcmd), "steamapps", "workshop", "content", "322330", id),
@@ -147,6 +149,7 @@ function findModDirectory(id: string): string | null {
     path.join(config.dataRoot, "ugc", "mods", `workshop-${id}`),
     path.join(config.dataRoot, "ugc", "322330", id)
   ];
+  const candidates = preferCache ? [...caches, target] : [target, ...caches];
   return candidates.find((directory) => fs.existsSync(path.join(directory, "modinfo.lua"))) || null;
 }
 

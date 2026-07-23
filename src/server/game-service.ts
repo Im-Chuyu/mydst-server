@@ -55,7 +55,9 @@ export class GameService {
       return;
     }
     if (!(await this.isRunning(shard))) return;
-    await this.console(shard, "c_shutdown(true)");
+    await this.console(shard, "c_save()");
+    await delay(500);
+    await this.console(shard, "c_shutdown(false)");
     for (let index = 0; index < 30; index += 1) {
       await delay(1000);
       if (!(await this.isRunning(shard))) return;
