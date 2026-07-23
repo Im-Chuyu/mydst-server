@@ -51,10 +51,12 @@ export const worldCatalog = catalogData as WorldSettingDefinition[];
 export const worldCatalogVersion = "dst-2026-07-full";
 
 export function getPresetOverrides(shard: Shard, preset: string): Record<string, string> {
-  if (shard === "caves") return cavePresetOverrides[preset] || {};
-  return Object.values(playstylePresets).find((item) => item.preset === preset)?.overrides || {};
+  const normalized = preset.trim().toUpperCase();
+  if (shard === "caves") return cavePresetOverrides[normalized] || {};
+  return Object.values(playstylePresets).find((item) => item.preset === normalized)?.overrides || {};
 }
 
 export function playstyleFromPreset(preset: string): Playstyle {
-  return (Object.entries(playstylePresets).find(([, item]) => item.preset === preset)?.[0] as Playstyle | undefined) || "endless";
+  const normalized = preset.trim().toLowerCase();
+  return (Object.entries(playstylePresets).find(([key, item]) => key === normalized || item.preset.toLowerCase() === normalized)?.[0] as Playstyle | undefined) || "endless";
 }

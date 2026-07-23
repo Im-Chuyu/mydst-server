@@ -73,7 +73,10 @@ export class GameConfigService {
       const shardDir = this.shardDir(shard);
       fs.mkdirSync(shardDir, { recursive: true, mode: 0o750 });
       const worldFile = path.join(shardDir, "worldgenoverride.lua");
-      if (!fs.existsSync(worldFile)) writeAtomic(worldFile, worldDefaults[shard]);
+      const levelFile = path.join(shardDir, "leveldataoverride.lua");
+      if (fs.existsSync(levelFile)) {
+        if (fs.existsSync(worldFile)) fs.rmSync(worldFile, { force: true });
+      } else if (!fs.existsSync(worldFile)) writeAtomic(worldFile, worldDefaults[shard]);
       const modFile = path.join(shardDir, "modoverrides.lua");
       if (!fs.existsSync(modFile)) writeAtomic(modFile, "return {}\n");
     }
@@ -208,7 +211,7 @@ export class GameConfigService {
 
   getWorld(shard: Shard): string {
     this.ensureLayout();
-    const file = path.join(this.shardDir(shard), "worldgenoverride.lua");
+    const file = this.worldConfigFile(shard);
     return fs.existsSync(file) ? fs.readFileSync(file, "utf8") : worldDefaults[shard];
   }
 
@@ -216,7 +219,7 @@ export class GameConfigService {
     if (shard === "caves" && !this.get().cavesEnabled) throw new Error("洞穴世界未开启");
     if (content.length > 200_000 || !content.includes("return")) throw new Error("世界配置格式无效");
     if (this.shardWorldCreated(shard)) this.assertWorldGenerationUnchanged(shard, this.getWorld(shard), content);
-    writeAtomic(path.join(this.shardDir(shard), "worldgenoverride.lua"), content.trim() + "\n");
+    writeAtomic(this.worldConfigFile(shard), content.trim() + "\n");
   }
 
   getWorldVisual(shard: Shard) {
@@ -288,8 +291,11 @@ export class GameConfigService {
     const target = playstylePresets[playstyle].preset;
     let content = this.getWorld("master");
     if (/\bsettings_preset\s*=/.test(content)) content = content.replace(/\bsettings_preset\s*=\s*["'][^"']+["']/, `settings_preset = "${target}"`);
-    if (!/\b(worldgen_preset|settings_preset)\s*=/.test(content)) content = content.replace(/\bpreset\s*=\s*["'][^"']+["']/, `preset = "${target}"`);
+    if (/\bsettings_id\s*=/.test(content)) content = content.replace(/\bsettings_id\s*=\s*["'][^"']+["']/, `settings_id = "${target}"`);
+    if (/\bplaystyle\s*=/.test(content)) content = content.replace(/\bplaystyle\s*=\s*["'][^"']+["']/, `playstyle = "${playstyle}"`);
+    if (!/\b(settings_id|settings_preset|playstyle)\s*=/.test(content)) content = content.replace(/\bpreset\s*=\s*["'][^"']+["']/, `preset = "${target}"`);
     if (!preserveWorldGeneration && /\bworldgen_preset\s*=/.test(content)) content = content.replace(/\bworldgen_preset\s*=\s*["'][^"']+["']/, `worldgen_preset = "${target}"`);
+    if (!preserveWorldGeneration && /\bworldgen_id\s*=/.test(content)) content = content.replace(/\bworldgen_id\s*=\s*["'][^"']+["']/, `worldgen_id = "${target}"`);
     const range = findLuaTable(content, "overrides");
     if (range && preserveWorldGeneration) {
       const overrides = parseWorldOverrides(content);
@@ -365,6 +371,14 @@ export class GameConfigService {
     return path.join(config.clusterRoot, shard === "master" ? "Master" : "Caves");
   }
 
+  private worldConfigFile(shard: Shard): string {
+    const directory = this.shardDir(shard);
+    const levelFile = path.join(directory, "leveldataoverride.lua");
+    return this.shardWorldCreated(shard) && fs.existsSync(levelFile)
+      ? levelFile
+      : path.join(directory, "worldgenoverride.lua");
+  }
+
   private shardWorldCreated(shard: Shard): boolean {
     const sessionRoot = path.join(this.shardDir(shard), "save", "session");
     if (!fs.existsSync(sessionRoot)) return false;
@@ -382,8 +396,8 @@ export class GameConfigService {
   private cavesWorldCreated(): boolean { return this.shardWorldCreated("caves"); }
 
   private assertWorldGenerationUnchanged(shard: Shard, current: string, next: string): void {
-    const currentPreset = current.match(/\bworldgen_preset\s*=\s*["']([^"']+)["']/)?.[1] || "";
-    const nextPreset = next.match(/\bworldgen_preset\s*=\s*["']([^"']+)["']/)?.[1] || "";
+    const currentPreset = readWorldGenerationPreset(current);
+    const nextPreset = readWorldGenerationPreset(next);
     if (currentPreset !== nextPreset) throw new Error("世界已经生成，不能修改世界生成设置");
     this.assertWorldGenerationOverridesUnchanged(shard, parseWorldOverrides(current), parseWorldOverrides(next));
   }
@@ -418,9 +432,19 @@ export const gameConfig = new GameConfigService();
 
 function readWorldPresetValue(content: string, shard: Shard): string {
   return content.match(/\bsettings_preset\s*=\s*["']([^"']+)["']/)?.[1]
+    || content.match(/\bsettings_id\s*=\s*["']([^"']+)["']/)?.[1]
+    || content.match(/\bplaystyle\s*=\s*["']([^"']+)["']/)?.[1]
     || content.match(/\bpreset\s*=\s*["']([^"']+)["']/)?.[1]
     || content.match(/\bworldgen_preset\s*=\s*["']([^"']+)["']/)?.[1]
+    || content.match(/\bworldgen_id\s*=\s*["']([^"']+)["']/)?.[1]
+    || content.match(/\bid\s*=\s*["']([^"']+)["']/)?.[1]
     || (shard === "master" ? "SURVIVAL_TOGETHER" : "DST_CAVE");
+}
+
+function readWorldGenerationPreset(content: string): string {
+  return content.match(/\bworldgen_preset\s*=\s*["']([^"']+)["']/)?.[1]
+    || content.match(/\bworldgen_id\s*=\s*["']([^"']+)["']/)?.[1]
+    || "";
 }
 
 function parseWorldOverrides(content: string): Record<string, WorldOverrideValue> {

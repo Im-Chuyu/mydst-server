@@ -118,7 +118,7 @@ MYDST_PANEL_PORT=9000 sudo -E ./install.sh
 
 首页的“更新游戏服务端”通过 SteamCMD 执行 DST `app_update 343050 validate`，会安全停止并按原状态恢复游戏分片；“更新管理后台”只从 GitHub 拉取 `/opt/mydst-server` 源码、重建前端/后端并重启 `mydst-panel`，不会更新游戏文件，也不会删除存档。系统设置中的“自动更新游戏服务端”与首页的游戏更新按钮执行同一种 SteamCMD 游戏更新。
 
-恢复上传的 tar.gz/ZIP 存档时，面板会读取 Master 和 Caves 中的 `modoverrides.lua`，将 Workshop MOD 和 Lua 配置同步到“MOD 管理”，并通过 SteamCMD 校验/续传每个 MOD 后再同步到游戏目录。大 MOD 单次下载最多等待 60 分钟并自动重试；若某个 MOD 不允许 SteamCMD 匿名预下载，面板会保留 `dedicated_server_mods_setup.lua` 下载配置，由 DST 分片在启动时继续自动下载。
+恢复上传的 tar.gz/ZIP 存档时，面板会读取 Master 和 Caves 中的 `leveldataoverride.lua`（已生成世界的实际世界配置）、`worldgenoverride.lua`（待生成世界配置）和 `modoverrides.lua`，将 Workshop MOD 和 Lua 配置同步到“MOD 管理”，并通过 SteamCMD 校验/续传每个 MOD 后再同步到游戏目录。大 MOD 单次下载最多等待 60 分钟并自动重试；若某个 MOD 不允许 SteamCMD 匿名预下载，面板会保留 `dedicated_server_mods_setup.lua` 下载配置，由 DST 分片在启动时继续自动下载。
 
 主页“全部停止”只会先向地面和洞穴执行 `c_save()` 保存当前世界，再执行安全关机，不会创建面板 tar.gz/ZIP 存档备份。
 
