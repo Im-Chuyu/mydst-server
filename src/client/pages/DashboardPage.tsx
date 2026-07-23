@@ -9,6 +9,7 @@ import {
   Cpu,
   Database,
   Gamepad2,
+  GitBranch,
   HardDrive,
   History,
   MemoryStick,
@@ -28,7 +29,7 @@ import {
 import { useCallback, useEffect, useRef, useState, type FormEvent } from "react";
 import { api } from "../api";
 import { ConfirmDialog, type ConfirmState } from "../components/ConfirmDialog";
-import type { ChatMessage, DashboardData, PanelUpdateState, ServerStatus, Shard } from "../types";
+import type { ChatMessage, DashboardData, PanelUpdateState, PanelVersion, ServerStatus, Shard } from "../types";
 
 type Notify = (type: "success" | "error", message: string) => void;
 
@@ -38,6 +39,8 @@ export function DashboardPage({ notify, role }: { notify: Notify; role: "admin" 
   const [starting, setStarting] = useState<Shard | "all" | "">("");
   const [confirm, setConfirm] = useState<ConfirmState | null>(null);
   const [copied, setCopied] = useState(false);
+  const [panelVersion, setPanelVersion] = useState<PanelVersion | null>(null);
+  const [checkingVersion, setCheckingVersion] = useState(false);
 
   const load = useCallback(async (quiet = false) => {
     try {
@@ -150,6 +153,19 @@ export function DashboardPage({ notify, role }: { notify: Notify; role: "admin" 
     }
   }
 
+  async function checkPanelVersion() {
+    setCheckingVersion(true);
+    try {
+      const version = await api.get<PanelVersion>("/panel/version");
+      setPanelVersion(version);
+      notify("success", version.updateAvailable ? `发现新版本：${version.latestShortCommit}` : `当前已是最新版本：${version.currentShortCommit}`);
+    } catch (error) {
+      notify("error", error instanceof Error ? error.message : "后台版本检查失败");
+    } finally {
+      setCheckingVersion(false);
+    }
+  }
+
   async function waitForPanelUpdate() {
     for (let attempt = 0; attempt < 90; attempt += 1) {
       await new Promise((resolve) => window.setTimeout(resolve, 1000));
@@ -242,6 +258,7 @@ export function DashboardPage({ notify, role }: { notify: Notify; role: "admin" 
       {data.activeJob && <div className="notice job"><RefreshCw className="spin" size={18} /><span>正在执行 {jobName(data.activeJob.type)}</span><code>{data.activeJob.logs.at(-1) || "准备中"}</code></div>}
 
       {starting && <div className="notice job"><RefreshCw className="spin" size={18} /><span>世界启动中，请稍候...</span><code>{starting === "all" ? "地面与洞穴分片正在启动" : `${starting === "master" ? "地面" : "洞穴"}世界正在启动`}</code></div>}
+      {panelVersion && <div className={`notice ${panelVersion.updateAvailable ? "warning" : "info"}`}><GitBranch size={18} /><span>后台版本：当前 {panelVersion.currentShortCommit} · GitHub 最新 {panelVersion.latestShortCommit} · {panelVersion.updateAvailable ? "有新版本可更新" : "已是最新"}</span><code>{new Date(panelVersion.checkedAt).toLocaleString("zh-CN")}</code></div>}
       <section className="world-summary-grid">
         <Summary icon={Gamepad2} label="玩法模式" value={playstyleName(room.playstyle)} detail={`${system.hostname} · ${system.platform}`} />
         <Summary icon={CalendarDays} label="世界进度" value={world ? `第 ${world.day} 天` : "未运行"} detail={world ? `${seasonName(world.season)}${world.seasonRemainingDays === null ? "" : ` · 剩余 ${world.seasonRemainingDays} 天`}` : "等待地面世界启动"} />
@@ -265,7 +282,7 @@ export function DashboardPage({ notify, role }: { notify: Notify; role: "admin" 
               <button className="button primary" disabled={!server.master.running || Boolean(busy)} onClick={() => void saveWorld()}><Save size={17} />立即存档</button>
               <button className="button secondary" disabled={Boolean(data.activeJob)} onClick={() => void createBackup()}><Archive size={17} />生成备份</button>
               <button className="button secondary" disabled={Boolean(data.activeJob)} onClick={() => setConfirm({ title: "更新游戏服务端", message: "此操作通过 SteamCMD 更新 DST 游戏文件，期间会安全停止游戏，完成后恢复当前运行状态。", confirmText: "开始更新游戏", onConfirm: updateGame })}><CloudDownload size={17} />更新游戏服务端</button>
-              <button className="button secondary" disabled={Boolean(data.activeJob) || busy === "panel-update" || data.panelUpdate.status === "pending" || data.panelUpdate.status === "running"} onClick={() => setConfirm({ title: "更新管理后台", message: "后台会从 GitHub 拉取最新源码、重新构建并重启面板。游戏分片和存档不会被更新操作删除，面板会短暂无法访问。", confirmText: "开始更新后台", onConfirm: updatePanel })}><RefreshCw size={17} />更新管理后台</button>
+              <button className="button secondary" disabled={checkingVersion} onClick={() => void checkPanelVersion()}>{checkingVersion ? <RefreshCw className="spin" size={17} /> : <GitBranch size={17} />}检查后台版本</button>
               <button className="button danger-outline" disabled={!room.cavesEnabled || !server.master.running || !server.caves.running || Boolean(data.activeJob) || Boolean(busy)} onClick={() => void resetWorld()}><RotateCcw size={17} />重置世界</button>
               <button className="button danger-outline" disabled={Boolean(data.activeJob) || Boolean(busy)} onClick={() => setConfirm({ title: "删除当前存档", message: "服务器会安全停止并自动备份，然后彻底清理地面与洞穴存档及游戏面板配置。地面和洞穴端口、Cluster Token、面板账号与备份会保留，完成后服务器不会自动启动。", confirmText: "备份并删除", danger: true, onConfirm: deleteSave })}><Trash2 size={17} />删除存档</button>
             </div>

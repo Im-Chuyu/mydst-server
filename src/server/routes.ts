@@ -1,7 +1,9 @@
 import crypto from "node:crypto";
+import { execFile as execFileCallback } from "node:child_process";
 import fs from "node:fs";
 import { isIP } from "node:net";
 import path from "node:path";
+import { promisify } from "node:util";
 import { Router, type Request } from "express";
 import rateLimit from "express-rate-limit";
 import multer from "multer";
@@ -19,6 +21,7 @@ import { getSystemInfo } from "./system-service.js";
 import { consoleSchema, credentialsSchema, gameConfigSchema, modSchema, panelPortsSchema, schedulesSchema, shardActionSchema } from "./validation.js";
 
 export const api = Router();
+const execFile = promisify(execFileCallback);
 
 const loginLimiter = rateLimit({
   windowMs: 15 * 60_000,
@@ -113,6 +116,35 @@ api.get("/admin/ports", requireAdmin, (_req, res) => {
 
 api.get("/panel/update", requireAuth, (_req, res) => {
   res.json(readPanelUpdateState());
+});
+
+api.get("/panel/version", requireAuth, async (_req, res) => {
+  if (!fs.existsSync(path.join(config.sourceRoot, ".git"))) {
+    res.status(400).json({ error: "服务器源码目录不是 Git 仓库，无法检查后台版本" });
+    return;
+  }
+  try {
+    const [local, remote] = await Promise.all([
+      execFile("git", ["-C", config.sourceRoot, "rev-parse", "HEAD"], { timeout: 15_000, maxBuffer: 64 * 1024 }),
+      execFile("git", ["-C", config.sourceRoot, "ls-remote", "origin", "HEAD"], { timeout: 30_000, maxBuffer: 64 * 1024 })
+    ]);
+    const currentCommit = local.stdout.trim().split(/\s+/)[0] || "";
+    const latestCommit = remote.stdout.trim().split(/\s+/)[0] || "";
+    if (!/^[a-f0-9]{40}$/i.test(currentCommit) || !/^[a-f0-9]{40}$/i.test(latestCommit)) {
+      throw new Error("Git 未返回有效的提交版本");
+    }
+    res.json({
+      currentCommit,
+      currentShortCommit: currentCommit.slice(0, 7),
+      latestCommit,
+      latestShortCommit: latestCommit.slice(0, 7),
+      updateAvailable: currentCommit.toLowerCase() !== latestCommit.toLowerCase(),
+      checkedAt: new Date().toISOString()
+    });
+  } catch (error) {
+    const detail = error instanceof Error ? error.message : "未知错误";
+    res.status(502).json({ error: `无法检查 GitHub 上的后台版本：${detail}` });
+  }
 });
 
 api.post("/panel/update", requireAuth, (req, res) => {

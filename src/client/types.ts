@@ -74,6 +74,15 @@ export interface PanelUpdateState {
   updatedAt?: string;
 }
 
+export interface PanelVersion {
+  currentCommit: string;
+  currentShortCommit: string;
+  latestCommit: string;
+  latestShortCommit: string;
+  updateAvailable: boolean;
+  checkedAt: string;
+}
+
 export interface WorldState {
   day: number;
   season: string;
