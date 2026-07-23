@@ -380,6 +380,8 @@ export class GameConfigService {
   }
 
   private shardWorldCreated(shard: Shard): boolean {
+    const levelFile = path.join(this.shardDir(shard), "leveldataoverride.lua");
+    if (fs.existsSync(levelFile)) return true;
     const sessionRoot = path.join(this.shardDir(shard), "save", "session");
     if (!fs.existsSync(sessionRoot)) return false;
     const pending = [sessionRoot];
