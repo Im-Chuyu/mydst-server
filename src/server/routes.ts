@@ -254,8 +254,8 @@ api.post("/server/delete-save", (req, res) => {
     const backup = await backups.create("before-save-delete", log);
     log(`备份已保存：${backup.name}`);
     await game.deleteSaveData(log);
-    gameConfig.resetWorldCreationState();
-    log("当前存档已删除，洞穴生成选项已解锁");
+    gameConfig.resetPanelConfigurationPreservingPorts();
+    log("当前存档已删除，面板配置已重置（端口和 Token 已保留），洞穴开关已解锁");
   });
   audit(req, "server.delete-save", "stop, backup and delete Master/Caves saves");
   res.status(202).json(job);

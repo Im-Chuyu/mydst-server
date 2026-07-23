@@ -264,13 +264,20 @@ export class GameConfigService {
     this.saveWorld(shard, content);
   }
 
-  resetWorldCreationState(): void {
-    const clusterFile = path.join(config.clusterRoot, "cluster.ini");
-    if (!fs.existsSync(clusterFile)) return;
-    const cluster = ini.parse(fs.readFileSync(clusterFile, "utf8"));
-    cluster.SHARD = cluster.SHARD || {};
-    cluster.SHARD.caves_ever_enabled = false;
-    writeAtomic(clusterFile, ini.stringify(cluster));
+  resetPanelConfigurationPreservingPorts(): void {
+    const ports = this.getPorts();
+    const tokenFile = path.join(config.clusterRoot, "cluster_token.txt");
+    const clusterToken = fs.existsSync(tokenFile) ? fs.readFileSync(tokenFile, "utf8").trim() : "";
+
+    // Remove the complete generated cluster. This clears saves, generated
+    // level data, shard settings, MOD overrides and access lists together.
+    fs.rmSync(config.clusterRoot, { recursive: true, force: true });
+    fs.rmSync(this.modsFile(), { force: true });
+
+    // Recreate a clean, unlocked world while carrying over only the panel
+    // ports and the user's Cluster Token.
+    this.save({ ...defaultGameConfig, ...ports, clusterToken, cavesEnabled: true, cavesEnabledLocked: false });
+    this.saveMods([]);
   }
 
   syncCavesFromRestoredSave(): boolean {
