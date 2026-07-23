@@ -45,9 +45,10 @@ export class GameService {
     if (!fs.existsSync(config.gameBinary64) && !fs.existsSync(config.gameBinary32)) throw new Error("尚未安装 DST 服务端");
     if (await this.isRunning(shard)) return;
     const runner = path.join(config.panelRoot, "deployment", "run-shard.sh");
+    const logOffset = this.logSize(shard);
     const result = await runCommand("tmux", ["new-session", "-d", "-s", this.session(shard), runner, shard === "master" ? "Master" : "Caves"], { timeoutMs: 5000 });
     if (result.code !== 0) throw new Error(result.stderr || "分片启动失败");
-    await this.waitForReady(shard);
+    await this.waitForReady(shard, logOffset);
   }
 
   async stop(shard: Shard): Promise<void> {
@@ -81,7 +82,7 @@ export class GameService {
     }
   }
 
-  private async waitForReady(shard: Shard, timeoutMs = 120_000): Promise<void> {
+  private async waitForReady(shard: Shard, logOffset: number, timeoutMs = 120_000): Promise<void> {
     if (config.demo) return;
     const startedAt = Date.now();
     const readyPattern = shard === "master"
@@ -89,10 +90,33 @@ export class GameService {
       : /secondary shard LUA is now ready|Sim paused|secondary shard is now ready/i;
     while (Date.now() - startedAt < timeoutMs) {
       if (!(await this.isRunning(shard))) throw new Error(`${shard === "master" ? "地面" : "洞穴"}分片进程已退出`);
-      if ((await this.logs(shard, 300)).some((line) => readyPattern.test(line))) return;
+      if (this.readLogAfter(shard, logOffset).some((line) => readyPattern.test(line))) return;
       await delay(1000);
     }
     throw new Error(`${shard === "master" ? "地面" : "洞穴"}分片启动超时，请检查 server_log.txt`);
+  }
+
+  private logFile(shard: Shard): string {
+    return path.join(config.clusterRoot, shard === "master" ? "Master" : "Caves", "server_log.txt");
+  }
+
+  private logSize(shard: Shard): number {
+    try { return fs.statSync(this.logFile(shard)).size; } catch { return 0; }
+  }
+
+  private readLogAfter(shard: Shard, offset: number): string[] {
+    const file = this.logFile(shard);
+    if (!fs.existsSync(file)) return [];
+    const stat = fs.statSync(file);
+    const start = stat.size < offset ? 0 : offset;
+    if (stat.size <= start) return [];
+    const length = Math.min(stat.size - start, 2 * 1024 * 1024);
+    const readStart = stat.size - length;
+    const buffer = Buffer.alloc(length);
+    const handle = fs.openSync(file, "r");
+    fs.readSync(handle, buffer, 0, length, readStart);
+    fs.closeSync(handle);
+    return buffer.toString("utf8").split(/\r?\n/).filter(Boolean);
   }
 
   async console(shard: Shard, command: string): Promise<void> {
@@ -145,8 +169,7 @@ export class GameService {
         "[14:34:26] MyServer ready for connections"
       ];
     }
-    const file = path.join(config.clusterRoot, shard === "master" ? "Master" : "Caves", "server_log.txt");
-    return tailFile(file, Math.min(Math.max(lines, 20), 2000));
+    return tailFile(this.logFile(shard), Math.min(Math.max(lines, 20), 2000));
   }
 
   async players(): Promise<Array<{ userId: string; name: string; prefab: string; shard: Shard }>> {
