@@ -13,7 +13,7 @@ import { config } from "./config.js";
 import { gameConfig } from "./game-config.js";
 import { game } from "./game-service.js";
 import { jobs } from "./jobs.js";
-import { disableInvalidEnabledMods, downloadAndAddMod, enrichModMetadata, getModConfiguration, installRestoredMods } from "./mod-workshop-service.js";
+import { downloadAndAddMod, enrichModMetadata, getModConfiguration, installRestoredMods } from "./mod-workshop-service.js";
 import { store } from "./store.js";
 import { getSystemInfo } from "./system-service.js";
 import { consoleSchema, credentialsSchema, gameConfigSchema, modSchema, panelPortsSchema, schedulesSchema, shardActionSchema } from "./validation.js";
@@ -201,10 +201,6 @@ api.get("/server/status", async (_req, res) => {
 
 api.post("/server/action", async (req, res) => {
   const body = shardActionSchema.parse(req.body);
-  if (body.action !== "stop") {
-    const invalidMods = disableInvalidEnabledMods();
-    if (invalidMods.length) audit(req, "mods.auto-disable", invalidMods.join(","));
-  }
   await game.action(body.action, body.shard);
   audit(req, `server.${body.action}`, body.shard);
   res.json(await game.status());
@@ -460,12 +456,7 @@ api.post("/backups/:name/restore", async (req, res) => {
     const restoredMods = gameConfig.importRestoredMods();
     if (restoredMods.length) {
       log(`从存档中识别到 ${restoredMods.length} 个 MOD，正在检查并下载启用项`);
-      const failedMods = await installRestoredMods(restoredMods, log);
-      if (failedMods.length) {
-        const failedSet = new Set(failedMods);
-        gameConfig.saveMods(gameConfig.getMods().map((mod) => failedSet.has(mod.id) ? { ...mod, enabled: false } : mod));
-        log(`已自动停用 ${failedMods.length} 个资源不完整的 MOD，避免影响分片启动`);
-      }
+      await installRestoredMods(restoredMods, log);
       await enrichModMetadata(gameConfig.getMods(), log);
       log("存档 MOD 已同步到服务器 MOD 列表和游戏目录");
     } else {

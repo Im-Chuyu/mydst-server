@@ -14,22 +14,6 @@ export interface ModConfigurationInfo {
   warning?: string;
 }
 
-export function disableInvalidEnabledMods(): string[] {
-  const invalid: string[] = [];
-  const mods = gameConfig.getMods();
-  for (const mod of mods.filter((item) => item.enabled)) {
-    const directory = findModDirectory(mod.id);
-    if (!directory) continue;
-    try { validateModAssets(mod.id, directory); }
-    catch { invalid.push(mod.id); }
-  }
-  if (invalid.length) {
-    const invalidSet = new Set(invalid);
-    gameConfig.saveMods(mods.map((mod) => invalidSet.has(mod.id) ? { ...mod, enabled: false } : mod));
-  }
-  return invalid;
-}
-
 export async function downloadAndAddMod(id: string, requestedTitle: string, requestedPreviewUrl: string, onLine: (line: string) => void): Promise<void> {
   if (gameConfig.getMods().some((mod) => mod.id === id)) throw new Error("这个 MOD 已在服务器列表中");
   const item = { title: requestedTitle || `Workshop ${id}` };
@@ -65,29 +49,25 @@ export async function enrichModMetadata(mods: readonly ModRecord[], onLine?: (li
   return enriched;
 }
 
-export async function installRestoredMods(mods: readonly { id: string; name: string; enabled: boolean }[], onLine: (line: string) => void): Promise<string[]> {
+export async function installRestoredMods(mods: readonly { id: string; name: string; enabled: boolean }[], onLine: (line: string) => void): Promise<void> {
   const enabled = mods.filter((mod) => mod.enabled);
-  const failed: string[] = [];
   for (let index = 0; index < enabled.length; index += 1) {
     const mod = enabled[index]!;
     onLine(`正在处理存档 MOD (${index + 1}/${enabled.length})：${mod.name || mod.id}`);
     try {
       await ensureWorkshopMod(mod.id, mod.name || `Workshop ${mod.id}`, onLine, 3, true);
     } catch (error) {
-      failed.push(mod.id);
       const detail = error instanceof Error ? error.message : String(error);
       onLine(`SteamCMD 预下载 ${mod.id} 未完成：${detail}`);
-      onLine("该 MOD 资源校验未通过，恢复完成后会暂不启用");
+      onLine("已保留该 MOD 的服务器下载配置，DST 分片启动时会继续自动下载");
     }
   }
-  return failed;
 }
 
 async function ensureWorkshopMod(id: string, title: string, onLine: (line: string) => void, maxAttempts = 3, validateExisting = false): Promise<void> {
   const existing = findModDirectory(id);
   if (existing && !validateExisting) {
     installCachedMod(id, existing);
-    validateModAssets(id, path.join(config.gameRoot, "mods", `workshop-${id}`));
     onLine(`MOD ${id} 已存在于服务器缓存，已同步到游戏目录`);
     return;
   }
@@ -118,7 +98,6 @@ async function ensureWorkshopMod(id: string, title: string, onLine: (line: strin
       const steamcmdFailed = /ERROR!\s+(?:Failed to install workshop item|Download item .* failed)|Missing configuration/i.test(output);
       if (result.code === 0 && !steamcmdFailed && downloaded) {
         installCachedMod(id, downloaded);
-        validateModAssets(id, path.join(config.gameRoot, "mods", `workshop-${id}`));
         return;
       }
       lastError = result.stderr.trim() || (steamcmdFailed ? "SteamCMD 报告 Workshop 下载失败" : "SteamCMD 已结束，但没有找到下载后的 modinfo.lua");
@@ -194,26 +173,4 @@ function clearModCaches(id: string): void {
     path.join(config.dataRoot, "ugc", "322330", id)
   ];
   for (const directory of directories) fs.rmSync(directory, { recursive: true, force: true });
-}
-
-function validateModAssets(id: string, directory: string): void {
-  const missing = new Set<string>();
-  const pending = [directory];
-  let inspected = 0;
-  while (pending.length && inspected < 10_000) {
-    const current = pending.pop()!;
-    for (const entry of fs.readdirSync(current, { withFileTypes: true })) {
-      const file = path.join(current, entry.name);
-      if (entry.isDirectory()) { pending.push(file); continue; }
-      if (!entry.isFile() || !entry.name.toLowerCase().endsWith(".lua")) continue;
-      inspected += 1;
-      if (inspected > 10_000) break;
-      const source = fs.readFileSync(file, "utf8");
-      for (const match of source.matchAll(/\bAsset\s*\([^,]+,\s*["']((?:anim|images?|sound|fonts|textures?)\/[^"']+)["']/gi)) {
-        const asset = match[1]!.replace(/\\/g, "/");
-        if (!fs.existsSync(path.join(directory, ...asset.split("/")))) missing.add(asset);
-      }
-    }
-  }
-  if (missing.size) throw new Error(`MOD ${id} 缺少资源文件：${[...missing].slice(0, 10).join(", ")}`);
 }

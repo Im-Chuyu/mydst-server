@@ -47,6 +47,7 @@ export class GameService {
     const runner = path.join(config.panelRoot, "deployment", "run-shard.sh");
     const result = await runCommand("tmux", ["new-session", "-d", "-s", this.session(shard), runner, shard === "master" ? "Master" : "Caves"], { timeoutMs: 5000 });
     if (result.code !== 0) throw new Error(result.stderr || "分片启动失败");
+    await this.waitForReady(shard);
   }
 
   async stop(shard: Shard): Promise<void> {
@@ -76,9 +77,22 @@ export class GameService {
     if (action === "start" || action === "restart") {
       for (const shard of startShards) {
         await this.start(shard);
-        if (target === "all" && shard === "master") await delay(1500);
       }
     }
+  }
+
+  private async waitForReady(shard: Shard, timeoutMs = 120_000): Promise<void> {
+    if (config.demo) return;
+    const startedAt = Date.now();
+    const readyPattern = shard === "master"
+      ? /Sim paused|Server registered via geo DNS|Shard server started on port/i
+      : /secondary shard LUA is now ready|Sim paused|secondary shard is now ready/i;
+    while (Date.now() - startedAt < timeoutMs) {
+      if (!(await this.isRunning(shard))) throw new Error(`${shard === "master" ? "地面" : "洞穴"}分片进程已退出`);
+      if ((await this.logs(shard, 300)).some((line) => readyPattern.test(line))) return;
+      await delay(1000);
+    }
+    throw new Error(`${shard === "master" ? "地面" : "洞穴"}分片启动超时，请检查 server_log.txt`);
   }
 
   async console(shard: Shard, command: string): Promise<void> {
