@@ -125,8 +125,8 @@ api.get("/panel/version", requireAuth, async (_req, res) => {
   }
   try {
     const [local, remote] = await Promise.all([
-      execFile("git", ["-C", config.sourceRoot, "rev-parse", "HEAD"], { timeout: 15_000, maxBuffer: 64 * 1024 }),
-      execFile("git", ["-C", config.sourceRoot, "ls-remote", "origin", "HEAD"], { timeout: 30_000, maxBuffer: 64 * 1024 })
+      execFile("git", ["-c", `safe.directory=${config.sourceRoot}`, "-C", config.sourceRoot, "rev-parse", "HEAD"], { timeout: 15_000, maxBuffer: 64 * 1024 }),
+      execFile("git", ["-c", `safe.directory=${config.sourceRoot}`, "-C", config.sourceRoot, "ls-remote", "origin", "HEAD"], { timeout: 30_000, maxBuffer: 64 * 1024 })
     ]);
     const currentCommit = local.stdout.trim().split(/\s+/)[0] || "";
     const latestCommit = remote.stdout.trim().split(/\s+/)[0] || "";

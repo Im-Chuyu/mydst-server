@@ -35,7 +35,7 @@ if [[ ! -d "$SOURCE_DIR/.git" ]]; then
   write_state failed "源码目录不是 Git 仓库"
   exit 1
 fi
-if ! git -C "$SOURCE_DIR" -c http.version=HTTP/1.1 pull --ff-only; then
+if ! git -c "safe.directory=$SOURCE_DIR" -C "$SOURCE_DIR" -c http.version=HTTP/1.1 pull --ff-only; then
   write_state failed "GitHub 源码拉取失败"
   exit 1
 fi
