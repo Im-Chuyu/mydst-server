@@ -251,26 +251,15 @@ export class GameService {
       ];
       return shard === "all" ? demo : demo.filter((item) => item.shard === shard);
     }
-    const [masterPlayers, cavePlayers] = await Promise.all([this.playersOnShard("master"), this.playersOnShard("caves")]);
-    const liveMaster = new Set(masterPlayers.filter((player) => !isHostPlayer(player)).map((player) => player.userId));
-    const liveCaves = new Set(cavePlayers.filter((player) => !isHostPlayer(player)).map((player) => player.userId));
-    const records = ["master", "caves"].flatMap((current) => this.readChat(current as Shard, limit));
-    const grouped = new Map<string, ChatMessage[]>();
-    for (const message of records) {
-      const key = `${message.time}|${message.channel}|${message.userId}|${message.player}|${message.message}`;
-      grouped.set(key, [...(grouped.get(key) || []), message]);
-    }
-    const messages = [...grouped.values()].map((copies) => {
-      if (copies.length === 1) return copies[0]!;
-      const userId = copies[0]!.userId;
-      const origin = liveMaster.has(userId) && !liveCaves.has(userId)
-        ? "master"
-        : liveCaves.has(userId) && !liveMaster.has(userId)
-          ? "caves"
-          : this.lastKnownPlayerShard.get(userId) || "master";
-      return { ...copies[0]!, shard: origin };
-    });
-    return messages.filter((message) => shard === "all" || message.shard === shard)
+    // DST writes the same shared chat to both shard logs. Use Master as the
+    // canonical source so a global chat message is never shown twice.
+    const records = shard === "all"
+      ? (() => {
+        const master = this.readChat("master", limit);
+        return master.length ? master : this.readChat("caves", limit);
+      })()
+      : this.readChat(shard, limit);
+    return records.filter((message) => shard === "all" || message.shard === shard)
       .sort((left, right) => left.time.localeCompare(right.time))
       .slice(-limit);
   }

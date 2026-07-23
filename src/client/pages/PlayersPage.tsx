@@ -1,4 +1,4 @@
-import { Ban, MapPin, RefreshCw, Save, ShieldCheck, UserMinus, Users, UserRoundCheck } from "lucide-react";
+import { Ban, RefreshCw, Save, ShieldCheck, UserMinus, Users, UserRoundCheck } from "lucide-react";
 import { useCallback, useEffect, useState } from "react";
 import { api } from "../api";
 
@@ -107,7 +107,6 @@ export function PlayersPage({ notify }: { notify: (type: "success" | "error", me
           <div className="player-identity">
             <strong>{player.name}</strong>
             <span>{player.userId} · {player.prefab}</span>
-            <small><MapPin size={12} />{player.shard === "master" ? "地面" : "洞穴"}</small>
           </div>
           <div className="player-row-actions">
             <button className="button small danger-outline" disabled={pending !== null} onClick={() => void kick(player)}><UserMinus size={15} />踢出</button>

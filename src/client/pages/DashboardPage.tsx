@@ -325,7 +325,6 @@ export function DashboardPage({ notify, role }: { notify: Notify; role: "admin" 
 }
 
 function ChatCard({ notify, masterRunning }: { notify: Notify; masterRunning: boolean }) {
-  const [shard, setShard] = useState<Shard | "all">("all");
   const [messages, setMessages] = useState<ChatMessage[]>([]);
   const [announcement, setAnnouncement] = useState("");
   const [sending, setSending] = useState(false);
@@ -333,13 +332,13 @@ function ChatCard({ notify, masterRunning }: { notify: Notify; masterRunning: bo
 
   const load = useCallback(async (quiet = false) => {
     try {
-      const value = await api.get<ChatMessage[]>(`/chat?shard=${shard}&limit=100`);
+      const value = await api.get<ChatMessage[]>("/chat?limit=100");
       setMessages(value);
       requestAnimationFrame(() => { if (listRef.current) listRef.current.scrollTop = listRef.current.scrollHeight; });
     } catch (error) {
       if (!quiet) notify("error", error instanceof Error ? error.message : "聊天记录读取失败");
     }
-  }, [notify, shard]);
+  }, [notify]);
 
   useEffect(() => {
     void load();
@@ -368,17 +367,12 @@ function ChatCard({ notify, masterRunning }: { notify: Notify; masterRunning: bo
         <div><MessageSquareText size={19} /><h2>玩家聊天</h2><span className="count-label">{messages.length}</span></div>
         <button className="icon-button" title="刷新聊天" onClick={() => void load()}><RefreshCw size={16} /></button>
       </div>
-      <div className="chat-tabs segmented full">
-        <button className={shard === "all" ? "active" : ""} onClick={() => setShard("all")}>全部</button>
-        <button className={shard === "master" ? "active" : ""} onClick={() => setShard("master")}>地面</button>
-        <button className={shard === "caves" ? "active" : ""} onClick={() => setShard("caves")}>洞穴</button>
-      </div>
       <div className="chat-list" ref={listRef}>
         {messages.length === 0 ? <div className="chat-empty"><MessageSquareText size={26} /><span>暂无玩家聊天记录</span></div> : messages.map((item) => (
           <article className="chat-message" key={item.id}>
-            <div className={`chat-avatar ${item.shard}`}>{item.player.slice(0, 1).toUpperCase()}</div>
+            <div className="chat-avatar">{item.player.slice(0, 1).toUpperCase()}</div>
             <div className="chat-content">
-              <div className="chat-meta"><strong>{item.player}</strong><span className={`shard-label ${item.shard}`}>{item.shard === "master" ? "地面" : "洞穴"}</span><time>{item.time}</time></div>
+              <div className="chat-meta"><strong>{item.player}</strong><time>{item.time}</time></div>
               <p>{item.message}</p>
             </div>
           </article>
