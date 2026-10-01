@@ -4,6 +4,7 @@ import fs from "node:fs";
 import path from "node:path";
 import yazl from "yazl";
 import { parseModInfoOptions, parseModOverrides } from "../dist/server/lua-config.js";
+import { parseChatLine } from "../dist/server/game-service.js";
 import { extractWorkshopIds } from "../dist/server/workshop-service.js";
 
 const root = path.resolve(".runtime-smoke");
@@ -55,6 +56,12 @@ try {
   `);
   assert.equal(parsedModOptions.length, 2);
   assert.equal(parsedModOptions[0].choices.length, 3);
+  const parsedOptionWithoutDefault = parseModInfoOptions(`
+    configuration_options = {
+      { name = "MODE", label = "Mode", options = { { description = "Automatic", data = "auto" } } },
+    }
+  `);
+  assert.equal(parsedOptionWithoutDefault[0].defaultValue, "auto");
   const parsedOverrides = parseModOverrides(`return {
     ["workshop-378160973"] = { enabled = true, configuration_options = { ["LANGUAGE"] = "zh", ["nested"] = { ["level"] = 2 } } },
   }`);
@@ -62,6 +69,10 @@ try {
   assert.equal(parsedOverrides[0].id, "378160973");
   assert.match(parsedOverrides[0].configuration, /LANGUAGE/);
   assert.match(parsedOverrides[0].configuration, /nested/);
+  assert.equal(parseChatLine("[14:35:12]: [Join Announcement] 新朋友", "master")[0].channel, "Join");
+  assert.equal(parseChatLine("[14:36:08]: [Leave Announcement] 离开的玩家", "master")[0].message, "离开了服务器");
+  assert.equal(parseChatLine("[14:36:20]: [Say] (KU_demo001) 测试玩家: hello", "master")[0].message, "hello");
+  assert.equal(parseChatLine("[14:36:30]: [Announcement] 服务器公告", "master")[0].player, "服务器");
 
   for (let attempt = 0; attempt < 40; attempt += 1) {
     try {
@@ -156,7 +167,8 @@ try {
   assert.equal(savedVisual.overrides.custom_mod_setting, true);
 
   const chat = await call("/chat?shard=all&limit=20");
-  assert.equal(chat.length, 2);
+  assert.equal(chat.length, 4);
+  assert.equal(chat.filter((item) => item.channel === "Join" || item.channel === "Leave").length, 2);
   await call("/server/save", { method: "POST" });
   await call("/server/announce", { method: "POST", body: { message: "Smoke test announcement" } });
   const rollback = await call("/server/rollback", { method: "POST", body: { snapshots: 1 } });
@@ -213,6 +225,12 @@ try {
   const invalidModResponse = await fetch(`${base}/mods`, { method: "PUT", headers: { Cookie: cookie, "X-CSRF-Token": csrfToken, "Content-Type": "application/json" }, body: JSON.stringify(invalidMods) });
   assert.equal(invalidModResponse.ok, false);
   assert.match((await invalidModResponse.json()).error, /字符串键|Lua 配置/);
+  await call("/mods", { method: "PUT", body: [] });
+  const library = await call("/mods/library");
+  assert.ok(library.some((item) => item.id === "351325790" && item.inServer === false));
+  const readdedMods = await call("/mods/library/351325790/add", { method: "POST", body: { name: "Geometric Placement", previewUrl: mods[0].previewUrl } });
+  assert.equal(readdedMods.length, 1);
+  assert.equal(readdedMods[0].id, "351325790");
 
   const caveSaveFile = path.join(root, "data", "DoNotStarveTogether", "Cluster_1", "Caves", "save", "session", "smoke", "0000000001");
   fs.mkdirSync(path.dirname(caveSaveFile), { recursive: true });

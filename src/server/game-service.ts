@@ -3,6 +3,7 @@ import fs from "node:fs";
 import path from "node:path";
 import { config } from "./config.js";
 import { gameConfig } from "./game-config.js";
+import { updateEnabledMods } from "./mod-workshop-service.js";
 import { runCommand } from "./process-runner.js";
 import type { ChatMessage, Shard, WorldState } from "./types.js";
 
@@ -14,6 +15,8 @@ export class GameService {
   private worldCache?: { at: number; value: WorldState | null };
   private shardPlayerCache: Partial<Record<Shard, { at: number; value: Array<{ userId: string; name: string; prefab: string }> }>> = {};
   private lastKnownPlayerShard = new Map<string, Shard>();
+  private modUpdateAt = 0;
+  private modUpdatePromise?: Promise<void>;
 
   async status() {
     const [master, caves] = await Promise.all([this.isRunning("master"), this.isRunning("caves")]);
@@ -44,6 +47,7 @@ export class GameService {
     }
     if (!fs.existsSync(config.gameBinary64) && !fs.existsSync(config.gameBinary32)) throw new Error("尚未安装 DST 服务端");
     if (await this.isRunning(shard)) return;
+    await this.updateModsBeforeStart();
     const runner = path.join(config.panelRoot, "deployment", "run-shard.sh");
     const logOffset = this.logSize(shard);
     const result = await runCommand("tmux", ["new-session", "-d", "-s", this.session(shard), runner, shard === "master" ? "Master" : "Caves"], { timeoutMs: 5000 });
@@ -102,6 +106,18 @@ export class GameService {
 
   private logSize(shard: Shard): number {
     try { return fs.statSync(this.logFile(shard)).size; } catch { return 0; }
+  }
+
+  private async updateModsBeforeStart(): Promise<void> {
+    if (config.demo || Date.now() - this.modUpdateAt < 10_000) return;
+    if (this.modUpdatePromise) return this.modUpdatePromise;
+    this.modUpdatePromise = updateEnabledMods(() => undefined)
+      .catch(() => undefined)
+      .finally(() => {
+        this.modUpdateAt = Date.now();
+        this.modUpdatePromise = undefined;
+      });
+    return this.modUpdatePromise;
   }
 
   private readLogAfter(shard: Shard, offset: number): string[] {
@@ -247,19 +263,21 @@ export class GameService {
     if (config.demo) {
       const demo: ChatMessage[] = [
         { id: "demo-1", shard: "master", time: "14:34:26", channel: "Say", userId: "KU_demo001", player: "测试玩家", message: "有人一起下洞穴吗？" },
-        { id: "demo-2", shard: "caves", time: "14:35:03", channel: "Say", userId: "KU_demo002", player: "洞穴探险家", message: "我在远古入口等你。" }
+        { id: "demo-2", shard: "caves", time: "14:35:03", channel: "Say", userId: "KU_demo002", player: "洞穴探险家", message: "我在远古入口等你。" },
+        { id: "demo-3", shard: "master", time: "14:35:12", channel: "Join", userId: "", player: "新朋友", message: "加入了服务器" },
+        { id: "demo-4", shard: "master", time: "14:36:08", channel: "Leave", userId: "", player: "离开的玩家", message: "离开了服务器" }
       ];
       return shard === "all" ? demo : demo.filter((item) => item.shard === shard);
     }
-    // DST writes the same shared chat to both shard logs. Use Master as the
-    // canonical source so a global chat message is never shown twice.
     const records = shard === "all"
-      ? (() => {
-        const master = this.readChat("master", limit);
-        return master.length ? master : this.readChat("caves", limit);
-      })()
+      ? [...this.readChat("master", limit), ...this.readChat("caves", limit)]
       : this.readChat(shard, limit);
-    return records.filter((message) => shard === "all" || message.shard === shard)
+    const unique = new Map<string, ChatMessage>();
+    for (const message of records) {
+      const key = `${message.time}|${message.channel}|${message.userId}|${message.player}|${message.message}`;
+      if (!unique.has(key) || message.shard === "master") unique.set(key, message);
+    }
+    return [...unique.values()]
       .sort((left, right) => left.time.localeCompare(right.time))
       .slice(-limit);
   }
@@ -322,25 +340,7 @@ export class GameService {
 
   private readChat(shard: Shard, limit: number): ChatMessage[] {
     const file = path.join(config.clusterRoot, shard === "master" ? "Master" : "Caves", "server_chat_log.txt");
-    return tailFile(file, Math.min(limit * 4, 1000)).flatMap((line, index) => {
-      const structured = line.match(/^\[([^\]]+)\]:\s*\[(Say|Whisper)\]\s*\((KU_[^)]+)\)\s*([^:]{1,80}):\s*(.+)$/i);
-      if (!structured) return [];
-      const time = structured[1]!.trim();
-      const channel = structured[2]!.toLowerCase() === "whisper" ? "Whisper" : "Say";
-      const userId = structured[3]!.trim();
-      const player = structured[4]!.trim();
-      const message = structured[5]!.trim();
-      if (!message || player === "[Host]") return [];
-      return [{
-        id: crypto.createHash("sha1").update(`${shard}|${line}|${index}`).digest("hex").slice(0, 16),
-        shard,
-        time,
-        channel,
-        userId,
-        player,
-        message
-      }];
-    });
+    return tailFile(file, Math.min(limit * 6, 1500)).flatMap((line) => parseChatLine(line, shard));
   }
 
   getAccessList(type: "admin" | "block" | "white"): string[] {
@@ -376,6 +376,39 @@ function tailFile(file: string, count: number): string[] {
 }
 
 export const game = new GameService();
+
+export function parseChatLine(line: string, shard: Shard): ChatMessage[] {
+  const structured = line.match(/^\[([^\]]+)\]:\s*\[(Say|Whisper)\]\s*(?:\((KU_[^)]+)\)\s*)?([^:]{1,120}):\s*(.+)$/i);
+  if (structured) {
+    return makeChatRecord(shard, structured[1]!, structured[2]!.toLowerCase() === "whisper" ? "Whisper" : "Say", structured[3] || "", structured[4]!, structured[5]!);
+  }
+  const announcement = line.match(/^\[([^\]]+)\]:\s*\[(Join Announcement|Leave Announcement)\]\s*(?:\((KU_[^)]+)\)\s*)?(.+?)\s*$/i);
+  if (announcement) {
+    const channel = announcement[2]!.toLowerCase().startsWith("join") ? "Join" : "Leave";
+    const rawPlayer = announcement[4]!.trim();
+    const player = rawPlayer.replace(/\s+(?:joined|left)(?:\s+the\s+(?:game|server))?\.?$/i, "").trim() || rawPlayer;
+    return makeChatRecord(shard, announcement[1]!, channel, announcement[3] || "", player, channel === "Join" ? "加入了服务器" : "离开了服务器");
+  }
+  const broadcast = line.match(/^\[([^\]]+)\]:\s*\[(?:Announcement|Server Announcement)\]\s*(.+?)\s*$/i);
+  if (broadcast) return makeChatRecord(shard, broadcast[1]!, "Announcement", "", "服务器", broadcast[2]!);
+  return [];
+}
+
+function makeChatRecord(shard: Shard, time: string, channel: string, userId: string, player: string, message: string): ChatMessage[] {
+  const cleanPlayer = player.trim();
+  const cleanMessage = message.trim();
+  if (!cleanPlayer || cleanPlayer === "[Host]" || !cleanMessage) return [];
+  const key = `${time}|${channel}|${userId.trim()}|${cleanPlayer}|${cleanMessage}`;
+  return [{
+    id: crypto.createHash("sha1").update(key).digest("hex").slice(0, 16),
+    shard,
+    time: time.trim(),
+    channel,
+    userId: userId.trim(),
+    player: cleanPlayer,
+    message: cleanMessage
+  }];
+}
 
 function nullableNumber(value: string | undefined): number | null {
   if (value === undefined || value === "") return null;

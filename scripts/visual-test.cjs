@@ -65,6 +65,10 @@ async function assertViewport(page, name) {
     await page.getByText("请先配置地面端口", { exact: true }).waitFor();
     await page.screenshot({ path: path.join(results, "dashboard-desktop.png"), fullPage: true });
     await assertViewport(page, "desktop dashboard");
+    await page.getByRole("button", { name: "全部停止" }).click();
+    await page.getByRole("dialog").getByText("停止全部分片", { exact: true }).waitFor();
+    await page.getByRole("dialog").getByRole("button", { name: "保存并停止", exact: true }).click();
+    await page.getByRole("dialog").waitFor({ state: "hidden" });
     await page.getByRole("button", { name: "重置世界" }).waitFor();
     await page.getByRole("button", { name: "删除存档", exact: true }).click();
     await page.getByRole("dialog").getByText("删除当前存档", { exact: true }).waitFor();

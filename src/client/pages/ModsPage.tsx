@@ -1,12 +1,13 @@
-import { Boxes, CheckCircle2, ChevronDown, ChevronUp, CircleHelp, Code2, Download, ExternalLink, Plus, RefreshCw, Save, Search, SlidersHorizontal, Trash2 } from "lucide-react";
+import { Boxes, CheckCircle2, ChevronDown, ChevronUp, CircleHelp, Code2, Download, ExternalLink, Library, Plus, RefreshCw, Save, Search, SlidersHorizontal, Trash2 } from "lucide-react";
 import { useCallback, useEffect, useRef, useState, type FormEvent } from "react";
 import { api } from "../api";
-import type { JobRecord, ModConfigValue, ModConfigurationInfo, ModRecord, WorkshopItem } from "../types";
+import type { JobRecord, ModConfigValue, ModConfigurationInfo, ModLibraryRecord, ModRecord, WorkshopItem } from "../types";
 
 type DownloadState = Pick<JobRecord, "id" | "status"> & { message: string };
 
 export function ModsPage({ notify }: { notify: (type: "success" | "error", message: string) => void }) {
   const [mods, setMods] = useState<ModRecord[] | null>(null);
+  const [library, setLibrary] = useState<ModLibraryRecord[]>([]);
   const [query, setQuery] = useState("");
   const [results, setResults] = useState<WorkshopItem[]>([]);
   const [searched, setSearched] = useState(false);
@@ -23,7 +24,12 @@ export function ModsPage({ notify }: { notify: (type: "success" | "error", messa
     catch (error) { notify("error", error instanceof Error ? error.message : "读取 MOD 失败"); }
   }, [notify]);
 
-  useEffect(() => { void loadMods(); }, [loadMods]);
+  const loadLibrary = useCallback(async () => {
+    try { setLibrary(await api.get<ModLibraryRecord[]>("/mods/library")); }
+    catch (error) { notify("error", error instanceof Error ? error.message : "读取模组库失败"); }
+  }, [notify]);
+
+  useEffect(() => { void Promise.all([loadMods(), loadLibrary()]); }, [loadLibrary, loadMods]);
   useEffect(() => {
     let disposed = false;
     async function poll() {
@@ -39,7 +45,7 @@ export function ModsPage({ notify }: { notify: (type: "success" | "error", messa
           if (job.status !== "running" && !completedJobs.current.has(job.id)) {
             completedJobs.current.add(job.id);
             if (job.status === "success") {
-              await loadMods();
+              await Promise.all([loadMods(), loadLibrary()]);
               notify("success", `MOD ${id} 下载完成，已加入服务器列表`);
               window.setTimeout(() => document.getElementById(`server-mod-${id}`)?.scrollIntoView({ behavior: "smooth", block: "center" }), 120);
             } else notify("error", job.error || `MOD ${id} 下载失败`);
@@ -53,7 +59,7 @@ export function ModsPage({ notify }: { notify: (type: "success" | "error", messa
     void poll();
     const timer = window.setInterval(() => void poll(), 1_200);
     return () => { disposed = true; window.clearInterval(timer); };
-  }, [loadMods, notify]);
+  }, [loadLibrary, loadMods, notify]);
 
   function addManual() {
     setMods((current) => [...(current || []), { id: "", name: "", previewUrl: "", enabled: true, configuration: "{}" }]);
@@ -69,6 +75,16 @@ export function ModsPage({ notify }: { notify: (type: "success" | "error", messa
     } catch (error) {
       setDownloads((current) => ({ ...current, [item.id]: { id: "failed", status: "failed", message: error instanceof Error ? error.message : "下载任务启动失败" } }));
       notify("error", error instanceof Error ? error.message : "下载任务启动失败");
+    }
+  }
+
+  async function addFromLibrary(item: ModLibraryRecord) {
+    try {
+      setMods(await api.post<ModRecord[]>("/mods/library/" + item.id + "/add", { name: item.name, previewUrl: item.previewUrl || "" }));
+      await loadLibrary();
+      notify("success", `${item.name} 已从模组库加入服务器`);
+    } catch (error) {
+      notify("error", error instanceof Error ? error.message : "从模组库添加失败");
     }
   }
 
@@ -122,6 +138,17 @@ export function ModsPage({ notify }: { notify: (type: "success" | "error", messa
       })}</div>}
     </section>
 
+    <section className="panel mod-library-panel">
+      <div className="panel-header"><div><Library size={19} /><h2>模组库</h2><span className="count-label">{library.length}</span></div><button type="button" className="icon-button" title="刷新模组库" onClick={() => void loadLibrary()}><RefreshCw size={16} /></button></div>
+      {library.length === 0 ? <div className="empty-state mod-library-empty"><Library size={28} /><strong>还没有已下载的模组</strong><span>从创意工坊添加后会保留在这里</span></div> : <div className="mod-library-list">{library.map((item) => (
+        <article className="mod-library-item" key={item.id}>
+          <ModCover className="library-preview" url={item.previewUrl || ""} name={item.name} />
+          <div className="mod-library-copy"><strong title={item.name}>{item.name}</strong><span>Workshop · {item.id}</span><small>{item.path} · {item.inServer ? "已加入服务器" : "可直接添加"}</small></div>
+          <button type="button" className="button small secondary" disabled={item.inServer} onClick={() => void addFromLibrary(item)}>{item.inServer ? <CheckCircle2 size={15} /> : <Plus size={15} />}{item.inServer ? "已添加" : "直接添加"}</button>
+        </article>
+      ))}</div>}
+    </section>
+
     <section className="panel"><div className="panel-header"><div><Boxes size={19} /><h2>服务器 MOD</h2><span className="count-label">{mods.length}</span></div><div className="button-row"><button type="button" className="button secondary" onClick={addManual}><Plus size={17} />手动添加</button><button type="button" className="button secondary" disabled={refreshingMetadata || mods.length === 0} onClick={() => void refreshMetadata()}><RefreshCw className={refreshingMetadata ? "spin" : ""} size={17} />刷新信息</button><button type="button" className="button primary" disabled={saving} onClick={() => void save()}>{saving ? <RefreshCw className="spin" size={17} /> : <Save size={17} />}保存</button></div></div>
       <div className="mod-list">{mods.length === 0 ? <div className="empty-state"><Boxes size={28} /><strong>暂无服务器 MOD</strong></div> : mods.map((mod, index) => <div className={`mod-row ${expanded === mod.id ? "expanded" : ""}`} id={mod.id ? `server-mod-${mod.id}` : undefined} key={`${index}-${mod.id}`}>
         <div className="mod-row-main">
@@ -147,6 +174,7 @@ function ModConfigurationEditor({ mod, onChange, notify }: { mod: ModRecord; onC
   const [mode, setMode] = useState<"visual" | "lua">("visual");
   const [info, setInfo] = useState<ModConfigurationInfo | null>(null);
   const [loading, setLoading] = useState(true);
+  const [values, setValues] = useState<Record<string, ModConfigValue>>(() => parseLuaValues(mod.configuration));
 
   const load = useCallback(async () => {
     setLoading(true);
@@ -155,18 +183,24 @@ function ModConfigurationEditor({ mod, onChange, notify }: { mod: ModRecord; onC
     finally { setLoading(false); }
   }, [mod.id, notify]);
   useEffect(() => { void load(); }, [load]);
+  useEffect(() => {
+    if (info) setValues(info.values);
+  }, [info]);
 
-  const values = parseLuaValues(mod.configuration);
-  function updateVisual(name: string, value: ModConfigValue) { onChange(serializeLuaValues({ ...values, [name]: value })); }
+  function updateVisual(name: string, value: ModConfigValue) {
+    const next = { ...values, [name]: value };
+    setValues(next);
+    onChange(serializeLuaValues(next));
+  }
 
   return <div className="mod-configuration">
     <div className="mod-config-toolbar">
       <div className="segmented"><button type="button" className={mode === "visual" ? "active" : ""} onClick={() => setMode("visual")}><SlidersHorizontal size={14} />可视化</button><button type="button" className={mode === "lua" ? "active" : ""} onClick={() => setMode("lua")}><Code2 size={14} />Lua 代码</button></div>
       <button type="button" className="icon-button" title="重新读取 modinfo.lua" onClick={() => void load()}><RefreshCw className={loading ? "spin" : ""} size={16} /></button>
     </div>
-    {mode === "lua" ? <textarea className="mod-lua-editor" spellCheck={false} value={mod.configuration} onChange={(event) => onChange(event.target.value)} aria-label={`${mod.name} Lua 配置`} /> : loading ? <div className="page-loading"><RefreshCw className="spin" size={18} />正在读取 modinfo.lua</div> : !info?.options.length ? <div className="mod-config-empty"><CircleHelp size={20} /><span>{info?.warning || "该 MOD 没有可配置项"}</span></div> : <div className="mod-option-grid">{info.options.map((option) => {
+    {mode === "lua" ? <textarea className="mod-lua-editor" spellCheck={false} value={mod.configuration} onChange={(event) => onChange(event.target.value)} aria-label={`${mod.name} Lua 配置`} /> : loading ? <div className="page-loading"><RefreshCw className="spin" size={18} />正在读取 modinfo.lua</div> : info?.warning ? <div className="mod-config-empty"><CircleHelp size={20} /><span>{info.warning}</span></div> : !info?.options.length ? <div className="mod-config-empty"><CircleHelp size={20} /><span>该 MOD 没有可配置项</span></div> : <div className="mod-option-grid">{info.options.map((option) => {
       const selected = values[option.name] ?? option.defaultValue;
-      const selectedIndex = Math.max(0, option.choices.findIndex((choice) => Object.is(choice.data, selected)));
+      const selectedIndex = Math.max(0, option.choices.findIndex((choice) => Object.is(choice.data, selected) || String(choice.data) === String(selected)));
       return <label className="mod-option" key={option.name} title={option.hover || undefined}><span>{option.label}{option.hover && <CircleHelp size={13} />}</span><select value={String(selectedIndex)} onChange={(event) => updateVisual(option.name, option.choices[Number(event.target.value)]!.data)}>{option.choices.map((choice, index) => <option key={`${option.name}-${index}`} value={index}>{choice.description}</option>)}</select><code>{option.name}</code></label>;
     })}</div>}
   </div>;

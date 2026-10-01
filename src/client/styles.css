@@ -204,11 +204,16 @@ h1, h2, h3, p { margin: 0; }
 .chat-message { display: grid; grid-template-columns: 32px minmax(0, 1fr); gap: 10px; padding: 9px 0; border-bottom: 1px solid #edf0eb; }
 .chat-message:last-child { border-bottom: 0; }
 .chat-avatar { width: 32px; height: 32px; display: grid; place-content: center; border-radius: 50%; background: var(--green-soft); color: var(--green-strong); font-size: 12px; font-weight: 700; }
+.chat-avatar.join { background: #e8f3ed; color: #27704b; }
+.chat-avatar.leave { background: #f6eceb; color: #9b4b44; }
 .chat-avatar.caves { background: #f0edf4; color: #6b527d; }
 .chat-content { min-width: 0; }
 .chat-meta { display: flex; align-items: center; gap: 7px; min-width: 0; }
 .chat-meta strong { font-size: 12px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 .chat-meta time { color: #929990; font: 9px "IBM Plex Mono", monospace; margin-left: auto; flex: 0 0 auto; }
+.chat-channel { height: 17px; padding: 0 5px; border-radius: 3px; color: #6e766a; background: #eef1ec; font-size: 9px; flex: 0 0 auto; }
+.chat-channel.join { color: #27704b; background: #e8f3ed; }
+.chat-channel.leave { color: #9b4b44; background: #f6eceb; }
 .shard-label { height: 18px; padding: 0 6px; border-radius: 9px; display: inline-flex; align-items: center; background: var(--green-soft); color: var(--green-strong); font-size: 9px; flex: 0 0 auto; }
 .shard-label.caves { background: #f0edf4; color: #6b527d; }
 .chat-content p { color: #50584e; font-size: 12px; line-height: 1.55; margin-top: 4px; overflow-wrap: anywhere; }
@@ -283,6 +288,16 @@ h1, h2, h3, p { margin: 0; }
 
 .mod-list { padding: 0 16px 10px; }
 .mods-page { display: grid; gap: 16px; }
+.mod-library-list { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 0 18px; padding: 0 16px 10px; }
+.mod-library-item { min-width: 0; min-height: 78px; display: grid; grid-template-columns: 54px minmax(0, 1fr) auto; align-items: center; gap: 11px; padding: 11px 0; border-bottom: 1px solid #e9ece7; }
+.library-preview { position: relative; width: 54px; height: 54px; display: grid; place-content: center; overflow: hidden; border: 1px solid #e1e5de; border-radius: 4px; background: #edf0eb; color: #7c8579; }
+.library-preview img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; }
+.mod-library-copy { min-width: 0; display: grid; gap: 4px; }
+.mod-library-copy strong { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font-size: 12px; }
+.mod-library-copy span { color: #899087; font: 9px "IBM Plex Mono", monospace; }
+.mod-library-copy small { color: #737b70; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font-size: 10px; }
+.mod-library-empty { min-height: 130px; }
+.mod-library-empty span { font-size: 11px; }
 .workshop-search-form { padding: 14px 16px; display: flex; align-items: center; gap: 9px; }
 .workshop-search-form label { flex: 1; min-width: 0; height: 39px; display: flex; align-items: center; gap: 8px; padding: 0 11px; border: 1px solid #d5dad2; border-radius: 5px; background: white; color: #848c81; }
 .workshop-search-form label:focus-within { border-color: var(--green); box-shadow: 0 0 0 3px rgba(60,110,71,0.1); }
@@ -396,6 +411,7 @@ tbody tr:last-child td { border-bottom: 0; }
   .players-layout { grid-template-columns: 1fr; }
   .mod-fields { grid-template-columns: repeat(2, minmax(0, 1fr)); }
   .mod-option-grid { grid-template-columns: 1fr; }
+  .mod-library-list { grid-template-columns: 1fr; }
   .password-form { grid-template-columns: repeat(2, minmax(0, 1fr)); }
   .world-setting-list { grid-template-columns: 1fr; }
 }

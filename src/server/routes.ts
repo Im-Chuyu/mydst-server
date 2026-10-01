@@ -15,7 +15,7 @@ import { config } from "./config.js";
 import { gameConfig } from "./game-config.js";
 import { game } from "./game-service.js";
 import { jobs } from "./jobs.js";
-import { downloadAndAddMod, enrichModMetadata, getModConfiguration, installRestoredMods } from "./mod-workshop-service.js";
+import { addCachedMod, downloadAndAddMod, enrichModMetadata, getModConfiguration, installRestoredMods, listModLibrary } from "./mod-workshop-service.js";
 import { store } from "./store.js";
 import { getSystemInfo } from "./system-service.js";
 import { consoleSchema, credentialsSchema, gameConfigSchema, modSchema, panelPortsSchema, schedulesSchema, shardActionSchema } from "./validation.js";
@@ -355,6 +355,10 @@ api.get("/mods", async (_req, res) => {
   res.json(await enrichModMetadata(gameConfig.getMods()));
 });
 
+api.get("/mods/library", (_req, res) => {
+  res.json(listModLibrary());
+});
+
 api.get("/mods/workshop/search", async (req, res) => {
   const query = z.string().trim().min(2).max(80).parse(req.query.q);
   res.json(await searchWorkshop(query));
@@ -370,6 +374,17 @@ api.post("/mods/workshop/:id/download", (req, res) => {
   const job = jobs.run(`mod-download:${id}`, (log) => downloadAndAddMod(id, item.title, item.previewUrl, log));
   audit(req, "mods.download", `${id}: ${item.title}`);
   res.status(202).json(job);
+});
+
+api.post("/mods/library/:id/add", async (req, res) => {
+  const id = z.string().regex(/^\d{5,12}$/).parse(req.params.id);
+  const item = z.object({
+    name: z.string().trim().max(160).optional(),
+    previewUrl: z.string().trim().url("MOD 封面地址格式无效").max(1000).refine((value) => /^https:\/\//i.test(value), "MOD 封面必须使用 HTTPS 地址").or(z.literal("")).default("")
+  }).parse(req.body || {});
+  addCachedMod(id, item.name, item.previewUrl);
+  audit(req, "mods.library.add", id);
+  res.status(201).json(await enrichModMetadata(gameConfig.getMods()));
 });
 
 api.post("/mods/metadata/refresh", async (req, res) => {

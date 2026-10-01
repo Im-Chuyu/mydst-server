@@ -24,6 +24,8 @@ import {
   SunMedium,
   TimerReset,
   Trash2,
+  UserRoundMinus,
+  UserRoundPlus,
   Users
 } from "lucide-react";
 import { useCallback, useEffect, useRef, useState, type FormEvent } from "react";
@@ -329,12 +331,16 @@ function ChatCard({ notify, masterRunning }: { notify: Notify; masterRunning: bo
   const [announcement, setAnnouncement] = useState("");
   const [sending, setSending] = useState(false);
   const listRef = useRef<HTMLDivElement>(null);
+  const stickToBottom = useRef(true);
 
   const load = useCallback(async (quiet = false) => {
     try {
       const value = await api.get<ChatMessage[]>("/chat?limit=100");
+      const shouldStick = stickToBottom.current || !listRef.current;
       setMessages(value);
-      requestAnimationFrame(() => { if (listRef.current) listRef.current.scrollTop = listRef.current.scrollHeight; });
+      requestAnimationFrame(() => {
+        if (shouldStick && stickToBottom.current && listRef.current) listRef.current.scrollTop = listRef.current.scrollHeight;
+      });
     } catch (error) {
       if (!quiet) notify("error", error instanceof Error ? error.message : "聊天记录读取失败");
     }
@@ -367,13 +373,18 @@ function ChatCard({ notify, masterRunning }: { notify: Notify; masterRunning: bo
         <div><MessageSquareText size={19} /><h2>玩家聊天</h2><span className="count-label">{messages.length}</span></div>
         <button className="icon-button" title="刷新聊天" onClick={() => void load()}><RefreshCw size={16} /></button>
       </div>
-      <div className="chat-list" ref={listRef}>
+      <div className="chat-list" ref={listRef} onScroll={() => {
+        const element = listRef.current;
+        if (element) stickToBottom.current = element.scrollHeight - element.scrollTop - element.clientHeight < 36;
+      }}>
         {messages.length === 0 ? <div className="chat-empty"><MessageSquareText size={26} /><span>暂无玩家聊天记录</span></div> : messages.map((item) => (
           <article className="chat-message" key={item.id}>
-            <div className="chat-avatar">{item.player.slice(0, 1).toUpperCase()}</div>
+            <div className={`chat-avatar ${item.channel === "Join" ? "join" : item.channel === "Leave" ? "leave" : ""}`}>
+              {item.channel === "Join" ? <UserRoundPlus size={16} /> : item.channel === "Leave" ? <UserRoundMinus size={16} /> : item.player.slice(0, 1).toUpperCase()}
+            </div>
             <div className="chat-content">
-              <div className="chat-meta"><strong>{item.player}</strong><time>{item.time}</time></div>
-              <p>{item.message}</p>
+              <div className="chat-meta"><strong>{item.player}</strong><span className={`chat-channel ${item.channel.toLowerCase()}`}>{chatChannelName(item.channel)}</span><time>{item.time}</time></div>
+              <p>{item.channel === "Say" || item.channel === "Whisper" || item.channel === "Announcement" ? item.message : `${item.player} ${item.message}`}</p>
             </div>
           </article>
         ))}
@@ -405,6 +416,7 @@ function seasonName(value: string): string { return ({ autumn: "秋季", winter:
 function phaseName(value: string): string { return ({ day: "白天", dusk: "黄昏", night: "夜晚" } as Record<string, string>)[value] || value; }
 function moonName(value: string): string { return ({ new: "新月", quarter: "弦月", half: "半月", threequarter: "凸月", full: "满月" } as Record<string, string>)[value] || value; }
 function jobName(type: string): string { if (type.startsWith("mod-download:")) return "MOD 下载"; return ({ "game-update": "游戏更新", "world-reset": "世界重置", "save-delete": "删除存档", "backup-create": "存档备份", "backup-restore": "存档恢复", "scheduled-backup": "定时备份", "scheduled-update": "定时更新" } as Record<string, string>)[type] || type; }
+function chatChannelName(value: string): string { return ({ Say: "公屏", Whisper: "私聊", Announcement: "公告", Join: "加入", Leave: "退出" } as Record<string, string>)[value] || value; }
 
 function copyTextFallback(value: string): boolean {
   const previousFocus = document.activeElement instanceof HTMLElement ? document.activeElement : null;

@@ -162,6 +162,15 @@ export interface ModRecord {
   configuration: string;
 }
 
+export interface ModLibraryRecord {
+  id: string;
+  name: string;
+  previewUrl?: string;
+  inServer: boolean;
+  path: string;
+  modifiedAt: string;
+}
+
 export interface WorkshopItem {
   id: string;
   title: string;

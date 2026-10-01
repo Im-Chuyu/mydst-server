@@ -4,7 +4,7 @@ import { config } from "./config.js";
 import { gameConfig } from "./game-config.js";
 import { parseConfigurationValues, parseModInfoMetadata, parseModInfoOptions, type ModConfigOption, type ModConfigValue } from "./lua-config.js";
 import { runCommand } from "./process-runner.js";
-import type { ModRecord } from "./types.js";
+import type { ModLibraryRecord, ModRecord } from "./types.js";
 import { resolveWorkshopDetails } from "./workshop-service.js";
 
 export interface ModConfigurationInfo {
@@ -17,13 +17,81 @@ export interface ModConfigurationInfo {
 export async function downloadAndAddMod(id: string, requestedTitle: string, requestedPreviewUrl: string, onLine: (line: string) => void): Promise<void> {
   if (gameConfig.getMods().some((mod) => mod.id === id)) throw new Error("这个 MOD 已在服务器列表中");
   const item = { title: requestedTitle || `Workshop ${id}` };
-  await ensureWorkshopMod(id, item.title, onLine, 3, true);
+  await ensureWorkshopMod(id, item.title, onLine);
   const current = gameConfig.getMods();
   if (!current.some((mod) => mod.id === id)) {
     gameConfig.saveMods([...current, { id, name: item.title.slice(0, 160), previewUrl: requestedPreviewUrl, enabled: true, configuration: "{}" }]);
   }
   await enrichModMetadata(gameConfig.getMods(), onLine);
   onLine("MOD 下载完成并已加入服务器列表");
+}
+
+export function addCachedMod(id: string, requestedName = "", requestedPreviewUrl = ""): ModRecord {
+  if (gameConfig.getMods().some((mod) => mod.id === id)) throw new Error("这个 MOD 已在服务器列表中");
+  const directory = findModDirectory(id);
+  if (!directory) throw new Error("模组库中没有找到这个 MOD，请先下载");
+  const metadata = readInstalledModName(id);
+  const current = gameConfig.getMods();
+  const mod: ModRecord = {
+    id,
+    name: requestedName || metadata || `Workshop ${id}`,
+    previewUrl: requestedPreviewUrl,
+    enabled: true,
+    configuration: "{}"
+  };
+  installCachedMod(id, directory);
+  gameConfig.saveMods([...current, mod]);
+  return mod;
+}
+
+export function listModLibrary(): ModLibraryRecord[] {
+  const current = new Map(gameConfig.getMods().map((mod) => [mod.id, mod]));
+  const roots = [
+    { root: path.join(config.gameRoot, "mods"), label: "游戏 MOD 目录" },
+    { root: path.join(config.root, "Steam", "steamapps", "workshop", "content", "322330"), label: "Steam Workshop 缓存" },
+    { root: path.join(config.root, "steamapps", "workshop", "content", "322330"), label: "Steam Workshop 缓存" },
+    { root: path.join(path.dirname(config.steamcmd), "steamapps", "workshop", "content", "322330"), label: "Steam Workshop 缓存" },
+    { root: path.join(config.gameRoot, "steamapps", "workshop", "content", "322330"), label: "游戏 Workshop 缓存" },
+    { root: path.join(config.dataRoot, "ugc", "mods"), label: "UGC 缓存" },
+    { root: path.join(config.dataRoot, "ugc", "322330"), label: "UGC 缓存" }
+  ];
+  const library = new Map<string, ModLibraryRecord>();
+  for (const { root, label } of roots) {
+    if (!fs.existsSync(root)) continue;
+    for (const entry of fs.readdirSync(root, { withFileTypes: true })) {
+      const id = entry.name.match(/^(?:workshop-)?(\d{5,12})$/)?.[1];
+      if (!entry.isDirectory() || !id || library.has(id)) continue;
+      const directory = path.join(root, entry.name);
+      const modInfo = path.join(directory, "modinfo.lua");
+      if (!fs.existsSync(modInfo)) continue;
+      const known = current.get(id);
+      const name = known && !isPlaceholderName(known.name, id) ? known.name : readInstalledModName(id);
+      const modifiedAt = fs.statSync(modInfo).mtime.toISOString();
+      library.set(id, {
+        id,
+        name: name || `Workshop ${id}`,
+        previewUrl: known?.previewUrl || "",
+        inServer: Boolean(known),
+        path: label,
+        modifiedAt
+      });
+    }
+  }
+  return [...library.values()].sort((left, right) => left.name.localeCompare(right.name));
+}
+
+export async function updateEnabledMods(onLine: (line: string) => void): Promise<void> {
+  const enabled = gameConfig.getMods().filter((mod) => mod.enabled);
+  for (let index = 0; index < enabled.length; index += 1) {
+    const mod = enabled[index]!;
+    onLine(`正在检查 MOD 更新 (${index + 1}/${enabled.length})：${mod.name || mod.id}`);
+    try {
+      await ensureWorkshopMod(mod.id, mod.name || `Workshop ${mod.id}`, onLine, 2, true);
+    } catch (error) {
+      const detail = error instanceof Error ? error.message : String(error);
+      onLine(`MOD ${mod.id} 更新失败，继续使用本地版本：${detail}`);
+    }
+  }
 }
 
 export async function enrichModMetadata(mods: readonly ModRecord[], onLine?: (line: string) => void, force = false): Promise<ModRecord[]> {
@@ -55,7 +123,7 @@ export async function installRestoredMods(mods: readonly { id: string; name: str
     const mod = enabled[index]!;
     onLine(`正在处理存档 MOD (${index + 1}/${enabled.length})：${mod.name || mod.id}`);
     try {
-      await ensureWorkshopMod(mod.id, mod.name || `Workshop ${mod.id}`, onLine, 3, true);
+      await ensureWorkshopMod(mod.id, mod.name || `Workshop ${mod.id}`, onLine);
     } catch (error) {
       const detail = error instanceof Error ? error.message : String(error);
       onLine(`SteamCMD 预下载 ${mod.id} 未完成：${detail}`);
@@ -64,9 +132,9 @@ export async function installRestoredMods(mods: readonly { id: string; name: str
   }
 }
 
-async function ensureWorkshopMod(id: string, title: string, onLine: (line: string) => void, maxAttempts = 3, validateExisting = false): Promise<void> {
+async function ensureWorkshopMod(id: string, title: string, onLine: (line: string) => void, maxAttempts = 3, refreshExisting = false): Promise<void> {
   const existing = findModDirectory(id);
-  if (existing && !validateExisting) {
+  if (existing && !refreshExisting) {
     installCachedMod(id, existing);
     onLine(`MOD ${id} 已存在于服务器缓存，已同步到游戏目录`);
     return;
@@ -85,14 +153,13 @@ async function ensureWorkshopMod(id: string, title: string, onLine: (line: strin
   } else {
     let lastError = "";
     for (let attempt = 1; attempt <= maxAttempts; attempt += 1) {
-      if (validateExisting && attempt === 1) clearModCaches(id);
       onLine(`正在通过 SteamCMD 下载 ${title}（尝试 ${attempt}/${maxAttempts}）...`);
       const result = await runCommand(config.steamcmd, [
         "+force_install_dir", config.gameRoot,
         "+login", "anonymous",
         "+workshop_download_item", "322330", id, "validate",
         "+quit"
-      ], { timeoutMs: validateExisting ? 60 * 60_000 : 20 * 60_000, onLine });
+      ], { timeoutMs: refreshExisting ? 60 * 60_000 : 20 * 60_000, onLine });
       const downloaded = findModDirectory(id, true);
       const output = `${result.stdout}\n${result.stderr}`;
       const steamcmdFailed = /ERROR!\s+(?:Failed to install workshop item|Download item .* failed)|Missing configuration/i.test(output);
@@ -160,17 +227,4 @@ function installCachedMod(id: string, source: string): void {
   fs.mkdirSync(path.dirname(target), { recursive: true, mode: 0o750 });
   fs.rmSync(target, { recursive: true, force: true });
   fs.cpSync(source, target, { recursive: true, force: true });
-}
-
-function clearModCaches(id: string): void {
-  const directories = [
-    path.join(config.gameRoot, "mods", `workshop-${id}`),
-    path.join(config.root, "Steam", "steamapps", "workshop", "content", "322330", id),
-    path.join(config.root, "steamapps", "workshop", "content", "322330", id),
-    path.join(path.dirname(config.steamcmd), "steamapps", "workshop", "content", "322330", id),
-    path.join(config.gameRoot, "steamapps", "workshop", "content", "322330", id),
-    path.join(config.dataRoot, "ugc", "mods", `workshop-${id}`),
-    path.join(config.dataRoot, "ugc", "322330", id)
-  ];
-  for (const directory of directories) fs.rmSync(directory, { recursive: true, force: true });
 }

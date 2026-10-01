@@ -20,7 +20,7 @@ export function ConfirmDialog({ state, onClose }: { state: ConfirmState | null; 
         <p>{state.message}</p>
         <div className="modal-actions">
           <button className="button secondary" onClick={onClose}>取消</button>
-          <button className={`button ${state.danger ? "danger" : "primary"}`} onClick={async () => { await state.onConfirm(); onClose(); }}>
+          <button className={`button ${state.danger ? "danger" : "primary"}`} onClick={() => { onClose(); void Promise.resolve(state.onConfirm()).catch(() => undefined); }}>
             {state.confirmText || "确认"}
           </button>
         </div>

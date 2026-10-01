@@ -42,18 +42,19 @@ export function parseModInfoOptions(source: string): ModConfigOption[] {
   interpreter.run(chunk.body);
   const configuration = interpreter.env.get("configuration_options");
   if (!(configuration instanceof LuaTable)) return [];
-  return tableValues(configuration).flatMap((entry) => {
+  return tableEntries(configuration).flatMap((entry) => {
     if (!(entry instanceof LuaTable)) return [];
     const name = primitiveString(entry.get("name"));
-    const defaultValue = primitive(entry.get("default"));
-    if (!name || defaultValue === undefined) return [];
+    if (!name) return [];
     const choicesValue = entry.get("options");
-    const choices = choicesValue instanceof LuaTable ? tableValues(choicesValue).flatMap((choice) => {
+    const choices = choicesValue instanceof LuaTable ? tableEntries(choicesValue).flatMap((choice) => {
       if (!(choice instanceof LuaTable)) return [];
       const data = primitive(choice.get("data"));
       if (data === undefined) return [];
       return [{ description: primitiveString(choice.get("description")) || String(data), data }];
     }) : [];
+    const configuredDefault = primitive(entry.get("default"));
+    const defaultValue = configuredDefault ?? choices[0]?.data ?? "";
     return [{
       name,
       label: primitiveString(entry.get("label")) || name,
@@ -288,6 +289,7 @@ class StaticLuaInterpreter {
 function tableValues(table: LuaTable): LuaValue[] {
   return Array.from({ length: table.length() }, (_, index) => table.get(index + 1));
 }
+function tableEntries(table: LuaTable): LuaValue[] { return [...table.entries.values()]; }
 function primitive(value: LuaValue): ModConfigValue | undefined { return typeof value === "string" || typeof value === "number" || typeof value === "boolean" ? value : undefined; }
 function primitiveString(value: LuaValue): string { const parsed = primitive(value); return parsed === undefined ? "" : String(parsed); }
 function numeric(value: LuaValue): number | undefined { const parsed = typeof value === "number" ? value : typeof value === "string" && value.trim() ? Number(value) : NaN; return Number.isFinite(parsed) ? parsed : undefined; }
