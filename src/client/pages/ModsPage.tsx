@@ -190,7 +190,7 @@ function ModConfigurationEditor({ mod, onChange, notify }: { mod: ModRecord; onC
   function updateVisual(name: string, value: ModConfigValue) {
     const next = { ...values, [name]: value };
     setValues(next);
-    onChange(serializeLuaValues(next));
+    onChange(updateLuaValue(mod.configuration, name, value));
   }
 
   return <div className="mod-configuration">
@@ -198,11 +198,14 @@ function ModConfigurationEditor({ mod, onChange, notify }: { mod: ModRecord; onC
       <div className="segmented"><button type="button" className={mode === "visual" ? "active" : ""} onClick={() => setMode("visual")}><SlidersHorizontal size={14} />可视化</button><button type="button" className={mode === "lua" ? "active" : ""} onClick={() => setMode("lua")}><Code2 size={14} />Lua 代码</button></div>
       <button type="button" className="icon-button" title="重新读取 modinfo.lua" onClick={() => void load()}><RefreshCw className={loading ? "spin" : ""} size={16} /></button>
     </div>
-    {mode === "lua" ? <textarea className="mod-lua-editor" spellCheck={false} value={mod.configuration} onChange={(event) => onChange(event.target.value)} aria-label={`${mod.name} Lua 配置`} /> : loading ? <div className="page-loading"><RefreshCw className="spin" size={18} />正在读取 modinfo.lua</div> : info?.warning ? <div className="mod-config-empty"><CircleHelp size={20} /><span>{info.warning}</span></div> : !info?.options.length ? <div className="mod-config-empty"><CircleHelp size={20} /><span>该 MOD 没有可配置项</span></div> : <div className="mod-option-grid">{info.options.map((option) => {
+    {mode === "lua" ? <textarea className="mod-lua-editor" spellCheck={false} value={mod.configuration} onChange={(event) => onChange(event.target.value)} aria-label={`${mod.name} Lua 配置`} /> : loading ? <div className="page-loading"><RefreshCw className="spin" size={18} />正在读取 modinfo.lua</div> : !info?.options.length ? <div className="mod-config-empty"><CircleHelp size={20} /><span>{info?.warning || "该 MOD 没有可配置项"}</span></div> : <div>
+      {info.warning && <div className="mod-config-note"><CircleHelp size={15} /><span>{info.warning} 可视化修改会保留其它 Lua 配置。</span></div>}
+      <div className="mod-option-grid">{info.options.map((option) => {
       const selected = values[option.name] ?? option.defaultValue;
       const selectedIndex = Math.max(0, option.choices.findIndex((choice) => Object.is(choice.data, selected) || String(choice.data) === String(selected)));
       return <label className="mod-option" key={option.name} title={option.hover || undefined}><span>{option.label}{option.hover && <CircleHelp size={13} />}</span><select value={String(selectedIndex)} onChange={(event) => updateVisual(option.name, option.choices[Number(event.target.value)]!.data)}>{option.choices.map((choice, index) => <option key={`${option.name}-${index}`} value={index}>{choice.description}</option>)}</select><code>{option.name}</code></label>;
-    })}</div>}
+    })}</div>
+    </div>}
   </div>;
 }
 
@@ -219,6 +222,15 @@ function parseLuaValues(source: string): Record<string, ModConfigValue> {
   return result;
 }
 
+function updateLuaValue(source: string, name: string, value: ModConfigValue): string {
+  const encoded = serializeLuaValue(value);
+  const key = escapeRegExp(name);
+  const assignment = new RegExp(`((?:\\[\\s*["']${key}["']\\s*\\]|\\b${key}\\b)\\s*=\\s*)(?:"(?:\\\\.|[^"\\\\])*"|'(?:\\\\.|[^'\\\\])*'|-?\\d+(?:\\.\\d+)?|true|false|nil)`);
+  if (assignment.test(source)) return source.replace(assignment, `$1${encoded}`);
+  const end = source.lastIndexOf("}");
+  return end < 0 ? source : `${source.slice(0, end)}  ["${name}"] = ${encoded},\n${source.slice(end)}`;
+}
+
 function serializeLuaValues(values: Record<string, ModConfigValue>): string {
   const entries = Object.entries(values).sort(([left], [right]) => left.localeCompare(right));
   if (!entries.length) return "{}";
@@ -227,6 +239,10 @@ function serializeLuaValues(values: Record<string, ModConfigValue>): string {
 
 function serializeLuaValue(value: ModConfigValue): string {
   return typeof value === "string" ? `"${value.replace(/\\/g, "\\\\").replace(/"/g, '\\"').replace(/\r?\n/g, "\\n")}"` : String(value);
+}
+
+function escapeRegExp(value: string): string {
+  return value.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
 }
 
 function cleanJobLine(value: string): string { return value.replace(/\x1b\[[0-9;]*m/g, "").trim(); }

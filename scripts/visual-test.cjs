@@ -121,6 +121,12 @@ async function assertViewport(page, name) {
     await modRow.locator(".server-mod-preview img").waitFor();
     await modRow.getByRole("button", { name: /配置/ }).click();
     await modRow.getByText("显示语言", { exact: true }).waitFor();
+    await modRow.locator(".mod-option select").first().selectOption("1");
+    const modSaveResponsePromise = page.waitForResponse((response) => response.url().endsWith("/api/mods") && response.request().method() === "PUT");
+    await page.getByRole("button", { name: "保存", exact: true }).click();
+    const modSaveResponse = await modSaveResponsePromise;
+    assert.ok(modSaveResponse.ok(), `MOD config save failed: ${await modSaveResponse.text()}`);
+    await page.getByRole("status").filter({ hasText: "MOD 配置已保存" }).waitFor();
     await page.screenshot({ path: path.join(results, "mods-desktop.png"), fullPage: true });
     await assertViewport(page, "desktop mods");
     await page.getByRole("button", { name: "存档备份" }).click();

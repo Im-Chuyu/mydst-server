@@ -20,6 +20,11 @@ export interface ModInfoMetadata {
   name: string;
 }
 
+export interface ParsedConfigurationValues {
+  values: Record<string, ModConfigValue>;
+  hasNested: boolean;
+}
+
 type LuaKey = string | number;
 type LuaValue = ModConfigValue | LuaTable | null | undefined;
 
@@ -41,8 +46,7 @@ export function parseModInfoOptions(source: string): ModConfigOption[] {
   const interpreter = new StaticLuaInterpreter();
   interpreter.run(chunk.body);
   const configuration = interpreter.env.get("configuration_options");
-  if (!(configuration instanceof LuaTable)) return [];
-  return tableEntries(configuration).flatMap((entry) => {
+  const staticOptions = configuration instanceof LuaTable ? tableEntries(configuration).flatMap((entry) => {
     if (!(entry instanceof LuaTable)) return [];
     const name = primitiveString(entry.get("name"));
     if (!name) return [];
@@ -62,7 +66,21 @@ export function parseModInfoOptions(source: string): ModConfigOption[] {
       defaultValue,
       choices: choices.length ? choices : [{ description: String(defaultValue), data: defaultValue }]
     }];
+  }) : [];
+  const structuralOptions = parseModInfoOptionsStructurally(chunk.body);
+  if (!staticOptions.length) return structuralOptions;
+  const byName = new Map(structuralOptions.map((option) => [option.name, option]));
+  const merged = staticOptions.map((option) => {
+    const structural = byName.get(option.name);
+    return structural ? {
+      ...option,
+      label: structural.label || option.label,
+      hover: structural.hover || option.hover,
+      choices: structural.choices.length > 1 ? structural.choices : option.choices
+    } : option;
   });
+  for (const option of structuralOptions) if (!merged.some((item) => item.name === option.name)) merged.push(option);
+  return merged;
 }
 
 export function parseModInfoMetadata(source: string): ModInfoMetadata {
@@ -82,6 +100,26 @@ export function parseConfigurationValues(source: string): Record<string, ModConf
     result[key] = parsed;
   }
   return result;
+}
+
+export function parseConfigurationValueSubset(source: string): ParsedConfigurationValues {
+  const value = parseConfigurationTable(source);
+  if (!(value instanceof LuaTable)) throw new Error("MOD Lua 配置必须是一个表");
+  const values: Record<string, ModConfigValue> = {};
+  let hasNested = false;
+  for (const [key, entry] of value.entries) {
+    if (typeof key !== "string") throw new Error("MOD Lua 配置仅支持字符串键");
+    const parsed = primitive(entry);
+    if (parsed === undefined) {
+      if (entry instanceof LuaTable) {
+        hasNested = true;
+        continue;
+      }
+      throw new Error("MOD Lua 配置包含无法静态读取的值");
+    }
+    values[key] = parsed;
+  }
+  return { values, hasNested };
 }
 
 export function normalizeConfigurationTable(source: string): string {
@@ -295,3 +333,89 @@ function primitiveString(value: LuaValue): string { const parsed = primitive(val
 function numeric(value: LuaValue): number | undefined { const parsed = typeof value === "number" ? value : typeof value === "string" && value.trim() ? Number(value) : NaN; return Number.isFinite(parsed) ? parsed : undefined; }
 function truthy(value: LuaValue): boolean { return value !== false && value !== null && value !== undefined; }
 function parseLua(source: string) { return luaparse.parse(Buffer.from(source, "utf8").toString("latin1"), { luaVersion: "5.1", encodingMode: "pseudo-latin1" }); }
+
+function parseModInfoOptionsStructurally(statements: unknown[]): ModConfigOption[] {
+  const table = findConfigurationTable(statements);
+  if (!table) return [];
+  const options: ModConfigOption[] = [];
+  for (const entry of astTableValues(table)) {
+    const fields = astTableFields(entry);
+    const name = astString(fields.get("name"));
+    if (!name) continue;
+    const choices = astTableValues(fields.get("options")).flatMap((choice) => {
+      const choiceFields = astTableFields(choice);
+      const data = astPrimitive(choiceFields.get("data"));
+      if (data === undefined) return [];
+      return [{ description: astString(choiceFields.get("description")) || String(data), data }];
+    });
+    const defaultValue = astPrimitive(fields.get("default")) ?? choices[0]?.data ?? "";
+    options.push({
+      name,
+      label: astString(fields.get("label")) || name,
+      hover: astString(fields.get("hover")),
+      defaultValue,
+      choices: choices.length ? choices : [{ description: String(defaultValue), data: defaultValue }]
+    });
+  }
+  return options;
+}
+
+function findConfigurationTable(statements: unknown[]): Record<string, any> | undefined {
+  for (const statement of statements) {
+    const node = statement as Record<string, any> | undefined;
+    if (!node) continue;
+    if (node.type === "AssignmentStatement") {
+      const index = (node.variables || []).findIndex((variable: Record<string, any>) => variable.type === "Identifier" && variable.name === "configuration_options");
+      const value = index >= 0 ? node.init?.[index] : undefined;
+      if (value?.type === "TableConstructorExpression") return value;
+    }
+    if (node.type === "IfStatement") {
+      for (const clause of node.clauses || []) {
+        const found = findConfigurationTable(clause.body || []);
+        if (found) return found;
+      }
+    }
+    if (node.type === "DoStatement" || node.type === "ForNumericStatement" || node.type === "ForGenericStatement" || node.type === "WhileStatement") {
+      const found = findConfigurationTable(node.body || []);
+      if (found) return found;
+    }
+  }
+  return undefined;
+}
+
+function astTableValues(node: unknown): Record<string, any>[] {
+  const table = node as Record<string, any> | undefined;
+  if (!table || table.type !== "TableConstructorExpression") return [];
+  return (table.fields || [])
+    .filter((field: Record<string, any>) => field.type === "TableValue" || field.type === "TableKey" || field.type === "TableKeyString")
+    .map((field: Record<string, any>) => field.value)
+    .filter((value: Record<string, any> | undefined): value is Record<string, any> => Boolean(value));
+}
+
+function astTableFields(node: unknown): Map<string, Record<string, any>> {
+  const table = node as Record<string, any> | undefined;
+  const fields = new Map<string, Record<string, any>>();
+  if (!table || table.type !== "TableConstructorExpression") return fields;
+  for (const field of table.fields || []) {
+    if (field.type === "TableKeyString" && field.key?.name && field.value) fields.set(field.key.name, field.value);
+    else if (field.type === "TableKey" && field.value) {
+      const key = astString(field.key);
+      if (key) fields.set(key, field.value);
+    }
+  }
+  return fields;
+}
+
+function astPrimitive(node: unknown): ModConfigValue | undefined {
+  const value = node as Record<string, any> | undefined;
+  if (!value) return undefined;
+  if (value.type === "StringLiteral") return Buffer.from(String(value.value), "latin1").toString("utf8");
+  if (value.type === "NumericLiteral") return Number(value.value);
+  if (value.type === "BooleanLiteral") return Boolean(value.value);
+  return undefined;
+}
+
+function astString(node: unknown): string {
+  const value = astPrimitive(node);
+  return value === undefined ? "" : String(value);
+}

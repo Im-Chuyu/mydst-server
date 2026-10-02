@@ -2,7 +2,7 @@ import fs from "node:fs";
 import path from "node:path";
 import { config } from "./config.js";
 import { gameConfig } from "./game-config.js";
-import { parseConfigurationValues, parseModInfoMetadata, parseModInfoOptions, type ModConfigOption, type ModConfigValue } from "./lua-config.js";
+import { parseConfigurationValueSubset, parseModInfoMetadata, parseModInfoOptions, type ModConfigOption, type ModConfigValue } from "./lua-config.js";
 import { runCommand } from "./process-runner.js";
 import type { ModLibraryRecord, ModRecord } from "./types.js";
 import { resolveWorkshopDetails } from "./workshop-service.js";
@@ -178,7 +178,11 @@ export function getModConfiguration(id: string): ModConfigurationInfo {
   const mod = gameConfig.getMods().find((item) => item.id === id);
   let values: Record<string, ModConfigValue> = {};
   let configurationWarning = "";
-  try { values = mod ? parseConfigurationValues(mod.configuration || "{}") : {}; }
+  try {
+    const parsed = mod ? parseConfigurationValueSubset(mod.configuration || "{}") : { values: {}, hasNested: false };
+    values = parsed.values;
+    if (parsed.hasNested) configurationWarning = "该 MOD 含有嵌套 Lua 配置";
+  }
   catch { configurationWarning = "该 MOD 使用嵌套 Lua 配置，请使用 Lua 模式编辑"; }
   const file = findModInfo(id);
   if (!file) return { installed: false, options: [], values, warning: configurationWarning || "服务器中尚未找到该 MOD 的 modinfo.lua" };

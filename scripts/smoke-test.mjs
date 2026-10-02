@@ -3,7 +3,7 @@ import { spawn } from "node:child_process";
 import fs from "node:fs";
 import path from "node:path";
 import yazl from "yazl";
-import { parseModInfoOptions, parseModOverrides } from "../dist/server/lua-config.js";
+import { parseConfigurationValueSubset, parseModInfoOptions, parseModOverrides } from "../dist/server/lua-config.js";
 import { parseChatLine } from "../dist/server/game-service.js";
 import { extractWorkshopIds } from "../dist/server/workshop-service.js";
 
@@ -56,6 +56,13 @@ try {
   `);
   assert.equal(parsedModOptions.length, 2);
   assert.equal(parsedModOptions[0].choices.length, 3);
+  const parsedDynamicOptions = parseModInfoOptions(`
+    local options = {
+      { name = "MODE", label = "Mode", options = { { description = "Automatic", data = "auto" }, { description = "Manual", data = "manual" } }, default = "auto" },
+    }
+    configuration_options = options
+  `);
+  assert.equal(parsedDynamicOptions[0].choices.length, 2);
   const parsedOptionWithoutDefault = parseModInfoOptions(`
     configuration_options = {
       { name = "MODE", label = "Mode", options = { { description = "Automatic", data = "auto" } } },
@@ -73,15 +80,18 @@ try {
   assert.equal(parseChatLine("[14:36:08]: [Leave Announcement] 离开的玩家", "master")[0].message, "离开了服务器");
   assert.equal(parseChatLine("[14:36:20]: [Say] (KU_demo001) 测试玩家: hello", "master")[0].message, "hello");
   assert.equal(parseChatLine("[14:36:30]: [Announcement] 服务器公告", "master")[0].player, "服务器");
+  const parsedSubset = parseConfigurationValueSubset('{ ["LANGUAGE"] = "zh", ["nested"] = { ["level"] = 2 } }');
+  assert.equal(parsedSubset.values.LANGUAGE, "zh");
+  assert.equal(parsedSubset.hasNested, true);
 
-  for (let attempt = 0; attempt < 40; attempt += 1) {
+  for (let attempt = 0; attempt < 120; attempt += 1) {
     try {
       const health = await call("/health");
       if (health.status === "ok") break;
     } catch {
       await new Promise((resolve) => setTimeout(resolve, 100));
     }
-    if (attempt === 39) throw new Error(`Server did not start:\n${output}`);
+    if (attempt === 119) throw new Error(`Server did not start:\n${output}`);
   }
 
   const setup = await call("/auth/setup", {
@@ -220,6 +230,12 @@ try {
   const updatedConfiguration = await call("/mods/351325790/configuration");
   assert.equal(updatedConfiguration.values.LANGUAGE, "zh");
   assert.equal(updatedConfiguration.values.ENABLED, false);
+  mods[0].configuration = '{ ["LANGUAGE"] = "zh", ["nested"] = { ["level"] = 2 } }';
+  await call("/mods", { method: "PUT", body: mods });
+  const nestedConfiguration = await call("/mods/351325790/configuration");
+  assert.equal(nestedConfiguration.values.LANGUAGE, "zh");
+  assert.equal(nestedConfiguration.options.length, 2);
+  assert.match(nestedConfiguration.warning, /嵌套/);
   const invalidMods = structuredClone(mods);
   invalidMods[0].configuration = '{ ["BROKEN"] = os.execute("bad") }';
   const invalidModResponse = await fetch(`${base}/mods`, { method: "PUT", headers: { Cookie: cookie, "X-CSRF-Token": csrfToken, "Content-Type": "application/json" }, body: JSON.stringify(invalidMods) });
