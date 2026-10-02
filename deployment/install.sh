@@ -310,9 +310,12 @@ chown root:dst /etc/mydst-panel.env
 chmod 0640 /etc/mydst-panel.env
 
 install -o root -g root -m 0644 deployment/mydst-panel.service /etc/systemd/system/mydst-panel.service
+install -o root -g root -m 0644 deployment/mydst-steamcmd-cleanup.service /etc/systemd/system/mydst-steamcmd-cleanup.service
 install -o root -g root -m 0644 deployment/mydst-panel-update.service /etc/systemd/system/mydst-panel-update.service
 install -o root -g root -m 0644 deployment/mydst-panel-update.path /etc/systemd/system/mydst-panel-update.path
 systemctl daemon-reload
+systemctl enable mydst-steamcmd-cleanup.service
+systemctl start mydst-steamcmd-cleanup.service
 systemctl enable --now mydst-panel.service
 systemctl enable --now mydst-panel-update.path
 

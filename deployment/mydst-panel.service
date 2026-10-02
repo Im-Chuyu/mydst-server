@@ -2,6 +2,8 @@
 Description=MyDST Server Control Panel
 After=network-online.target
 Wants=network-online.target
+Requires=mydst-steamcmd-cleanup.service
+After=mydst-steamcmd-cleanup.service
 
 [Service]
 Type=simple

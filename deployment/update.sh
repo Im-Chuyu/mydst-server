@@ -27,6 +27,7 @@ fi
 
 install -o root -g root -m 0644 "$SOURCE_DIR/deployment/mydst-panel-update.service" /etc/systemd/system/mydst-panel-update.service
 install -o root -g root -m 0644 "$SOURCE_DIR/deployment/mydst-panel-update.path" /etc/systemd/system/mydst-panel-update.path
+install -o root -g root -m 0644 "$SOURCE_DIR/deployment/mydst-steamcmd-cleanup.service" /etc/systemd/system/mydst-steamcmd-cleanup.service
 systemctl daemon-reload
 systemctl enable --now mydst-panel-update.path
 systemctl stop mydst-panel
@@ -41,7 +42,9 @@ npm ci
 npm run build
 npm prune --omit=dev
 chmod 0755 deployment/run-shard.sh
+chmod 0755 deployment/cleanup-steam-dumps.sh
 chown -R root:dst "$PANEL_DIR"
 chmod -R g+rX,o-rwx "$PANEL_DIR"
+systemctl start mydst-steamcmd-cleanup.service
 systemctl start mydst-panel
 systemctl --no-pager --full status mydst-panel
