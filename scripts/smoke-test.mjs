@@ -63,6 +63,22 @@ try {
     configuration_options = options
   `);
   assert.equal(parsedDynamicOptions[0].choices.length, 2);
+  const parsedReturnedOptions = parseModInfoOptions(`
+    return {
+      configuration_options = {
+        { name = "MODE", options = { { description = "Automatic", data = "auto" }, { description = "Manual", data = "manual" } }, default = "auto" },
+      },
+    }
+  `);
+  assert.equal(parsedReturnedOptions[0].choices.length, 2);
+  const parsedLiteralFallbackOptions = parseModInfoOptions(`
+    configuration_options = {
+      { name = "MODE", options = { { description = "Automatic", data = "auto" }, { description = "Manual", data = "manual" } }, default = "auto" },
+    }
+    goto unsupported_by_lua_51
+    ::unsupported_by_lua_51::
+  `);
+  assert.equal(parsedLiteralFallbackOptions[0].choices.length, 2);
   const parsedOptionWithoutDefault = parseModInfoOptions(`
     configuration_options = {
       { name = "MODE", label = "Mode", options = { { description = "Automatic", data = "auto" } } },

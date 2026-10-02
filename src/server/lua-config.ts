@@ -42,52 +42,47 @@ class LuaTable {
 }
 
 export function parseModInfoOptions(source: string): ModConfigOption[] {
-  const chunk = parseLua(source);
-  const interpreter = new StaticLuaInterpreter();
-  interpreter.run(chunk.body);
-  const configuration = interpreter.env.get("configuration_options");
-  const staticOptions = configuration instanceof LuaTable ? tableEntries(configuration).flatMap((entry) => {
-    if (!(entry instanceof LuaTable)) return [];
-    const name = primitiveString(entry.get("name"));
-    if (!name) return [];
-    const choicesValue = entry.get("options");
-    const choices = choicesValue instanceof LuaTable ? tableEntries(choicesValue).flatMap((choice) => {
-      if (!(choice instanceof LuaTable)) return [];
-      const data = primitive(choice.get("data"));
-      if (data === undefined) return [];
-      return [{ description: primitiveString(choice.get("description")) || String(data), data }];
-    }) : [];
-    const configuredDefault = primitive(entry.get("default"));
-    const defaultValue = configuredDefault ?? choices[0]?.data ?? "";
-    return [{
-      name,
-      label: primitiveString(entry.get("label")) || name,
-      hover: primitiveString(entry.get("hover")) || "",
-      defaultValue,
-      choices: choices.length ? choices : [{ description: String(defaultValue), data: defaultValue }]
-    }];
-  }) : [];
-  const structuralOptions = parseModInfoOptionsStructurally(chunk.body);
-  if (!staticOptions.length) return structuralOptions;
-  const byName = new Map(structuralOptions.map((option) => [option.name, option]));
-  const merged = staticOptions.map((option) => {
-    const structural = byName.get(option.name);
-    return structural ? {
-      ...option,
-      label: structural.label || option.label,
-      hover: structural.hover || option.hover,
-      choices: structural.choices.length > 1 ? structural.choices : option.choices
-    } : option;
-  });
-  for (const option of structuralOptions) if (!merged.some((item) => item.name === option.name)) merged.push(option);
-  return merged;
+  const parsedOptions: ModConfigOption[][] = [];
+  let parseError: unknown;
+  try {
+    const chunk = parseLua(source);
+    const interpreter = new StaticLuaInterpreter();
+    interpreter.run(chunk.body);
+    const returned = interpreter.returnValue;
+    const returnedConfiguration = returned instanceof LuaTable ? returned.get("configuration_options") : undefined;
+    const configuration = interpreter.env.get("configuration_options")
+      ?? returnedConfiguration
+      ?? (returned instanceof LuaTable ? returned : undefined);
+    parsedOptions.push(optionsFromLuaTable(configuration));
+    parsedOptions.push(parseModInfoOptionsStructurally(chunk.body));
+  } catch (error) {
+    parseError = error;
+  }
+
+  // Some Workshop modinfo files contain newer Lua syntax or unrelated runtime
+  // code that luaparse cannot read. Extracting the literal configuration table
+  // still lets the panel expose the options users need to edit.
+  const literal = extractConfigurationTable(source);
+  if (literal) {
+    try {
+      parsedOptions.push(optionsFromLuaTable(parseLuaTableValue(literal)));
+    } catch (error) {
+      parseError ||= error;
+    }
+  }
+
+  const merged = mergeModOptions(parsedOptions);
+  if (merged.length || !parseError) return merged;
+  throw parseError;
 }
 
 export function parseModInfoMetadata(source: string): ModInfoMetadata {
   const chunk = parseLua(source);
   const interpreter = new StaticLuaInterpreter();
   interpreter.run(chunk.body);
-  return { name: primitiveString(interpreter.env.get("name")).trim() };
+  const returned = interpreter.returnValue;
+  const returnedName = returned instanceof LuaTable ? returned.get("name") : undefined;
+  return { name: primitiveString(interpreter.env.get("name") ?? returnedName).trim() };
 }
 
 export function parseConfigurationValues(source: string): Record<string, ModConfigValue> {
@@ -174,6 +169,7 @@ function serializeLuaValue(value: LuaValue, depth = 0): string {
 
 class StaticLuaInterpreter {
   readonly env = new Map<string, LuaValue>();
+  returnValue: LuaValue = undefined;
   private steps = 0;
 
   run(statements: unknown[]): void {
@@ -224,6 +220,9 @@ class StaticLuaInterpreter {
     const node = input as Record<string, any> | undefined;
     if (!node) return;
     switch (node.type) {
+      case "ReturnStatement":
+        this.returnValue = node.arguments?.length === 1 ? this.evaluate(node.arguments[0]) : undefined;
+        break;
       case "LocalStatement":
       case "AssignmentStatement":
         (node.variables || []).forEach((target: unknown, index: number) => this.assign(target, this.evaluate(node.init?.[index])));
@@ -334,6 +333,57 @@ function numeric(value: LuaValue): number | undefined { const parsed = typeof va
 function truthy(value: LuaValue): boolean { return value !== false && value !== null && value !== undefined; }
 function parseLua(source: string) { return luaparse.parse(Buffer.from(source, "utf8").toString("latin1"), { luaVersion: "5.1", encodingMode: "pseudo-latin1" }); }
 
+function optionsFromLuaTable(configuration: LuaValue): ModConfigOption[] {
+  if (!(configuration instanceof LuaTable)) return [];
+  return tableEntries(configuration).flatMap((entry) => {
+    if (!(entry instanceof LuaTable)) return [];
+    const name = primitiveString(entry.get("name"));
+    if (!name) return [];
+    const choicesValue = entry.get("options");
+    const choices = choicesValue instanceof LuaTable ? tableEntries(choicesValue).flatMap((choice) => {
+      if (!(choice instanceof LuaTable)) return [];
+      const data = primitive(choice.get("data"));
+      if (data === undefined) return [];
+      return [{ description: primitiveString(choice.get("description")) || String(data), data }];
+    }) : [];
+    const configuredDefault = primitive(entry.get("default"));
+    const defaultValue = configuredDefault ?? choices[0]?.data ?? "";
+    return [{
+      name,
+      label: primitiveString(entry.get("label")) || name,
+      hover: primitiveString(entry.get("hover")) || "",
+      defaultValue,
+      choices: choices.length ? choices : [{ description: String(defaultValue), data: defaultValue }]
+    }];
+  });
+}
+
+function parseLuaTableValue(source: string): LuaValue {
+  const interpreter = new StaticLuaInterpreter();
+  const chunk = parseLua(`return ${source}`);
+  const statement = chunk.body[0] as unknown as { type?: string; arguments?: unknown[] } | undefined;
+  if (!statement || statement.type !== "ReturnStatement" || statement.arguments?.length !== 1) return undefined;
+  return interpreter.evaluate(statement.arguments[0]);
+}
+
+function mergeModOptions(groups: ModConfigOption[][]): ModConfigOption[] {
+  const merged: ModConfigOption[] = [];
+  for (const group of groups) {
+    for (const option of group) {
+      const existing = merged.find((item) => item.name === option.name);
+      if (!existing) {
+        merged.push(option);
+        continue;
+      }
+      existing.label = option.label || existing.label;
+      existing.hover = option.hover || existing.hover;
+      if (option.choices.length > 1 || existing.choices.length <= 1) existing.choices = option.choices;
+      existing.defaultValue = option.defaultValue;
+    }
+  }
+  return merged;
+}
+
 function parseModInfoOptionsStructurally(statements: unknown[]): ModConfigOption[] {
   const table = findConfigurationTable(statements);
   if (!table) return [];
@@ -364,6 +414,14 @@ function findConfigurationTable(statements: unknown[]): Record<string, any> | un
   for (const statement of statements) {
     const node = statement as Record<string, any> | undefined;
     if (!node) continue;
+    if (node.type === "ReturnStatement") {
+      const returned = node.arguments?.[0] as Record<string, any> | undefined;
+      if (returned?.type === "TableConstructorExpression") {
+        const fields = astTableFields(returned);
+        const configuration = fields.get("configuration_options");
+        if (configuration?.type === "TableConstructorExpression") return configuration;
+      }
+    }
     if (node.type === "AssignmentStatement") {
       const index = (node.variables || []).findIndex((variable: Record<string, any>) => variable.type === "Identifier" && variable.name === "configuration_options");
       const value = index >= 0 ? node.init?.[index] : undefined;
@@ -418,4 +476,57 @@ function astPrimitive(node: unknown): ModConfigValue | undefined {
 function astString(node: unknown): string {
   const value = astPrimitive(node);
   return value === undefined ? "" : String(value);
+}
+
+function extractConfigurationTable(source: string): string | null {
+  const assignment = /\bconfiguration_options\s*=\s*\{/g.exec(source);
+  if (!assignment || assignment.index === undefined) return null;
+  const start = source.indexOf("{", assignment.index);
+  if (start < 0) return null;
+  let depth = 0;
+  let quote = "";
+  let escaped = false;
+  let lineComment = false;
+  let blockComment = false;
+  for (let index = start; index < source.length; index += 1) {
+    const character = source[index]!;
+    const next = source[index + 1] || "";
+    if (lineComment) {
+      if (character === "\n") lineComment = false;
+      continue;
+    }
+    if (blockComment) {
+      if (character === "*" && next === "]") {
+        blockComment = false;
+        index += 1;
+      }
+      continue;
+    }
+    if (quote) {
+      if (escaped) escaped = false;
+      else if (character === "\\") escaped = true;
+      else if (character === quote) quote = "";
+      continue;
+    }
+    if (character === "-" && next === "-") {
+      if (source[index + 2] === "[" && source[index + 3] === "[") {
+        blockComment = true;
+        index += 3;
+      } else {
+        lineComment = true;
+        index += 1;
+      }
+      continue;
+    }
+    if (character === "\"" || character === "'") {
+      quote = character;
+      continue;
+    }
+    if (character === "{") depth += 1;
+    else if (character === "}") {
+      depth -= 1;
+      if (depth === 0) return source.slice(start, index + 1);
+    }
+  }
+  return null;
 }

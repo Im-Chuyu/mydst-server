@@ -12,6 +12,7 @@ export interface ModConfigurationInfo {
   options: ModConfigOption[];
   values: Record<string, ModConfigValue>;
   warning?: string;
+  sourcePath?: string;
 }
 
 export async function downloadAndAddMod(id: string, requestedTitle: string, requestedPreviewUrl: string, onLine: (line: string) => void): Promise<void> {
@@ -188,9 +189,9 @@ export function getModConfiguration(id: string): ModConfigurationInfo {
   if (!file) return { installed: false, options: [], values, warning: configurationWarning || "服务器中尚未找到该 MOD 的 modinfo.lua" };
   try {
     const options = parseModInfoOptions(fs.readFileSync(file, "utf8"));
-    return { installed: true, options, values, warning: configurationWarning || (options.length ? undefined : "该 MOD 没有可静态读取的配置项，可使用 Lua 模式配置") };
+    return { installed: true, options, values, sourcePath: file, warning: configurationWarning || (options.length ? undefined : "该 MOD 没有可静态读取的配置项，可使用 Lua 模式配置") };
   } catch (error) {
-    return { installed: true, options: [], values, warning: error instanceof Error ? `modinfo.lua 解析失败：${error.message}` : "modinfo.lua 解析失败" };
+    return { installed: true, options: [], values, sourcePath: file, warning: error instanceof Error ? `modinfo.lua 解析失败：${error.message}` : "modinfo.lua 解析失败" };
   }
 }
 
@@ -222,7 +223,47 @@ function findModDirectory(id: string, preferCache = false): string | null {
     path.join(config.dataRoot, "ugc", "322330", id)
   ];
   const candidates = preferCache ? [...caches, target] : [target, ...caches];
-  return candidates.find((directory) => fs.existsSync(path.join(directory, "modinfo.lua"))) || null;
+  const direct = candidates.find((directory) => fs.existsSync(path.join(directory, "modinfo.lua")));
+  if (direct) return direct;
+
+  const roots = [
+    path.join(config.gameRoot, "mods"),
+    path.join(config.root, "Steam", "steamapps", "workshop", "content", "322330"),
+    path.join(config.root, "steamapps", "workshop", "content", "322330"),
+    path.join(path.dirname(config.steamcmd), "steamapps", "workshop", "content", "322330"),
+    path.join(config.gameRoot, "steamapps", "workshop", "content", "322330"),
+    path.join(config.dataRoot, "ugc", "mods"),
+    path.join(config.dataRoot, "ugc", "322330")
+  ];
+  for (const root of roots) {
+    const found = findModDirectoryRecursively(root, id);
+    if (found) return found;
+  }
+  return null;
+}
+
+function findModDirectoryRecursively(root: string, id: string): string | null {
+  if (!fs.existsSync(root)) return null;
+  const pending: Array<{ directory: string; depth: number }> = [{ directory: root, depth: 0 }];
+  const idPattern = new RegExp(`^(?:workshop-)?${id}$`);
+  while (pending.length) {
+    const current = pending.shift()!;
+    let entries: fs.Dirent[];
+    try { entries = fs.readdirSync(current.directory, { withFileTypes: true }); }
+    catch { continue; }
+    const hasModInfo = entries.some((entry) => entry.isFile() && entry.name.toLowerCase() === "modinfo.lua");
+    if (hasModInfo && current.depth > 0) {
+      const parts = path.normalize(current.directory).split(path.sep);
+      if (parts.some((part) => idPattern.test(part))) return current.directory;
+    }
+    if (current.depth >= 5) continue;
+    for (const entry of entries) {
+      if (entry.isDirectory() && !entry.isSymbolicLink()) {
+        pending.push({ directory: path.join(current.directory, entry.name), depth: current.depth + 1 });
+      }
+    }
+  }
+  return null;
 }
 
 function installCachedMod(id: string, source: string): void {

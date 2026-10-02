@@ -192,6 +192,7 @@ export interface ModConfigurationInfo {
   options: ModConfigOption[];
   values: Record<string, ModConfigValue>;
   warning?: string;
+  sourcePath?: string;
 }
 
 export interface ScheduleSettings {
