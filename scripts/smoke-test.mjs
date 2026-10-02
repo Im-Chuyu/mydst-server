@@ -263,6 +263,15 @@ try {
   const readdedMods = await call("/mods/library/351325790/add", { method: "POST", body: { name: "Geometric Placement", previewUrl: mods[0].previewUrl } });
   assert.equal(readdedMods.length, 1);
   assert.equal(readdedMods[0].id, "351325790");
+  const ensureModJob = await call("/mods/351325790/ensure", { method: "POST", body: {} });
+  assert.equal(ensureModJob.type, "mod-ensure:351325790");
+  for (let attempt = 0; attempt < 30; attempt += 1) {
+    const job = (await call("/jobs")).find((item) => item.id === ensureModJob.id);
+    if (job?.status === "success") break;
+    if (job?.status === "failed") throw new Error(`MOD cache ensure failed: ${job.error}`);
+    await new Promise((resolve) => setTimeout(resolve, 100));
+    if (attempt === 29) throw new Error("MOD cache ensure job did not finish");
+  }
 
   const caveSaveFile = path.join(root, "data", "DoNotStarveTogether", "Cluster_1", "Caves", "save", "session", "smoke", "0000000001");
   fs.mkdirSync(path.dirname(caveSaveFile), { recursive: true });

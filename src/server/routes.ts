@@ -15,7 +15,7 @@ import { config } from "./config.js";
 import { gameConfig } from "./game-config.js";
 import { game } from "./game-service.js";
 import { jobs } from "./jobs.js";
-import { addCachedMod, downloadAndAddMod, enrichModMetadata, getModConfiguration, installRestoredMods, listModLibrary } from "./mod-workshop-service.js";
+import { addCachedMod, downloadAndAddMod, downloadModToCache, enrichModMetadata, getModConfiguration, installRestoredMods, listModLibrary } from "./mod-workshop-service.js";
 import { store } from "./store.js";
 import { getSystemInfo } from "./system-service.js";
 import { consoleSchema, credentialsSchema, gameConfigSchema, modSchema, panelPortsSchema, schedulesSchema, shardActionSchema } from "./validation.js";
@@ -385,6 +385,15 @@ api.post("/mods/library/:id/add", async (req, res) => {
   addCachedMod(id, item.name, item.previewUrl);
   audit(req, "mods.library.add", id);
   res.status(201).json(await enrichModMetadata(gameConfig.getMods()));
+});
+
+api.post("/mods/:id/ensure", (req, res) => {
+  const id = z.string().regex(/^\d{5,12}$/).parse(req.params.id);
+  const mod = gameConfig.getMods().find((item) => item.id === id);
+  if (!mod) throw new Error("这个 MOD 不在服务器列表中");
+  const job = jobs.run(`mod-ensure:${id}`, (log) => downloadModToCache(id, mod.name, log));
+  audit(req, "mods.ensure", id);
+  res.status(202).json(job);
 });
 
 api.post("/mods/metadata/refresh", async (req, res) => {

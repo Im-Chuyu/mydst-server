@@ -27,6 +27,12 @@ export async function downloadAndAddMod(id: string, requestedTitle: string, requ
   onLine("MOD 下载完成并已加入服务器列表");
 }
 
+export async function downloadModToCache(id: string, requestedTitle: string, onLine: (line: string) => void): Promise<void> {
+  await ensureWorkshopMod(id, requestedTitle || `Workshop ${id}`, onLine);
+  await enrichModMetadata(gameConfig.getMods(), onLine);
+  onLine("MOD 已下载到服务器缓存，可以读取配置");
+}
+
 export function addCachedMod(id: string, requestedName = "", requestedPreviewUrl = ""): ModRecord {
   if (gameConfig.getMods().some((mod) => mod.id === id)) throw new Error("这个 MOD 已在服务器列表中");
   const directory = findModDirectory(id);

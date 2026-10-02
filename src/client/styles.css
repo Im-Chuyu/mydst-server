@@ -337,7 +337,7 @@ h1, h2, h3, p { margin: 0; }
 .mod-option select { width: 100%; min-width: 0; height: 35px; border: 1px solid #d5dad2; border-radius: 5px; background: white; padding: 0 8px; color: var(--text); }
 .mod-option code { grid-column: 1 / -1; color: #8a9187; font-size: 9px; }
 .mod-lua-editor { width: 100%; min-height: 260px; resize: vertical; border: 0; outline: 0; padding: 14px; background: #20251f; color: #d9e3d5; font: 12px/1.65 "IBM Plex Mono", monospace; tab-size: 2; }
-.mod-config-empty { min-height: 130px; padding: 24px; display: flex; align-items: center; justify-content: center; gap: 9px; color: var(--muted); font-size: 12px; text-align: center; }
+.mod-config-empty { min-height: 130px; padding: 24px; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 9px; color: var(--muted); font-size: 12px; text-align: center; }
 .mod-config-note { margin: 10px 14px 0; padding: 8px 10px; display: flex; align-items: center; gap: 7px; border: 1px solid #e3d8bc; background: #fffaf0; color: #756746; font-size: 11px; }
 
 .table-wrap { width: 100%; overflow-x: auto; }

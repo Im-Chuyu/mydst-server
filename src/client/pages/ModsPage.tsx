@@ -174,6 +174,7 @@ function ModConfigurationEditor({ mod, onChange, notify }: { mod: ModRecord; onC
   const [mode, setMode] = useState<"visual" | "lua">("visual");
   const [info, setInfo] = useState<ModConfigurationInfo | null>(null);
   const [loading, setLoading] = useState(true);
+  const [downloadJobId, setDownloadJobId] = useState<string | null>(null);
   const [values, setValues] = useState<Record<string, ModConfigValue>>(() => parseLuaValues(mod.configuration));
 
   const load = useCallback(async () => {
@@ -186,6 +187,31 @@ function ModConfigurationEditor({ mod, onChange, notify }: { mod: ModRecord; onC
   useEffect(() => {
     if (info) setValues(info.values);
   }, [info]);
+  useEffect(() => {
+    if (!downloadJobId) return;
+    let disposed = false;
+    async function poll() {
+      try {
+        const jobs = await api.get<JobRecord[]>("/jobs");
+        const job = jobs.find((item) => item.id === downloadJobId);
+        if (!job || disposed) return;
+        if (job.status === "running") return;
+        setDownloadJobId(null);
+        if (job.status === "success") {
+          notify("success", "MOD 下载完成，正在重新读取配置");
+          await load();
+        } else notify("error", job.error || "MOD 下载失败");
+      } catch (error) {
+        if (!disposed) {
+          setDownloadJobId(null);
+          notify("error", error instanceof Error ? error.message : "读取 MOD 下载任务失败");
+        }
+      }
+    }
+    void poll();
+    const timer = window.setInterval(() => void poll(), 1_200);
+    return () => { disposed = true; window.clearInterval(timer); };
+  }, [downloadJobId, load, notify]);
 
   function updateVisual(name: string, value: ModConfigValue) {
     const next = { ...values, [name]: value };
@@ -193,12 +219,22 @@ function ModConfigurationEditor({ mod, onChange, notify }: { mod: ModRecord; onC
     onChange(updateLuaValue(mod.configuration, name, value));
   }
 
+  async function download() {
+    try {
+      const job = await api.post<JobRecord>(`/mods/${mod.id}/ensure`, {});
+      setDownloadJobId(job.id);
+      notify("success", "已开始下载 MOD，完成后会自动读取配置");
+    } catch (error) {
+      notify("error", error instanceof Error ? error.message : "MOD 下载任务启动失败");
+    }
+  }
+
   return <div className="mod-configuration">
     <div className="mod-config-toolbar">
       <div className="segmented"><button type="button" className={mode === "visual" ? "active" : ""} onClick={() => setMode("visual")}><SlidersHorizontal size={14} />可视化</button><button type="button" className={mode === "lua" ? "active" : ""} onClick={() => setMode("lua")}><Code2 size={14} />Lua 代码</button></div>
       <button type="button" className="icon-button" title="重新读取 modinfo.lua" onClick={() => void load()}><RefreshCw className={loading ? "spin" : ""} size={16} /></button>
     </div>
-    {mode === "lua" ? <textarea className="mod-lua-editor" spellCheck={false} value={mod.configuration} onChange={(event) => onChange(event.target.value)} aria-label={`${mod.name} Lua 配置`} /> : loading ? <div className="page-loading"><RefreshCw className="spin" size={18} />正在读取 modinfo.lua</div> : !info?.options.length ? <div className="mod-config-empty"><CircleHelp size={20} /><span>{info?.warning || "该 MOD 没有可配置项"}</span></div> : <div>
+    {mode === "lua" ? <textarea className="mod-lua-editor" spellCheck={false} value={mod.configuration} onChange={(event) => onChange(event.target.value)} aria-label={`${mod.name} Lua 配置`} /> : loading ? <div className="page-loading"><RefreshCw className="spin" size={18} />正在读取 modinfo.lua</div> : !info?.options.length ? <div className="mod-config-empty"><CircleHelp size={20} /><span>{info?.warning || "该 MOD 没有可配置项"}</span>{info && !info.installed && <button type="button" className="button secondary small" disabled={Boolean(downloadJobId)} onClick={() => void download()}>{downloadJobId ? <RefreshCw className="spin" size={15} /> : <Download size={15} />}{downloadJobId ? "下载中" : "下载并读取配置"}</button>}</div> : <div>
       {info.warning && <div className="mod-config-note"><CircleHelp size={15} /><span>{info.warning} 可视化修改会保留其它 Lua 配置。</span></div>}
       <div className="mod-option-grid">{info.options.map((option) => {
       const selected = values[option.name] ?? option.defaultValue;
