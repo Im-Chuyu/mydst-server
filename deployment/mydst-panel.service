@@ -19,6 +19,7 @@ TimeoutStopSec=15
 NoNewPrivileges=true
 ProtectSystem=strict
 ProtectHome=true
+PrivateTmp=true
 ReadWritePaths=/opt/mydst
 UMask=0027
 LimitNOFILE=65535
