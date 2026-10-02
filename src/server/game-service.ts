@@ -17,6 +17,7 @@ export class GameService {
   private lastKnownPlayerShard = new Map<string, Shard>();
   private modUpdateAt = 0;
   private modUpdatePromise?: Promise<void>;
+  private lifecycleQueue: Promise<void> = Promise.resolve();
 
   async status() {
     const [master, caves] = await Promise.all([this.isRunning("master"), this.isRunning("caves")]);
@@ -51,7 +52,10 @@ export class GameService {
     const runner = path.join(config.panelRoot, "deployment", "run-shard.sh");
     const logOffset = this.logSize(shard);
     const result = await runCommand("tmux", ["new-session", "-d", "-s", this.session(shard), runner, shard === "master" ? "Master" : "Caves"], { timeoutMs: 5000 });
-    if (result.code !== 0) throw new Error(result.stderr || "分片启动失败");
+    if (result.code !== 0) {
+      if (/duplicate session/i.test(`${result.stderr}\n${result.stdout}`) && await this.isRunning(shard)) return;
+      throw new Error(result.stderr || "分片启动失败");
+    }
     await this.waitForReady(shard, logOffset);
   }
 
@@ -72,6 +76,12 @@ export class GameService {
   }
 
   async action(action: "start" | "stop" | "restart", target: Shard | "all"): Promise<void> {
+    const operation = this.lifecycleQueue.then(() => this.runAction(action, target));
+    this.lifecycleQueue = operation.catch(() => undefined);
+    return operation;
+  }
+
+  private async runAction(action: "start" | "stop" | "restart", target: Shard | "all"): Promise<void> {
     const cavesEnabled = gameConfig.get().cavesEnabled;
     if (target === "caves" && !cavesEnabled && action !== "stop") throw new Error("洞穴世界未开启，请先在房间设置中开启");
     const stopShards: Shard[] = target === "all" ? ["master", "caves"] : [target];

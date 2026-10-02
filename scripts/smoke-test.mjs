@@ -162,9 +162,14 @@ try {
   assert.match(masterWorld, /(?:settings_preset|preset)\s*=\s*"RELAXED"/);
   assert.match(masterWorld, /overrides\s*=\s*\{\}/);
 
-  const status = await call("/server/action", { method: "POST", body: { action: "start", shard: "all" } });
+  const [status, concurrentStatus] = await Promise.all([
+    call("/server/action", { method: "POST", body: { action: "start", shard: "all" } }),
+    call("/server/action", { method: "POST", body: { action: "start", shard: "all" } })
+  ]);
   assert.equal(status.master.running, true);
   assert.equal(status.caves.running, true);
+  assert.equal(concurrentStatus.master.running, true);
+  assert.equal(concurrentStatus.caves.running, true);
 
   const dashboard = await call("/dashboard");
   assert.equal(dashboard.server.configured, true);
