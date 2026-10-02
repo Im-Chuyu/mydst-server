@@ -25,6 +25,7 @@ else
   echo "MYDST_SOURCE_DIR=$SOURCE_DIR" >> /etc/mydst-panel.env
 fi
 
+install -o root -g root -m 0644 "$SOURCE_DIR/deployment/mydst-panel.service" /etc/systemd/system/mydst-panel.service
 install -o root -g root -m 0644 "$SOURCE_DIR/deployment/mydst-panel-update.service" /etc/systemd/system/mydst-panel-update.service
 install -o root -g root -m 0644 "$SOURCE_DIR/deployment/mydst-panel-update.path" /etc/systemd/system/mydst-panel-update.path
 install -o root -g root -m 0644 "$SOURCE_DIR/deployment/mydst-steamcmd-cleanup.service" /etc/systemd/system/mydst-steamcmd-cleanup.service
