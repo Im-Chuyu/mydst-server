@@ -161,12 +161,29 @@ async function ensureWorkshopMod(id: string, title: string, onLine: (line: strin
     let lastError = "";
     for (let attempt = 1; attempt <= maxAttempts; attempt += 1) {
       onLine(`正在通过 SteamCMD 下载 ${title}（尝试 ${attempt}/${maxAttempts}）...`);
-      const result = await runCommand(config.steamcmd, [
-        "+force_install_dir", config.gameRoot,
-        "+login", "anonymous",
-        "+workshop_download_item", "322330", id, "validate",
-        "+quit"
-      ], { timeoutMs: refreshExisting ? 60 * 60_000 : 20 * 60_000, onLine });
+      let result: { code: number; stdout: string; stderr: string };
+      try {
+        result = await runCommand(config.steamcmd, [
+          "+@ShutdownOnFailedCommand", "1",
+          "+@NoPromptForPassword", "1",
+          "+force_install_dir", config.gameRoot,
+          "+login", "anonymous",
+          "+workshop_download_item", "322330", id, "validate",
+          "+quit"
+        ], {
+          cwd: path.dirname(config.steamcmd),
+          timeoutMs: 60 * 60_000,
+          onLine
+        });
+      } catch (error) {
+        lastError = error instanceof Error ? error.message : String(error);
+        onLine(`SteamCMD 执行异常：${lastError}`);
+        if (attempt < maxAttempts) {
+          onLine("SteamCMD 将重试下载");
+          continue;
+        }
+        break;
+      }
       const downloaded = findModDirectory(id, true);
       const output = `${result.stdout}\n${result.stderr}`;
       const steamcmdFailed = /ERROR!\s+(?:Failed to install workshop item|Download item .* failed)|Missing configuration/i.test(output);
@@ -174,8 +191,10 @@ async function ensureWorkshopMod(id: string, title: string, onLine: (line: strin
         installCachedMod(id, downloaded);
         return;
       }
-      lastError = result.stderr.trim() || (steamcmdFailed ? "SteamCMD 报告 Workshop 下载失败" : "SteamCMD 已结束，但没有找到下载后的 modinfo.lua");
-      if (attempt < maxAttempts) onLine("本次 MOD 下载未完成，SteamCMD 将继续已有进度重试");
+      const diagnostic = `${result.stderr}\n${result.stdout}`.split(/\r?\n/).map((line) => line.trim()).filter(Boolean).slice(-12).join(" | ");
+      lastError = diagnostic || (steamcmdFailed ? "SteamCMD 报告 Workshop 下载失败" : "SteamCMD 已结束，但没有找到下载后的 modinfo.lua");
+      onLine(`本次 MOD 下载未完成：${lastError}`);
+      if (attempt < maxAttempts) onLine("SteamCMD 将继续已有进度重试");
     }
     throw new Error(`MOD ${id} 下载失败：${lastError}`);
   }
