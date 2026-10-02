@@ -163,6 +163,7 @@ async function ensureWorkshopMod(id: string, title: string, onLine: (line: strin
       onLine(`正在通过 SteamCMD 下载 ${title}（尝试 ${attempt}/${maxAttempts}）...`);
       let result: { code: number; stdout: string; stderr: string };
       try {
+        const steamTempRoot = prepareSteamTempRoot(onLine);
         result = await runCommand(config.steamcmd, [
           "+@ShutdownOnFailedCommand", "1",
           "+@NoPromptForPassword", "1",
@@ -172,6 +173,7 @@ async function ensureWorkshopMod(id: string, title: string, onLine: (line: strin
           "+quit"
         ], {
           cwd: path.dirname(config.steamcmd),
+          env: { TMPDIR: steamTempRoot, TEMP: steamTempRoot, TMP: steamTempRoot },
           timeoutMs: 60 * 60_000,
           onLine
         });
@@ -198,6 +200,24 @@ async function ensureWorkshopMod(id: string, title: string, onLine: (line: strin
     }
     throw new Error(`MOD ${id} 下载失败：${lastError}`);
   }
+}
+
+function prepareSteamTempRoot(onLine: (line: string) => void): string {
+  const tempRoot = path.join(config.root, "tmp");
+  fs.mkdirSync(tempRoot, { recursive: true, mode: 0o700 });
+  if (process.platform !== "win32") {
+    const uid = typeof process.getuid === "function" ? process.getuid() : undefined;
+    try {
+      for (const entry of fs.readdirSync("/tmp", { withFileTypes: true })) {
+        if (!/^dumps/.test(entry.name) || (uid !== undefined && fs.statSync(path.join("/tmp", entry.name)).uid !== uid)) continue;
+        fs.rmSync(path.join("/tmp", entry.name), { recursive: true, force: true });
+        onLine(`已清理当前用户遗留的 Steam 临时目录：${entry.name}`);
+      }
+    } catch {
+      // The installer performs the privileged cleanup for root-owned dumps.
+    }
+  }
+  return tempRoot;
 }
 
 export function getModConfiguration(id: string): ModConfigurationInfo {

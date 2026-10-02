@@ -9,12 +9,12 @@ export interface CommandResult {
 export async function runCommand(
   command: string,
   args: readonly string[],
-  options: { cwd?: string; timeoutMs?: number; onLine?: (line: string) => void } = {}
+  options: { cwd?: string; env?: NodeJS.ProcessEnv; timeoutMs?: number; onLine?: (line: string) => void } = {}
 ): Promise<CommandResult> {
   return new Promise((resolve, reject) => {
     const child = spawn(command, [...args], {
       cwd: options.cwd,
-      env: process.env,
+      env: { ...process.env, ...options.env },
       shell: false,
       windowsHide: true
     });

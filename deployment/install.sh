@@ -230,6 +230,8 @@ if ! id dst >/dev/null 2>&1; then
 fi
 
 install -d -o dst -g dst -m 0750 "$ROOT" "$ROOT/game" "$ROOT/data" "$ROOT/backups" "$ROOT/steamcmd" "$ROOT/tmux"
+install -d -o dst -g dst -m 0700 "$ROOT/tmp"
+find /tmp -mindepth 1 -maxdepth 1 -name 'dumps*' -exec rm -rf -- {} +
 install -d -o root -g dst -m 0750 "$PANEL_DIR"
 log_step "Copying panel source"
 rsync -a --delete \
@@ -288,6 +290,7 @@ for attempt in 1 2 3; do
 done
 
 chown -R dst:dst "$ROOT/game" "$ROOT/data" "$ROOT/backups" "$ROOT/steamcmd"
+if [[ -d "$ROOT/Steam" ]]; then chown -R dst:dst "$ROOT/Steam"; fi
 
 cat > /etc/mydst-panel.env <<EOF
 NODE_ENV=production

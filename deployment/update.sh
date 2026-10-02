@@ -10,6 +10,9 @@ SOURCE_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 PANEL_DIR="/opt/mydst/panel"
 
 install -d -o dst -g dst -m 0750 /opt/mydst/tmux
+install -d -o dst -g dst -m 0700 /opt/mydst/tmp
+find /tmp -mindepth 1 -maxdepth 1 -name 'dumps*' -exec rm -rf -- {} +
+if [[ -d /opt/mydst/Steam ]]; then chown -R dst:dst /opt/mydst/Steam; fi
 sed -i '/^PUBLIC_HOST=/d' /etc/mydst-panel.env
 if grep -q '^TMUX_TMPDIR=' /etc/mydst-panel.env; then
   sed -i 's#^TMUX_TMPDIR=.*#TMUX_TMPDIR=/opt/mydst/tmux#' /etc/mydst-panel.env
