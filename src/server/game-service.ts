@@ -8,6 +8,7 @@ import { runCommand } from "./process-runner.js";
 import type { ChatMessage, Shard, WorldState } from "./types.js";
 
 const delay = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms));
+const MOD_UPDATE_COOLDOWN_MS = 10 * 60_000;
 
 export class GameService {
   private demoStatus: Record<Shard, boolean> = { master: true, caves: true };
@@ -119,7 +120,7 @@ export class GameService {
   }
 
   private async updateModsBeforeStart(): Promise<void> {
-    if (config.demo || Date.now() - this.modUpdateAt < 10_000) return;
+    if (config.demo || Date.now() - this.modUpdateAt < MOD_UPDATE_COOLDOWN_MS) return;
     if (this.modUpdatePromise) return this.modUpdatePromise;
     this.modUpdatePromise = updateEnabledMods(() => undefined)
       .catch(() => undefined)
