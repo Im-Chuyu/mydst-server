@@ -71,6 +71,22 @@ export const consoleSchema = z.object({
   command: z.string().trim().min(1).max(1000).refine((value) => !/[\r\n\0]/.test(value), "命令不能包含换行或控制字符")
 });
 
+export const announcementMessageSchema = z.string().trim().min(1, "公告内容不能为空").max(500, "每段公告最多 500 字")
+  .refine((value) => !/[\x00-\x08\x0b\x0c\x0e-\x1f\x7f]/.test(value), "公告不能包含控制字符");
+
+export const announcementsSchema = z.object({
+  enabled: z.boolean(),
+  mode: z.enum(["interval", "daily"]),
+  intervalMinutes: z.number().int().min(1, "公告间隔最少 1 分钟").max(10080, "公告间隔最多 7 天"),
+  times: z.array(z.string().regex(/^([01]\d|2[0-3]):[0-5]\d$/, "公告时间格式应为 HH:mm")).max(24)
+    .refine((times) => new Set(times).size === times.length, "公告时间不能重复"),
+  onlyWhenPlayersOnline: z.boolean(),
+  messages: z.array(announcementMessageSchema).max(50, "最多设置 50 段公告")
+}).superRefine((value, ctx) => {
+  if (value.enabled && !value.messages.length) ctx.addIssue({ code: "custom", message: "启用公告前请至少添加一段内容", path: ["messages"] });
+  if (value.enabled && value.mode === "daily" && !value.times.length) ctx.addIssue({ code: "custom", message: "定时公告需要至少一个发送时间", path: ["times"] });
+});
+
 export const shardActionSchema = z.object({
   shard: z.enum(["master", "caves", "all"]),
   action: z.enum(["start", "stop", "restart"])

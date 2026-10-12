@@ -12,9 +12,9 @@ export interface BackupInfo {
   createdAt: string;
 }
 
-interface ZipInspection { prefix: string; entries: number; uncompressedBytes: number }
+interface ZipInspection { prefix: string; entries: number; uncompressedBytes: number; hasCaves: boolean }
 
-const requiredClusterFiles = ["cluster.ini", "Master/server.ini", "Caves/server.ini"];
+const requiredClusterFiles = ["cluster.ini", "Master/server.ini"];
 const maxZipEntries = 50_000;
 const maxUncompressedBytes = 8 * 1024 * 1024 * 1024;
 
@@ -53,10 +53,11 @@ export class BackupService {
     if (file.toLowerCase().endsWith(".zip")) {
       const inspection = await inspectZip(file);
       const configs = await Promise.all(requiredClusterFiles.map((name) => readZipText(file, `${inspection.prefix}${name}`, 256 * 1024)));
-      validateConfigContents(configs[0]!, configs[1]!, configs[2]!);
+      const caves = inspection.hasCaves ? await readZipText(file, `${inspection.prefix}Caves/server.ini`, 256 * 1024) : undefined;
+      validateConfigContents(configs[0]!, configs[1]!, caves);
       return;
     }
-    if (!config.demo) await inspectTar(file);
+    await inspectTar(file);
   }
 
   async restore(name: string, onLine: (line: string) => void): Promise<void> {
@@ -134,6 +135,7 @@ async function inspectTar(file: string): Promise<void> {
   if (!entries.length || entries.length > maxZipEntries || entries.some((entry) => !entry.startsWith("Cluster_1/") && entry !== "Cluster_1")) throw new Error("备份必须只包含 Cluster_1 目录");
   if (verbose.stdout.split(/\r?\n/).some((line) => /^[lh]/.test(line))) throw new Error("备份中不允许符号链接或硬链接");
   for (const required of requiredClusterFiles) if (!entries.includes(`Cluster_1/${required}`)) throw new Error(`备份缺少 ${required}`);
+  validateCavesEntries(entries, "Cluster_1/");
 }
 
 async function inspectZip(file: string): Promise<ZipInspection> {
@@ -157,9 +159,16 @@ async function inspectZip(file: string): Promise<ZipInspection> {
   const prefix = clusterIni.slice(0, -"cluster.ini".length);
   if (prefix.split("/").filter(Boolean).length > 2) throw new Error("ZIP 存档目录嵌套过深");
   for (const required of requiredClusterFiles) if (!names.includes(`${prefix}${required}`)) throw new Error(`ZIP 存档缺少 ${required}`);
+  const hasCaves = validateCavesEntries(names, prefix);
   const meaningful = names.filter((name) => !name.endsWith("/") && !name.startsWith("__MACOSX/"));
   if (meaningful.some((name) => !name.startsWith(prefix))) throw new Error("ZIP 包含 Cluster_1 之外的文件");
-  return { prefix, entries: count, uncompressedBytes: total };
+  return { prefix, entries: count, uncompressedBytes: total, hasCaves };
+}
+
+function validateCavesEntries(names: string[], prefix: string): boolean {
+  const hasCaves = names.some((name) => name.startsWith(`${prefix}Caves/`) && !name.endsWith("/"));
+  if (hasCaves && !names.includes(`${prefix}Caves/server.ini`)) throw new Error("存档包含洞穴文件，但缺少 Caves/server.ini");
+  return hasCaves;
 }
 
 function validateZipEntry(entry: Entry, name: string): void {
@@ -194,17 +203,19 @@ function validateExtractedCluster(root: string): void {
   validateConfigContents(
     fs.readFileSync(path.join(root, "cluster.ini"), "utf8"),
     fs.readFileSync(path.join(root, "Master", "server.ini"), "utf8"),
-    fs.readFileSync(path.join(root, "Caves", "server.ini"), "utf8")
+    fs.existsSync(path.join(root, "Caves", "server.ini")) ? fs.readFileSync(path.join(root, "Caves", "server.ini"), "utf8") : undefined
   );
 }
 
-function validateConfigContents(clusterText: string, masterText: string, cavesText: string): void {
+function validateConfigContents(clusterText: string, masterText: string, cavesText?: string): void {
   const cluster = ini.parse(clusterText);
   const master = ini.parse(masterText);
-  const caves = ini.parse(cavesText);
   if (!cluster.NETWORK || !cluster.GAMEPLAY) throw new Error("cluster.ini 缺少 NETWORK 或 GAMEPLAY 配置");
   if (!master.SHARD || !master.NETWORK || String(master.SHARD.is_master).toLowerCase() !== "true") throw new Error("Master/server.ini 不是有效的地面分片配置");
-  if (!caves.SHARD || !caves.NETWORK || String(caves.SHARD.is_master).toLowerCase() === "true") throw new Error("Caves/server.ini 不是有效的洞穴分片配置");
+  if (cavesText !== undefined) {
+    const caves = ini.parse(cavesText);
+    if (!caves.SHARD || !caves.NETWORK || String(caves.SHARD.is_master).toLowerCase() === "true") throw new Error("Caves/server.ini 不是有效的洞穴分片配置");
+  }
 }
 
 function openZip(file: string): Promise<ZipFile> {

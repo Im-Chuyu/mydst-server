@@ -2,7 +2,7 @@ import crypto from "node:crypto";
 import fs from "node:fs";
 import path from "node:path";
 import { config } from "./config.js";
-import type { AuditRecord, PanelState, ScheduleSettings, SessionRecord, UserRecord, UserRole } from "./types.js";
+import type { AnnouncementRuntime, AnnouncementSettings, AuditRecord, PanelState, ScheduleSettings, SessionRecord, UserRecord, UserRole } from "./types.js";
 
 const defaultSchedules: ScheduleSettings = {
   backupEnabled: true,
@@ -14,7 +14,11 @@ const defaultSchedules: ScheduleSettings = {
 };
 
 function defaultState(): PanelState {
-  return { users: [], sessions: [], schedules: defaultSchedules, audit: [] };
+  return {
+    users: [], sessions: [], schedules: defaultSchedules, audit: [],
+    announcements: { enabled: false, mode: "interval", intervalMinutes: 10, times: ["20:00"], onlyWhenPlayersOnline: true, messages: [] },
+    announcementRuntime: { revision: crypto.randomUUID(), lastSentAt: Date.now(), nextMessageIndex: 0, lastScheduledSlot: null }
+  };
 }
 
 export class StateStore {
@@ -119,6 +123,19 @@ export class StateStore {
 
   setSchedules(schedules: ScheduleSettings): void {
     this.state.schedules = schedules;
+    this.persist();
+  }
+
+  setAnnouncements(settings: AnnouncementSettings): void {
+    if (JSON.stringify(this.state.announcements) === JSON.stringify(settings)) return;
+    this.state.announcements = structuredClone(settings);
+    this.state.announcementRuntime = { revision: crypto.randomUUID(), lastSentAt: Date.now(), nextMessageIndex: 0, lastScheduledSlot: null };
+    this.persist();
+  }
+
+  setAnnouncementRuntime(runtime: AnnouncementRuntime): void {
+    if (runtime.revision !== this.state.announcementRuntime.revision) return;
+    this.state.announcementRuntime = runtime;
     this.persist();
   }
 

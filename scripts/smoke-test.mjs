@@ -363,8 +363,50 @@ try {
   assert.equal(invalidResponse.ok, false);
   assert.match((await invalidResponse.json()).error, /cluster\.ini/);
 
+  const surfaceZip = await createZip({
+    "Cluster_1/cluster.ini": "[NETWORK]\ncluster_name=Surface Only\n[GAMEPLAY]\ngame_mode=survival\n[SHARD]\nshard_enabled=true\ncaves_enabled=true\ncaves_ever_enabled=true\n",
+    "Cluster_1/Master/server.ini": "[SHARD]\nis_master=true\n[NETWORK]\nserver_port=8489\n",
+    "Cluster_1/Master/save/session/surface/0000000001": "surface-save-data"
+  });
+  const surfaceBody = new FormData();
+  surfaceBody.append("file", new Blob([surfaceZip], { type: "application/zip" }), "surface-only.zip");
+  const surfaceUpload = await call("/backups/upload", { method: "POST", body: surfaceBody });
+  assert.equal((await call("/config")).cavesEnabled, true, "upload alone does not change the current world");
+  await call("/server/action", { method: "POST", body: { shard: "all", action: "start" } });
+  const surfaceRestore = await call(`/backups/${encodeURIComponent(surfaceUpload.name)}/restore`, { method: "POST" });
+  for (let attempt = 0; attempt < 30; attempt += 1) {
+    const job = (await call("/jobs")).find((item) => item.id === surfaceRestore.id);
+    if (job?.status === "success") break;
+    if (job?.status === "failed") throw new Error(`Surface restore failed: ${job.error}`);
+    await new Promise((resolve) => setTimeout(resolve, 100));
+    if (attempt === 29) throw new Error("Surface restore job did not finish");
+  }
+  const surfaceConfig = await call("/config");
+  assert.equal(surfaceConfig.cavesEnabled, false);
+  assert.equal(surfaceConfig.cavesEnabledLocked, false);
+  assert.equal(surfaceConfig.masterPort, 8490);
+  const surfaceStatus = await call("/server/status");
+  assert.equal(surfaceStatus.master.running, true);
+  assert.equal(surfaceStatus.caves.running, false, "a previously running cave shard is not restarted for surface-only saves");
+
+  const announcementDefaults = await call("/announcements");
+  assert.equal(announcementDefaults.enabled, false);
+  assert.equal(announcementDefaults.intervalMinutes, 10);
+  const announcementSettings = { ...announcementDefaults, enabled: true, messages: [" 欢迎来到房间 ", "请友善交流"], mode: "daily", times: ["10:00", "20:00"] };
+  const savedAnnouncements = await call("/announcements", { method: "PUT", body: announcementSettings });
+  assert.deepEqual(savedAnnouncements.messages, ["欢迎来到房间", "请友善交流"]);
+  assert.deepEqual(await call("/announcements"), savedAnnouncements);
+  const invalidAnnouncement = await fetch(`${base}/announcements`, {
+    method: "PUT", headers: { Cookie: cookie, "X-CSRF-Token": csrfToken, "Content-Type": "application/json" },
+    body: JSON.stringify({ ...savedAnnouncements, intervalMinutes: 0 })
+  });
+  assert.equal(invalidAnnouncement.status, 400);
+  assert.deepEqual(await call("/announcements"), savedAnnouncements, "invalid edits do not replace saved settings");
+  await call("/server/announce", { method: "POST", body: { message: "公告第一行\n公告第二行" } });
+  await call("/announcements", { method: "PUT", body: { ...savedAnnouncements, enabled: false } });
+
   await call("/auth/logout", { method: "POST" });
-  console.log("Smoke test passed: cave lifecycle, world options, player access, MOD config, dashboard, save, rollback, backup restore, logout");
+  console.log("Smoke test passed: cave lifecycle, world options, player access, MOD config, dashboard, save, rollback, dual/surface-only restore, announcements, logout");
 } finally {
   child.kill("SIGTERM");
   await new Promise((resolve) => child.once("exit", resolve));

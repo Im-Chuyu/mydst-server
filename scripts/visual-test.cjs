@@ -47,8 +47,13 @@ async function assertViewport(page, name) {
     const desktop = await browser.newContext({ viewport: { width: 1440, height: 900 }, deviceScaleFactor: 1 });
     const page = await desktop.newPage();
     const errors = [];
+    const completedNoContentRequests = new Set();
+    page.on("response", (response) => { if (response.status() === 204) completedNoContentRequests.add(response.request()); });
     page.on("pageerror", (error) => errors.push(error.message));
-    page.on("requestfailed", (request) => errors.push(`${request.url()} ${request.failure()?.errorText}`));
+    page.on("requestfailed", (request) => {
+      if (completedNoContentRequests.has(request) && request.failure()?.errorText === "net::ERR_ABORTED") return;
+      errors.push(`${request.url()} ${request.failure()?.errorText}`);
+    });
     await page.route("https://images.steamusercontent.com/**", (route) => route.fulfill({
       status: 200,
       contentType: "image/png",
@@ -144,6 +149,42 @@ async function assertViewport(page, name) {
     await page.evaluate(() => Object.defineProperty(navigator, "clipboard", { configurable: true, value: undefined }));
     await page.getByRole("button", { name: "复制直连代码" }).click();
     await page.getByRole("status").filter({ hasText: "直连命令已复制" }).waitFor();
+    await page.getByRole("button", { name: "全部启动", exact: true }).click();
+    await page.getByRole("status").filter({ hasText: "分片已启动" }).waitFor();
+    await page.getByRole("button", { name: "系统设置" }).click();
+    const announcement = page.locator(".announcement-section");
+    await announcement.getByRole("checkbox", { name: "启用自动公告" }).waitFor();
+    await announcement.getByRole("checkbox", { name: "启用自动公告" }).check();
+    await announcement.getByRole("button", { name: "添加公告" }).click();
+    await announcement.getByRole("textbox").nth(0).fill("欢迎来到服务器，请友善交流。");
+    await announcement.getByRole("button", { name: "添加公告" }).click();
+    await announcement.getByRole("textbox").nth(1).fill("每十分钟轮播一段公告。\n请勿破坏其他玩家的建筑。");
+    await announcement.getByRole("button", { name: "上移公告 2" }).click();
+    assert.match(await announcement.getByRole("textbox").nth(0).inputValue(), /每十分钟/);
+    await announcement.getByRole("button", { name: "下移公告 1" }).click();
+    const announcementSave = page.waitForResponse((response) => response.url().endsWith("/api/announcements") && response.request().method() === "PUT");
+    await announcement.getByRole("button", { name: "保存公告" }).click();
+    const saved = await announcementSave;
+    assert.ok(saved.ok(), `Announcement save failed: ${await saved.text()}`);
+    assert.equal((await saved.json()).intervalMinutes, 10);
+    await page.getByRole("status").filter({ hasText: "公告设置已保存" }).waitFor();
+    const immediateSend = page.waitForResponse((response) => response.url().endsWith("/api/server/announce") && response.request().method() === "POST");
+    await announcement.getByRole("button", { name: "立即发送", exact: true }).first().click();
+    assert.equal((await immediateSend).status(), 204);
+    await page.getByRole("status").filter({ hasText: "公告已发送" }).waitFor();
+    await assertViewport(page, "desktop interval announcements");
+    await page.screenshot({ path: path.join(results, "announcements-interval-desktop.png"), fullPage: true });
+    await announcement.getByLabel("发送方式").selectOption("daily");
+    await announcement.getByRole("button", { name: "添加时间" }).click();
+    await announcement.getByRole("button", { name: "保存公告" }).click();
+    await page.getByRole("status").filter({ hasText: "公告设置已保存" }).waitFor();
+    await page.reload();
+    await page.getByRole("button", { name: "系统设置" }).click();
+    await page.locator(".announcement-section").getByLabel("发送方式").waitFor();
+    assert.equal(await page.locator(".announcement-section").getByLabel("发送方式").inputValue(), "daily");
+    assert.equal(await page.locator(".announcement-section .announcement-time").count(), 2);
+    assert.equal(await page.locator(".announcement-section textarea").count(), 2);
+    await page.locator(".announcement-section").screenshot({ path: path.join(results, "announcements-daily-desktop.png") });
     await page.screenshot({ path: path.join(results, "admin-settings-desktop.png"), fullPage: true });
     await assertViewport(page, "desktop admin settings");
     assert.deepEqual(errors, [], `Browser errors: ${errors.join("\n")}`);
@@ -197,6 +238,8 @@ async function assertViewport(page, name) {
     await mobilePage.getByRole("button", { name: "打开导航" }).click();
     await mobilePage.getByRole("button", { name: "系统设置" }).click();
     await mobilePage.getByText("管理员端口", { exact: true }).waitFor();
+    await mobilePage.locator(".announcement-section textarea").nth(1).waitFor();
+    await mobilePage.locator(".announcement-section").screenshot({ path: path.join(results, "announcements-daily-mobile.png") });
     await assertViewport(mobilePage, "mobile admin settings");
     await mobile.close();
     console.log("Visual test passed: desktop/mobile dashboard and delete confirmation, config, world, players, mods, backups, no browser errors or horizontal overflow");

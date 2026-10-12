@@ -49,11 +49,29 @@ export interface AuditRecord {
   ip: string;
 }
 
+export interface AnnouncementSettings {
+  enabled: boolean;
+  mode: "interval" | "daily";
+  intervalMinutes: number;
+  times: string[];
+  onlyWhenPlayersOnline: boolean;
+  messages: string[];
+}
+
+export interface AnnouncementRuntime {
+  revision: string;
+  lastSentAt: number;
+  nextMessageIndex: number;
+  lastScheduledSlot: string | null;
+}
+
 export interface PanelState {
   admin?: AdminRecord;
   users: UserRecord[];
   sessions: SessionRecord[];
   schedules: ScheduleSettings;
+  announcements: AnnouncementSettings;
+  announcementRuntime: AnnouncementRuntime;
   audit: AuditRecord[];
 }
 

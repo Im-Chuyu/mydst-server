@@ -18,7 +18,7 @@ import { jobs } from "./jobs.js";
 import { addCachedMod, downloadAndAddMod, downloadModToCache, enrichModMetadata, getModConfiguration, installRestoredMods, listModLibrary } from "./mod-workshop-service.js";
 import { store } from "./store.js";
 import { getSystemInfo } from "./system-service.js";
-import { consoleSchema, credentialsSchema, gameConfigSchema, modSchema, panelPortsSchema, schedulesSchema, shardActionSchema } from "./validation.js";
+import { announcementMessageSchema, announcementsSchema, consoleSchema, credentialsSchema, gameConfigSchema, modSchema, panelPortsSchema, schedulesSchema, shardActionSchema } from "./validation.js";
 
 export const api = Router();
 const execFile = promisify(execFileCallback);
@@ -294,7 +294,7 @@ api.post("/server/delete-save", (req, res) => {
 });
 
 api.post("/server/announce", async (req, res) => {
-  const message = z.object({ message: z.string().trim().min(1).max(200).refine((value) => !/[\r\n\0]/.test(value)) }).parse(req.body).message;
+  const message = z.object({ message: announcementMessageSchema }).parse(req.body).message;
   await game.announce(message);
   audit(req, "server.announce", message);
   res.status(204).end();
@@ -578,6 +578,17 @@ api.put("/schedules", (req, res) => {
   backups.prune(schedules.retentionCount);
   audit(req, "schedules.save", JSON.stringify(schedules));
   res.json(schedules);
+});
+
+api.get("/announcements", (_req, res) => {
+  res.json(store.snapshot().announcements);
+});
+
+api.put("/announcements", (req, res) => {
+  const settings = announcementsSchema.parse(req.body);
+  store.setAnnouncements(settings);
+  audit(req, "announcements.save", JSON.stringify(settings));
+  res.json(settings);
 });
 
 api.get("/audit", (_req, res) => {

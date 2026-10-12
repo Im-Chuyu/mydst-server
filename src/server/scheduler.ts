@@ -2,8 +2,23 @@ import { backups } from "./backup-service.js";
 import { game } from "./game-service.js";
 import { jobs } from "./jobs.js";
 import { store } from "./store.js";
+import { AnnouncementService } from "./announcement-service.js";
 
 const lastRun = new Map<string, string>();
+
+const announcements = new AnnouncementService({
+  snapshot: () => store.snapshot(),
+  saveRuntime: (runtime) => store.setAnnouncementRuntime(runtime),
+  isRunning: () => game.isRunning("master"),
+  players: () => game.players(),
+  announce: (message) => game.announce(message),
+  isBusy: () => Boolean(jobs.active()),
+  reportError: (error) => {
+    const detail = error instanceof Error ? error.message : String(error);
+    console.error("自动公告发送失败:", detail);
+    store.addAudit({ username: "scheduler", action: "announcements.failed", detail, ip: "internal" });
+  }
+});
 
 export function startScheduler(): NodeJS.Timeout {
   return setInterval(() => {
@@ -30,7 +45,8 @@ export function startScheduler(): NodeJS.Timeout {
         jobs.run("scheduled-update", (log) => game.update(log, schedules.restartAfterUpdate));
       });
     }
-  }, 30_000);
+    void announcements.tick().catch((error: unknown) => console.error("公告调度失败:", error));
+  }, 10_000);
 }
 
 function runOnce(key: string, task: () => void): void {

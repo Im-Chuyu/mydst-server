@@ -281,17 +281,19 @@ export class GameConfigService {
   }
 
   syncCavesFromRestoredSave(): boolean {
-    if (!this.cavesWorldCreated()) return false;
+    const hasCavesSave = this.cavesWorldCreated();
+    const hasCavesConfig = fs.existsSync(path.join(this.shardDir("caves"), "server.ini"));
+    if (!hasCavesSave && hasCavesConfig) return false;
     const clusterFile = path.join(config.clusterRoot, "cluster.ini");
     if (!fs.existsSync(clusterFile)) throw new Error("恢复后的存档缺少 cluster.ini");
     const cluster = ini.parse(fs.readFileSync(clusterFile, "utf8"));
     cluster.SHARD = cluster.SHARD || {};
-    cluster.SHARD.shard_enabled = true;
-    cluster.SHARD.caves_enabled = true;
-    cluster.SHARD.caves_ever_enabled = true;
+    cluster.SHARD.shard_enabled = hasCavesSave;
+    cluster.SHARD.caves_enabled = hasCavesSave;
+    cluster.SHARD.caves_ever_enabled = hasCavesSave;
     writeAtomic(clusterFile, ini.stringify(cluster));
     this.ensureLayout();
-    return true;
+    return hasCavesSave;
   }
 
   private applyPlaystyle(playstyle: GameConfig["playstyle"], preserveWorldGeneration = false): void {

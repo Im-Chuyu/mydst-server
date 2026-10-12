@@ -212,3 +212,12 @@ export interface AuditRecord {
   detail: string;
   ip: string;
 }
+
+export interface AnnouncementSettings {
+  enabled: boolean;
+  mode: "interval" | "daily";
+  intervalMinutes: number;
+  times: string[];
+  onlyWhenPlayersOnline: boolean;
+  messages: string[];
+}
