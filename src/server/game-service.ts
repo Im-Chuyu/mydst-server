@@ -109,7 +109,7 @@ export class GameService {
       const needsStart = startShards.some((shard) => !running[shard === "master" ? 0 : 1]);
       if (needsStart && gameConfig.getMods().some((mod) => mod.enabled)) {
         if (running.some(Boolean)) throw new Error("更新模组前需要停止全部分片，请使用全部重启，确保地面和洞穴版本一致");
-        onLine("正在检查并更新所有启用模组...");
+        onLine("正在检查启用模组版本，仅更新有新版的模组...");
         await this.updateMods(onLine);
       }
       for (const shard of startShards) {

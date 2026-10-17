@@ -32,6 +32,18 @@ export function installedWorkshopIds(source: string): string[] {
   return root?.children?.find((entry) => entry.key === "WorkshopItemsInstalled")?.children?.map((entry) => entry.key).filter((id) => /^\d{5,12}$/.test(id)) || [];
 }
 
+export interface InstalledWorkshopVersion { manifestId?: string; updatedAt?: number }
+
+export function installedWorkshopVersions(source: string): Map<string, InstalledWorkshopVersion> {
+  const root = parseManifest(source).find((entry) => entry.key === "AppWorkshop");
+  const items = root?.children?.find((entry) => entry.key === "WorkshopItemsInstalled")?.children || [];
+  return new Map(items.filter((item) => /^\d{5,12}$/.test(item.key)).map((item) => {
+    const manifestId = item.children?.find((entry) => entry.key === "manifest")?.value;
+    const updatedAt = Number(item.children?.find((entry) => entry.key === "timeupdated")?.value);
+    return [item.key, { manifestId: manifestId && manifestId !== "0" ? manifestId : undefined, updatedAt: updatedAt > 0 ? updatedAt : undefined }];
+  }));
+}
+
 export function removeWorkshopRecords(source: string, ids: ReadonlySet<string>): string {
   const root = parseManifest(source).find((entry) => entry.key === "AppWorkshop");
   const removals = (root?.children || []).filter((entry) => entry.key.startsWith("WorkshopItems") || entry.key === "WorkshopItemDetails")

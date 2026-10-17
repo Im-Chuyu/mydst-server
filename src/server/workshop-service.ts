@@ -5,7 +5,11 @@ export interface WorkshopItem {
   title: string;
   previewUrl: string;
   author?: string;
+  manifestId?: string;
+  updatedAt?: number;
 }
+
+export interface WorkshopVersion { id: string; manifestId?: string; updatedAt?: number }
 
 const appId = 322330;
 const detailsEndpoint = "https://api.steampowered.com/ISteamRemoteStorage/GetPublishedFileDetails/v1/";
@@ -19,6 +23,7 @@ const offlineById = new Map(offlineCatalog.map((item) => [item.id, item]));
 const searchCache = new Map<string, { expiresAt: number; items: WorkshopItem[] }>();
 const detailsCache = new Map<string, { expiresAt: number; item: WorkshopItem | null }>();
 const searchRequests = new Map<string, Promise<WorkshopItem[]>>();
+const versionSearchTitles = new Map<string, string>();
 
 export function workshopIdFromQuery(query: string): string | undefined {
   if (/^\d{5,12}$/.test(query.trim())) return query.trim();
@@ -137,6 +142,7 @@ async function searchWorkshopItems(text: string, limit: number): Promise<{ ids: 
       url.searchParams.set("section", "readytouseitems");
       url.searchParams.set("actualsort", "textsearch");
       url.searchParams.set("p", "1");
+      if (limit > 30) url.searchParams.set("numperpage", "100");
       const response = await fetch(url, {
         headers: { "User-Agent": "Mozilla/5.0 MyDST-Panel/1.0", "Accept-Language": "zh-CN,zh;q=0.9,en;q=0.7" },
         signal: AbortSignal.any([controller.signal, AbortSignal.timeout(10_000)])
@@ -189,7 +195,11 @@ function workshopItemFromRecord(item: Record<string, unknown>): WorkshopItem | n
   const isMod = tags.some((tag) => ["client_only_mod", "server_only_mod", "all_clients_require_mod"].includes(tag));
   if (!/^\d{5,12}$/.test(id) || !title || !isMod || Number(item.consumer_app_id ?? item.consumer_appid) !== appId ||
     item.result !== undefined && Number(item.result) !== 1 || item.file_type !== undefined && Number(item.file_type) !== 0) return null;
-  return { id, title, previewUrl: String(item.preview_url || ""), author: String(item.creator || "") };
+  const manifest = String(item.hcontent_file || "");
+  const updatedAt = Number(item.time_updated);
+  return { id, title, previewUrl: String(item.preview_url || ""), author: String(item.creator || ""),
+    manifestId: /^\d+$/.test(manifest) && manifest !== "0" ? manifest : undefined,
+    updatedAt: updatedAt > 0 ? updatedAt : undefined };
 }
 
 export function extractWorkshopIds(html: string, limit = 12): string[] {
@@ -211,7 +221,7 @@ function score(title: string, query: string): number {
   return 2;
 }
 
-export async function getWorkshopDetails(ids: string[]): Promise<WorkshopItem[]> {
+export async function getWorkshopDetails(ids: string[], timeoutMs = 15_000): Promise<WorkshopItem[]> {
   if (!ids.length) return [];
   const body = new URLSearchParams({ itemcount: String(ids.length) });
   ids.forEach((id, index) => body.set(`publishedfileids[${index}]`, id));
@@ -219,9 +229,65 @@ export async function getWorkshopDetails(ids: string[]): Promise<WorkshopItem[]>
     method: "POST",
     headers: { "Content-Type": "application/x-www-form-urlencoded", "User-Agent": "MyDST-Panel/1.0" },
     body,
-    signal: AbortSignal.timeout(15_000)
+    signal: AbortSignal.timeout(timeoutMs)
   });
   if (!response.ok) throw new Error(`Steam 详情接口返回 ${response.status}`);
   const payload = await response.json() as { response?: { publishedfiledetails?: Array<Record<string, unknown>> } };
   return (payload.response?.publishedfiledetails || []).flatMap((item) => workshopItemFromRecord(item) || []);
+}
+
+// Startup checks must bypass search/detail caches and the bundled offline catalog.
+export async function getFreshWorkshopVersions(mods: readonly { id: string; name: string }[]): Promise<WorkshopVersion[]> {
+  const resolved = new Map<string, WorkshopVersion>();
+  const hasVersion = (item: WorkshopVersion) => Boolean(item.manifestId || item.updatedAt);
+  for (let offset = 0; offset < mods.length; offset += 50) {
+    try {
+      for (const item of await getWorkshopDetails(mods.slice(offset, offset + 50).map((mod) => mod.id), 5000)) {
+        if (hasVersion(item)) resolved.set(item.id, item);
+      }
+    } catch { /* Official Steam Community metadata is a fallback for blocked API routes. */ }
+  }
+  const pending = mods.filter((mod) => !resolved.has(mod.id));
+  let next = 0;
+  async function worker() {
+    while (next < pending.length) {
+      const mod = pending[next++]!;
+      async function findVersion(title: string) {
+        const query = title.replace(/\[[^\]]*\]|\([^)]*\)/g, " ").replace(/[^\p{L}\p{N}]+/gu, " ").trim() || title;
+        try {
+          const results = await searchWorkshopItems(query, 100);
+          const item = results.items.find((item) => item.id === mod.id);
+          if (item && hasVersion(item)) { resolved.set(mod.id, item); versionSearchTitles.set(mod.id, item.title); return true; }
+        } catch { /* A renamed or translated mod can be looked up by its current published title. */ }
+        return false;
+      }
+      const title = versionSearchTitles.get(mod.id) || mod.name || offlineById.get(mod.id)?.title || mod.id;
+      if (await findVersion(title)) continue;
+      try { await findVersion(await getPublishedWorkshopTitle(mod.id)); }
+      catch { /* Report unresolved mod names together rather than assuming they are current. */ }
+    }
+  }
+  await Promise.all(Array.from({ length: Math.min(4, pending.length) }, () => worker()));
+  const missing = mods.filter((mod) => !resolved.has(mod.id));
+  if (missing.length) throw new Error(`无法检查以下模组的新版本：${missing.map((mod) => mod.name || mod.id).join("、")}，请稍后重试`);
+  return mods.map((mod) => resolved.get(mod.id)!);
+}
+
+async function getPublishedWorkshopTitle(id: string): Promise<string> {
+  const controller = new AbortController();
+  try {
+    return await Promise.any(workshopSearchOrigins.map(async (origin) => {
+      const response = await fetch(`${origin}/sharedfiles/filedetails/?id=${id}&l=english`, { signal: AbortSignal.any([controller.signal, AbortSignal.timeout(6000)]) });
+      if (!response.ok) throw new Error("无法读取模组发布名称");
+      const html = await response.text();
+      for (const meta of html.matchAll(/<meta\b[^>]*>/gi)) {
+        const attributes = Object.fromEntries([...meta[0].matchAll(/([:\w-]+)\s*=\s*(["'])([\s\S]*?)\2/g)].map((match) => [match[1]!.toLowerCase(), match[3]!]));
+        if (attributes.property !== "og:title") continue;
+        const title = (attributes.content || "").replace(/^Steam Workshop\s*::\s*/i, "")
+          .replace(/&quot;/g, '"').replace(/&#39;|&apos;/g, "'").replace(/&amp;/g, "&").trim();
+        if (title) return title;
+      }
+      throw new Error("模组发布名称不可用");
+    }));
+  } finally { controller.abort(); }
 }

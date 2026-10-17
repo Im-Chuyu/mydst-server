@@ -4,9 +4,9 @@ import { config } from "./config.js";
 import { gameConfig } from "./game-config.js";
 import { parseConfigurationValueSubset, parseModInfoMetadata, parseModInfoOptions, type ModConfigLanguage, type ModConfigOption, type ModConfigValue } from "./lua-config.js";
 import { runCommand } from "./process-runner.js";
-import { repairWorkshopManifest } from "./steam-workshop-manifest.js";
+import { installedWorkshopVersions, repairWorkshopManifest, type InstalledWorkshopVersion } from "./steam-workshop-manifest.js";
 import type { ModLibraryRecord, ModRecord } from "./types.js";
-import { resolveWorkshopDetails, type WorkshopItem } from "./workshop-service.js";
+import { getFreshWorkshopVersions, resolveWorkshopDetails, type WorkshopItem, type WorkshopVersion } from "./workshop-service.js";
 
 export interface ModConfigurationInfo {
   installed: boolean;
@@ -171,30 +171,86 @@ export function repairWorkshopIndexes(onLine: (line: string) => void, removeIds:
   }
 }
 
-export async function updateEnabledMods(onLine: (line: string) => void, command: typeof runCommand = runCommand): Promise<void> {
+function isCurrentVersion(local: InstalledWorkshopVersion, remote: WorkshopVersion): boolean {
+  if (remote.manifestId) return local.manifestId === remote.manifestId;
+  return Boolean(remote.updatedAt && local.updatedAt && local.updatedAt >= remote.updatedAt);
+}
+
+function installedModCopies(): Map<string, Array<{ directory: string; version: InstalledWorkshopVersion }>> {
+  const copies = new Map<string, Array<{ directory: string; version: InstalledWorkshopVersion }>>();
+  const roots = [path.join(config.gameRoot, "steamapps", "workshop"), path.join(config.dataRoot, "ugc"),
+    path.join(config.root, "Steam", "steamapps", "workshop"), path.join(config.root, "steamapps", "workshop"),
+    path.join(path.dirname(config.steamcmd), "steamapps", "workshop")];
+  for (const root of roots) {
+    const file = path.join(root, "appworkshop_322330.acf");
+    if (!fs.existsSync(file)) continue;
+    for (const [id, version] of installedWorkshopVersions(fs.readFileSync(file, "utf8"))) {
+      const directory = path.join(root, "content", "322330", id);
+      if (!fs.existsSync(path.join(directory, "modinfo.lua"))) continue;
+      copies.set(id, [...(copies.get(id) || []), { directory, version }]);
+    }
+  }
+  return copies;
+}
+
+function matchingModFiles(source: string, target: string): boolean {
+  for (const name of ["modinfo.lua", "modmain.lua", "modworldgenmain.lua", "mod.manifest"]) {
+    const a = path.join(source, name), b = path.join(target, name);
+    if (fs.existsSync(a) !== fs.existsSync(b)) return false;
+    if (fs.existsSync(a) && !fs.readFileSync(a).equals(fs.readFileSync(b))) return false;
+  }
+  return true;
+}
+
+export async function updateEnabledMods(onLine: (line: string) => void, command: typeof runCommand = runCommand, checkVersions = getFreshWorkshopVersions): Promise<void> {
   const enabled = gameConfig.getMods().filter((mod) => mod.enabled);
   if (!enabled.length) return;
-  if (config.demo) { onLine("[演示模式] 已完成启用模组更新检查"); return; }
+  if (config.demo) { onLine("[演示模式] 模组版本检查完成，无需下载"); return; }
+  onLine(`正在检查 ${enabled.length} 个启用模组的最新版本...`);
+  const versions = new Map((await checkVersions(enabled)).map((version) => [version.id, version]));
+  const copies = installedModCopies();
+  const pending: ModRecord[] = [];
+  for (const mod of enabled) {
+    const remote = versions.get(mod.id);
+    if (!remote || !remote.manifestId && !remote.updatedAt) throw new Error(`无法检查模组版本：${mod.name || mod.id}`);
+    const current = copies.get(mod.id)?.find((copy) => isCurrentVersion(copy.version, remote));
+    if (!current) { pending.push(mod); onLine(`发现新版或本地文件缺失：${mod.name || mod.id}`); continue; }
+    // Repair stale overrides from a current local copy without downloading it.
+    const local = path.join(config.gameRoot, "mods", `workshop-${mod.id}`);
+    if (fs.existsSync(local) && !matchingModFiles(current.directory, local)) {
+      installCachedMod(mod.id, current.directory);
+      onLine(`已修复旧版目录副本：${mod.name || mod.id}`);
+    }
+    const ugc = path.join(config.dataRoot, "ugc", "content", "322330", mod.id);
+    const ugcCopy = copies.get(mod.id)?.find((copy) => path.resolve(copy.directory) === path.resolve(ugc));
+    if (path.resolve(current.directory) !== path.resolve(ugc) && (!ugcCopy || !isCurrentVersion(ugcCopy.version, remote) || !matchingModFiles(current.directory, ugc))) {
+      fs.mkdirSync(path.dirname(ugc), { recursive: true, mode: 0o750 });
+      fs.rmSync(ugc, { recursive: true, force: true });
+      fs.cpSync(current.directory, ugc, { recursive: true, force: true });
+      onLine(`已同步本地最新副本：${mod.name || mod.id}`);
+    }
+  }
+  if (!pending.length) { onLine("所有启用模组均为最新版本，无需下载，直接启动世界"); return; }
   if (!fs.existsSync(config.steamcmd)) throw new Error("SteamCMD 未安装，无法在启动前更新模组");
   let lastError = "";
   for (let attempt = 1; attempt <= 2; attempt++) {
     if (attempt > 1) { onLine("5 秒后重试模组更新，保留已有下载进度"); await new Promise((resolve) => setTimeout(resolve, 5000)); }
     repairWorkshopIndexes(onLine);
     const temp = prepareSteamTempRoot(onLine);
-    onLine(`正在更新 ${enabled.length} 个启用模组（${attempt}/2），只登录 Steam 一次`);
+    onLine(`只下载 ${pending.length} 个需要更新的模组（${attempt}/2）`);
     const args = ["+@ShutdownOnFailedCommand", "1", "+@NoPromptForPassword", "1", "+force_install_dir", config.gameRoot, "+login", "anonymous",
-      ...enabled.flatMap((mod) => ["+workshop_download_item", "322330", mod.id, "validate"]), "+quit"];
+      ...pending.flatMap((mod) => ["+workshop_download_item", "322330", mod.id]), "+quit"];
     try {
       const result = await command(config.steamcmd, args, {
         cwd: path.dirname(config.steamcmd), env: { TMPDIR: temp, TEMP: temp, TMP: temp }, timeoutMs: 60 * 60_000, onLine
       });
       const output = `${result.stdout}\n${result.stderr}`;
       const downloaded = new Map([...output.matchAll(/Success\. Downloaded item (\d+) to "([^"\r\n]+)"/g)].map((match) => [match[1]!, match[2]!]));
-      const missing = enabled.filter((mod) => !downloaded.has(mod.id));
+      const missing = pending.filter((mod) => !downloaded.has(mod.id));
       if (result.code !== 0 || /ERROR!|Missing configuration/i.test(output) || missing.length) {
         throw new Error(`模组更新没有全部成功${missing.length ? `：${missing.map((mod) => mod.name || mod.id).join("、")}` : ""}。${output.split(/\r?\n/).filter(Boolean).slice(-5).join(" | ")}`);
       }
-      for (const mod of enabled) {
+      for (const mod of pending) {
         const directory = downloaded.get(mod.id)!;
         if (!fs.existsSync(path.join(directory, "modinfo.lua"))) throw new Error(`更新后未找到 MOD ${mod.id} 的 modinfo.lua`);
         installCachedMod(mod.id, directory);

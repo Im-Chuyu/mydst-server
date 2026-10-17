@@ -170,7 +170,7 @@ async function assertViewport(page, name) {
     await page.getByText("世界启动中，请稍候...", { exact: true }).waitFor({ state: "hidden" });
     assert.deepEqual(startupQueries, [], "A successful start must not depend on world metadata");
     await page.getByRole("button", { name: "全部重启", exact: true }).click();
-    await page.getByRole("dialog").getByRole("button", { name: "更新并重启", exact: true }).click();
+    await page.getByRole("dialog").getByRole("button", { name: "检查并重启", exact: true }).click();
     await page.getByRole("status").filter({ hasText: "分片已重启" }).waitFor();
     await page.getByText("世界启动中，请稍候...", { exact: true }).waitFor({ state: "hidden" });
     await page.unrouteAll({ behavior: "wait" });

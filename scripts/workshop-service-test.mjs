@@ -3,8 +3,8 @@ import fs from "node:fs";
 import os from "node:os";
 import path from "node:path";
 import { test } from "node:test";
-import { extractWorkshopItems, searchWorkshop, workshopIdFromQuery } from "../dist/server/workshop-service.js";
-import { installedWorkshopIds, removeWorkshopRecords, repairWorkshopManifest } from "../dist/server/steam-workshop-manifest.js";
+import { extractWorkshopItems, getFreshWorkshopVersions, searchWorkshop, workshopIdFromQuery } from "../dist/server/workshop-service.js";
+import { installedWorkshopIds, installedWorkshopVersions, removeWorkshopRecords, repairWorkshopManifest } from "../dist/server/steam-workshop-manifest.js";
 
 const item = (id, title = "[DST] Legion") => ({ publishedfileid: id, title, consumer_appid: 322330, file_type: 0, preview_url: "https://images.steamusercontent.com/cover.png", tags: [{ tag: "all_clients_require_mod" }] });
 function page(items) {
@@ -73,6 +73,43 @@ test("an empty fast search origin cannot hide results from another origin", asyn
   finally { globalThis.fetch = original; }
 });
 
+test("startup version metadata bypasses cached search results and keeps 64-bit manifest IDs as strings", async () => {
+  const original = globalThis.fetch;
+  let calls = 0;
+  globalThis.fetch = async () => {
+    calls++;
+    return new Response(JSON.stringify({ response: { publishedfiledetails: [{ ...item("1392778117"), result: 1, hcontent_file: calls === 1 ? "8145995609209102369" : "8145995609209102370", time_updated: 123456 }] } }));
+  };
+  try {
+    const mods = [{ id: "1392778117", name: "[DST] Legion" }];
+    assert.equal((await getFreshWorkshopVersions(mods))[0].manifestId, "8145995609209102369");
+    assert.equal((await getFreshWorkshopVersions(mods))[0].manifestId, "8145995609209102370");
+    assert.equal(calls, 2);
+  } finally { globalThis.fetch = original; }
+});
+
+test("startup falls back to fresh Steam page metadata when the API is blocked", async () => {
+  const original = globalThis.fetch;
+  globalThis.fetch = async (url) => {
+    if (String(url).includes("api.steampowered.com")) throw new Error("blocked");
+    return new Response(page([{ ...item("1392778117"), hcontent_file: "8145995609209102369", time_updated: 123456 }]));
+  };
+  try { assert.equal((await getFreshWorkshopVersions([{ id: "1392778117", name: "[DST] Legion" }]))[0].manifestId, "8145995609209102369"); }
+  finally { globalThis.fetch = original; }
+});
+
+test("translated local names use the current published title when looking up version metadata", async () => {
+  const original = globalThis.fetch;
+  globalThis.fetch = async (url) => {
+    if (String(url).includes("api.steampowered.com")) throw new Error("blocked");
+    if (String(url).includes("/sharedfiles/filedetails/")) return new Response('<meta property="og:title" content="Steam Workshop::Published English Title">');
+    const query = new URL(url).searchParams.get("searchtext");
+    return new Response(page(query === "Published English Title" ? [{ ...item("9999944444", "Published English Title"), hcontent_file: "8145995609209102369" }] : []));
+  };
+  try { assert.equal((await getFreshWorkshopVersions([{ id: "9999944444", name: "本地中文名称" }]))[0].manifestId, "8145995609209102369"); }
+  finally { globalThis.fetch = original; }
+});
+
 const manifest = String.raw`"AppWorkshop" { "appid" "322330" "UnknownField" "preserve" // comment with { braces }
   "WorkshopItemsInstalled" { "3257434319" { "manifest" "1234567890123456789" } "1392778117" { "manifest" "8145995609209102369" } }
   "WorkshopItemDetails" { "3257434319" { "title" "Escaped \" text" } "1392778117" { "title" "Legion" } }
@@ -83,6 +120,7 @@ test("manifest cleanup removes only selected records and preserves 64-bit IDs an
   assert.deepEqual(installedWorkshopIds(valid), ["3257434319", "1392778117"]);
   const repaired = removeWorkshopRecords(valid, new Set(["3257434319"]));
   assert.deepEqual(installedWorkshopIds(repaired), ["1392778117"]);
+  assert.equal(installedWorkshopVersions(repaired).get("1392778117").manifestId, "8145995609209102369");
   assert.ok(!repaired.includes('"3257434319"'));
   assert.ok(repaired.includes('"8145995609209102369"'));
   assert.ok(repaired.includes('"UnknownField" "preserve"'));
