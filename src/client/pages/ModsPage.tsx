@@ -1,6 +1,7 @@
 import { Boxes, CheckCircle2, ChevronDown, ChevronUp, CircleHelp, Code2, Download, ExternalLink, Library, Plus, RefreshCw, Save, Search, SlidersHorizontal, Trash2 } from "lucide-react";
 import { useCallback, useEffect, useRef, useState, type FormEvent } from "react";
 import { api } from "../api";
+import { ConfirmDialog, type ConfirmState } from "../components/ConfirmDialog";
 import type { JobRecord, ModConfigValue, ModConfigurationInfo, ModLibraryRecord, ModRecord, WorkshopItem } from "../types";
 
 type DownloadState = Pick<JobRecord, "id" | "status"> & { message: string };
@@ -16,6 +17,8 @@ export function ModsPage({ notify }: { notify: (type: "success" | "error", messa
   const [refreshingMetadata, setRefreshingMetadata] = useState(false);
   const [downloads, setDownloads] = useState<Record<string, DownloadState>>({});
   const [expanded, setExpanded] = useState<string | null>(null);
+  const [confirm, setConfirm] = useState<ConfirmState | null>(null);
+  const [deleting, setDeleting] = useState<string | null>(null);
   const trackedJobs = useRef(new Set<string>());
   const completedJobs = useRef(new Set<string>());
 
@@ -88,6 +91,16 @@ export function ModsPage({ notify }: { notify: (type: "success" | "error", messa
     }
   }
 
+  async function deleteFromLibrary(item: ModLibraryRecord) {
+    setDeleting(item.id);
+    try {
+      await api.delete(`/mods/library/${item.id}`);
+      setLibrary((current) => current.filter((entry) => entry.id !== item.id));
+      notify("success", `${item.name} 的本地缓存已删除`);
+    } catch (error) { notify("error", error instanceof Error ? error.message : "删除模组缓存失败"); }
+    finally { setDeleting(null); }
+  }
+
   function update(index: number, patch: Partial<ModRecord>) {
     setMods((current) => current?.map((mod, itemIndex) => itemIndex === index ? { ...mod, ...patch } : mod) || null);
   }
@@ -105,7 +118,7 @@ export function ModsPage({ notify }: { notify: (type: "success" | "error", messa
   async function save() {
     if (!mods) return;
     setSaving(true);
-    try { setMods(await api.put<ModRecord[]>("/mods", mods)); notify("success", "MOD 配置已保存，下次启动分片时加载"); }
+    try { setMods(await api.put<ModRecord[]>("/mods", mods)); await loadLibrary(); notify("success", "MOD 配置已保存，下次启动分片时加载"); }
     catch (error) { notify("error", error instanceof Error ? error.message : "保存失败"); }
     finally { setSaving(false); }
   }
@@ -114,6 +127,7 @@ export function ModsPage({ notify }: { notify: (type: "success" | "error", messa
     setRefreshingMetadata(true);
     try {
       setMods(await api.post<ModRecord[]>("/mods/metadata/refresh"));
+      await loadLibrary();
       notify("success", "MOD 名称和封面已刷新");
     } catch (error) { notify("error", error instanceof Error ? error.message : "刷新 MOD 信息失败"); }
     finally { setRefreshingMetadata(false); }
@@ -141,10 +155,13 @@ export function ModsPage({ notify }: { notify: (type: "success" | "error", messa
     <section className="panel mod-library-panel">
       <div className="panel-header"><div><Library size={19} /><h2>模组库</h2><span className="count-label">{library.length}</span></div><button type="button" className="icon-button" title="刷新模组库" onClick={() => void loadLibrary()}><RefreshCw size={16} /></button></div>
       {library.length === 0 ? <div className="empty-state mod-library-empty"><Library size={28} /><strong>还没有已下载的模组</strong><span>从创意工坊添加后会保留在这里</span></div> : <div className="mod-library-list">{library.map((item) => (
-        <article className="mod-library-item" key={item.id}>
+        <article className="mod-library-item" key={item.id} data-mod-id={item.id}>
           <ModCover className="library-preview" url={item.previewUrl || ""} name={item.name} />
           <div className="mod-library-copy"><strong title={item.name}>{item.name}</strong><span>Workshop · {item.id}</span><small>{item.path} · {item.inServer ? "已加入服务器" : "可直接添加"}</small></div>
-          <button type="button" className="button small secondary" disabled={item.inServer} onClick={() => void addFromLibrary(item)}>{item.inServer ? <CheckCircle2 size={15} /> : <Plus size={15} />}{item.inServer ? "已添加" : "直接添加"}</button>
+          <div className="mod-library-actions">
+            <button type="button" className="button small secondary" disabled={item.inServer || deleting === item.id} onClick={() => void addFromLibrary(item)}>{item.inServer ? <CheckCircle2 size={15} /> : <Plus size={15} />}{item.inServer ? "已添加" : "直接添加"}</button>
+            <button type="button" className="icon-button danger-text" aria-label={`删除 ${item.name} 缓存`} title={item.inServer || mods.some((mod) => mod.id === item.id) ? "先从服务器 MOD 列表移除并保存，再删除缓存" : "删除模组本地缓存"} disabled={Boolean(deleting) || item.inServer || mods.some((mod) => mod.id === item.id)} onClick={() => setConfirm({ title: "删除模组缓存", message: `将删除 ${item.name} 的游戏目录和 Workshop/UGC 缓存副本。以后使用需要重新下载。`, confirmText: "删除缓存", danger: true, onConfirm: () => deleteFromLibrary(item) })}>{deleting === item.id ? <RefreshCw className="spin" size={16} /> : <Trash2 size={16} />}</button>
+          </div>
         </article>
       ))}</div>}
     </section>
@@ -161,6 +178,7 @@ export function ModsPage({ notify }: { notify: (type: "success" | "error", messa
         {expanded === mod.id && <ModConfigurationEditor mod={mod} onChange={(configuration) => update(index, { configuration })} notify={notify} />}
       </div>)}</div>
     </section>
+    <ConfirmDialog state={confirm} onClose={() => setConfirm(null)} />
   </div>;
 }
 

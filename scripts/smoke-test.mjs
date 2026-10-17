@@ -265,7 +265,10 @@ try {
   await call("/mods", { method: "PUT", body: [] });
   const library = await call("/mods/library");
   assert.ok(library.some((item) => item.id === "351325790" && item.inServer === false));
+  assert.match(library.find((item) => item.id === "351325790").previewUrl, /^https:\/\//);
   const readdedMods = await call("/mods/library/351325790/add", { method: "POST", body: { name: "Geometric Placement", previewUrl: mods[0].previewUrl } });
+  const protectedDelete = await fetch(`${base}/mods/library/351325790`, { method: "DELETE", headers: { Cookie: cookie, "X-CSRF-Token": csrfToken } });
+  assert.equal(protectedDelete.status, 409);
   assert.equal(readdedMods.length, 1);
   assert.equal(readdedMods[0].id, "351325790");
   const ensureModJob = await call("/mods/351325790/ensure", { method: "POST", body: {} });
@@ -406,6 +409,8 @@ try {
   await call("/announcements", { method: "PUT", body: { ...savedAnnouncements, enabled: false } });
 
   await call("/auth/logout", { method: "POST" });
+  const unauthenticatedDelete = await fetch(`${base}/mods/library/351325790`, { method: "DELETE" });
+  assert.equal(unauthenticatedDelete.status, 401);
   console.log("Smoke test passed: cave lifecycle, world options, player access, MOD config, dashboard, save, rollback, dual/surface-only restore, announcements, logout");
 } finally {
   child.kill("SIGTERM");

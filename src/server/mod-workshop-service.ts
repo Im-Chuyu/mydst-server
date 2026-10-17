@@ -5,7 +5,7 @@ import { gameConfig } from "./game-config.js";
 import { parseConfigurationValueSubset, parseModInfoMetadata, parseModInfoOptions, type ModConfigOption, type ModConfigValue } from "./lua-config.js";
 import { runCommand } from "./process-runner.js";
 import type { ModLibraryRecord, ModRecord } from "./types.js";
-import { resolveWorkshopDetails } from "./workshop-service.js";
+import { resolveWorkshopDetails, type WorkshopItem } from "./workshop-service.js";
 
 export interface ModConfigurationInfo {
   installed: boolean;
@@ -51,40 +51,110 @@ export function addCachedMod(id: string, requestedName = "", requestedPreviewUrl
   return mod;
 }
 
-export function listModLibrary(): ModLibraryRecord[] {
-  const current = new Map(gameConfig.getMods().map((mod) => [mod.id, mod]));
-  const roots = [
+function modLibraryRoots(): Array<{ root: string; label: string }> {
+  return [
     { root: path.join(config.gameRoot, "mods"), label: "游戏 MOD 目录" },
     { root: path.join(config.root, "Steam", "steamapps", "workshop", "content", "322330"), label: "Steam Workshop 缓存" },
     { root: path.join(config.root, "steamapps", "workshop", "content", "322330"), label: "Steam Workshop 缓存" },
     { root: path.join(path.dirname(config.steamcmd), "steamapps", "workshop", "content", "322330"), label: "Steam Workshop 缓存" },
     { root: path.join(config.gameRoot, "steamapps", "workshop", "content", "322330"), label: "游戏 Workshop 缓存" },
-    { root: path.join(config.dataRoot, "ugc", "mods"), label: "UGC 缓存" },
-    { root: path.join(config.dataRoot, "ugc", "322330"), label: "UGC 缓存" }
+    { root: path.join(config.dataRoot, "ugc"), label: "UGC 缓存" }
   ];
-  const library = new Map<string, ModLibraryRecord>();
-  for (const { root, label } of roots) {
-    if (!fs.existsSync(root)) continue;
-    for (const entry of fs.readdirSync(root, { withFileTypes: true })) {
-      const id = entry.name.match(/^(?:workshop-)?(\d{5,12})$/)?.[1];
-      if (!entry.isDirectory() || !id || library.has(id)) continue;
-      const directory = path.join(root, entry.name);
-      const modInfo = path.join(directory, "modinfo.lua");
-      if (!fs.existsSync(modInfo)) continue;
-      const known = current.get(id);
-      const name = known && !isPlaceholderName(known.name, id) ? known.name : readInstalledModName(id);
-      const modifiedAt = fs.statSync(modInfo).mtime.toISOString();
-      library.set(id, {
-        id,
-        name: name || `Workshop ${id}`,
-        previewUrl: known?.previewUrl || "",
-        inServer: Boolean(known),
-        path: label,
-        modifiedAt
-      });
+}
+
+function cachedModDirectories(): Array<{ id: string; directory: string; root: string; label: string }> {
+  const found: Array<{ id: string; directory: string; root: string; label: string }> = [];
+  for (const { root, label } of modLibraryRoots()) {
+    const pending = [{ directory: root, depth: 0 }];
+    while (pending.length) {
+      const current = pending.shift()!;
+      if (!fs.existsSync(current.directory) || fs.lstatSync(current.directory).isSymbolicLink()) continue;
+      for (const entry of fs.readdirSync(current.directory, { withFileTypes: true })) {
+        if (!entry.isDirectory() || entry.isSymbolicLink()) continue;
+        const directory = path.join(current.directory, entry.name);
+        const id = entry.name.match(/^(?:workshop-)?(\d{5,12})$/)?.[1];
+        // An app ID such as 322330 is a container, rather than a mod directory.
+        if (id && (entry.name !== "322330" || fs.existsSync(path.join(directory, "modinfo.lua")))) {
+          found.push({ id, directory, root, label });
+        } else if (current.depth < 5) pending.push({ directory, depth: current.depth + 1 });
+      }
     }
   }
+  return found;
+}
+
+interface LibraryMetadata { name: string; previewUrl: string }
+function readLibraryMetadata(): Record<string, LibraryMetadata> {
+  try {
+    const parsed = JSON.parse(fs.readFileSync(path.join(config.root, "mod-library-metadata.json"), "utf8"));
+    const metadata: Record<string, LibraryMetadata> = {};
+    for (const [id, value] of Object.entries(parsed)) {
+      if (/^\d{5,12}$/.test(id) && value && typeof value === "object" &&
+        typeof (value as LibraryMetadata).name === "string" && typeof (value as LibraryMetadata).previewUrl === "string") metadata[id] = value as LibraryMetadata;
+    }
+    return metadata;
+  } catch { return {}; }
+}
+
+function saveLibraryMetadata(metadata: Record<string, LibraryMetadata>): void {
+  const file = path.join(config.root, "mod-library-metadata.json");
+  const content = JSON.stringify(metadata, null, 2) + "\n";
+  if (fs.existsSync(file) && fs.readFileSync(file, "utf8") === content) return;
+  fs.mkdirSync(config.root, { recursive: true, mode: 0o750 });
+  const temporary = `${file}.${process.pid}.tmp`;
+  fs.writeFileSync(temporary, content, { mode: 0o640 });
+  fs.renameSync(temporary, file);
+}
+
+export async function listModLibrary(resolveDetails: (ids: readonly string[]) => Promise<WorkshopItem[]> = resolveWorkshopDetails): Promise<ModLibraryRecord[]> {
+  const current = new Map(gameConfig.getMods().map((mod) => [mod.id, mod]));
+  const metadata = readLibraryMetadata();
+  const library = new Map<string, ModLibraryRecord>();
+  for (const { id, directory, label } of cachedModDirectories()) {
+    if (library.has(id)) continue;
+    const modInfo = path.join(directory, "modinfo.lua");
+    if (!fs.existsSync(modInfo)) continue;
+    const known = current.get(id);
+    const name = known && !isPlaceholderName(known.name, id) ? known.name : metadata[id]?.name || readInstalledModName(id);
+    const modifiedAt = fs.statSync(modInfo).mtime.toISOString();
+    library.set(id, {
+      id,
+      name: name || `Workshop ${id}`,
+      previewUrl: known?.previewUrl || metadata[id]?.previewUrl || "",
+      inServer: Boolean(known),
+      path: label,
+      modifiedAt
+    });
+  }
+  const missing = [...library.values()].filter((item) => !item.previewUrl);
+  const details = missing.length ? await resolveDetails(missing.map((item) => item.id)).catch(() => []) : [];
+  for (const detail of details) {
+    const item = library.get(detail.id);
+    if (!item) continue;
+    item.previewUrl = detail.previewUrl || item.previewUrl;
+    if (isPlaceholderName(item.name, item.id)) item.name = detail.title;
+  }
+  for (const item of library.values()) metadata[item.id] = { name: item.name, previewUrl: item.previewUrl || "" };
+  saveLibraryMetadata(metadata);
   return [...library.values()].sort((left, right) => left.name.localeCompare(right.name));
+}
+
+export function deleteCachedMod(id: string): void {
+  if (!/^\d{5,12}$/.test(id)) throw new Error("无效的 Workshop ID");
+  if (gameConfig.getMods().some((mod) => mod.id === id)) throw new Error("请先从服务器 MOD 列表移除该模组并保存，再删除缓存");
+  const directories = cachedModDirectories().filter((item) => item.id === id);
+  if (!directories.length) throw new Error("模组库中没有找到这个 MOD");
+  // Validate all targets before deleting any copy. Never follow cache symlinks.
+  const dataRoot = fs.realpathSync(config.root);
+  const within = (parent: string, child: string) => { const relative = path.relative(parent, child); return relative !== "" && relative !== ".." && !relative.startsWith(`..${path.sep}`) && !path.isAbsolute(relative); };
+  for (const { root, directory } of directories) {
+    const resolved = fs.realpathSync(directory);
+    if (!within(dataRoot, resolved) || !within(fs.realpathSync(root), resolved)) throw new Error("模组缓存路径越界，无法删除");
+  }
+  for (const { directory } of directories) fs.rmSync(directory, { recursive: true, force: true });
+  const metadata = readLibraryMetadata();
+  delete metadata[id];
+  saveLibraryMetadata(metadata);
 }
 
 export async function updateEnabledMods(onLine: (line: string) => void): Promise<void> {

@@ -15,7 +15,7 @@ import { config } from "./config.js";
 import { gameConfig } from "./game-config.js";
 import { game } from "./game-service.js";
 import { jobs } from "./jobs.js";
-import { addCachedMod, downloadAndAddMod, downloadModToCache, enrichModMetadata, getModConfiguration, installRestoredMods, listModLibrary } from "./mod-workshop-service.js";
+import { addCachedMod, deleteCachedMod, downloadAndAddMod, downloadModToCache, enrichModMetadata, getModConfiguration, installRestoredMods, listModLibrary } from "./mod-workshop-service.js";
 import { store } from "./store.js";
 import { getSystemInfo } from "./system-service.js";
 import { announcementMessageSchema, announcementsSchema, consoleSchema, credentialsSchema, gameConfigSchema, modSchema, panelPortsSchema, schedulesSchema, shardActionSchema } from "./validation.js";
@@ -355,8 +355,17 @@ api.get("/mods", async (_req, res) => {
   res.json(await enrichModMetadata(gameConfig.getMods()));
 });
 
-api.get("/mods/library", (_req, res) => {
-  res.json(listModLibrary());
+api.get("/mods/library", async (_req, res) => {
+  res.json(await listModLibrary());
+});
+
+api.delete("/mods/library/:id", (req, res) => {
+  const id = z.string().regex(/^\d{5,12}$/).parse(req.params.id);
+  if (jobs.active()) { res.status(409).json({ error: "有后台任务正在执行，请等待任务完成后再删除模组缓存" }); return; }
+  if (gameConfig.getMods().some((mod) => mod.id === id)) { res.status(409).json({ error: "请先从服务器 MOD 列表移除该模组并保存，再删除缓存" }); return; }
+  deleteCachedMod(id);
+  audit(req, "mods.library.delete", id);
+  res.status(204).end();
 });
 
 api.get("/mods/workshop/search", async (req, res) => {

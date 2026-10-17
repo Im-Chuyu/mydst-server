@@ -18,6 +18,11 @@ const { chromium } = require("playwright");
     fs.mkdirSync(directory, { recursive: true });
     fs.writeFileSync(path.join(directory, "modinfo.lua"), source);
   }
+  const cachedCopies = [path.join(root, "game", "mods", "workshop-351325790"), path.join(root, "data", "ugc", "content", "322330", "351325790")];
+  for (const directory of cachedCopies) {
+    fs.mkdirSync(directory, { recursive: true });
+    fs.writeFileSync(path.join(directory, "modinfo.lua"), 'name="Geometric Placement"');
+  }
   const listener = net.createServer();
   await new Promise((resolve) => listener.listen(0, "127.0.0.1", resolve));
   const port = listener.address().port;
@@ -36,12 +41,30 @@ const { chromium } = require("playwright");
     }
     browser = await chromium.launch({ headless: true, executablePath: process.env.PLAYWRIGHT_CHROME_PATH || undefined });
     const page = await browser.newPage();
+    await page.route("https://images.steamusercontent.com/**", (route) => route.fulfill({ contentType: "image/png", body: Buffer.from("iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mNk+A8AAQUBAScY42YAAAAASUVORK5CYII=", "base64") }));
     const errors = [];
     page.on("pageerror", (error) => errors.push(error.message));
     const setup = await page.request.post(`${base}/api/auth/setup`, { data: { username: "options-admin", password: "ModOptionsTest123!" } });
     assert.ok(setup.ok(), await setup.text());
     await page.goto(base);
     await page.getByRole("button", { name: "MOD 管理", exact: true }).click();
+    const cached = page.locator('.mod-library-item[data-mod-id="351325790"]');
+    await cached.locator("img").waitFor();
+    assert.match(await cached.locator("img").getAttribute("src"), /^https:\/\//);
+    await cached.getByRole("button", { name: /删除.*缓存/ }).click();
+    await page.getByRole("dialog").getByRole("button", { name: "取消", exact: true }).click();
+    assert.ok(cachedCopies.every((directory) => fs.existsSync(directory)));
+    const protectedItem = page.locator('.mod-library-item[data-mod-id="3590648641"]');
+    assert.equal(await protectedItem.getByRole("button", { name: /删除.*缓存/ }).isDisabled(), true);
+    await page.setViewportSize({ width: 390, height: 844 });
+    assert.ok(await page.evaluate(() => document.documentElement.scrollWidth <= document.documentElement.clientWidth + 1));
+    await page.setViewportSize({ width: 1440, height: 900 });
+    await cached.getByRole("button", { name: /删除.*缓存/ }).click();
+    const deleted = page.waitForResponse((response) => response.url().endsWith("/api/mods/library/351325790") && response.request().method() === "DELETE");
+    await page.getByRole("dialog").getByRole("button", { name: "删除缓存", exact: true }).click();
+    assert.equal((await deleted).status(), 204);
+    await cached.waitFor({ state: "detached" });
+    assert.ok(cachedCopies.every((directory) => !fs.existsSync(directory)));
     const map = page.locator("#server-mod-3590648641");
     await map.getByRole("button", { name: /配置/ }).click();
     const mapSelect = map.locator(".mod-option select");
@@ -70,7 +93,7 @@ const { chromium } = require("playwright");
     await mapSelect.waitFor();
     assert.equal(await mapSelect.locator("option:checked").textContent(), "关闭");
     assert.deepEqual(errors, []);
-    console.log("MOD options UI passed: complete dropdowns, non-default selection, save and reload preserve boolean and shortcut values");
+    console.log("MOD UI passed: inactive library cover, delete confirmation/cancel, all cache copies removed, protected server mods, mobile layout, complete options and saved selections");
   } finally {
     if (browser) await browser.close();
     server.kill("SIGTERM");
