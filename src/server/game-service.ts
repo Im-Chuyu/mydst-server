@@ -3,12 +3,16 @@ import fs from "node:fs";
 import path from "node:path";
 import { config } from "./config.js";
 import { gameConfig } from "./game-config.js";
-import { updateEnabledMods } from "./mod-workshop-service.js";
 import { runCommand } from "./process-runner.js";
+import { updateEnabledMods } from "./mod-workshop-service.js";
 import type { ChatMessage, Shard, WorldState } from "./types.js";
 
 const delay = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms));
-const MOD_UPDATE_COOLDOWN_MS = 10 * 60_000;
+interface LogCursor {
+  offset: number;
+  inode: number;
+  head: Buffer;
+}
 
 export class GameService {
   private demoStatus: Record<Shard, boolean> = { master: true, caves: true };
@@ -16,9 +20,9 @@ export class GameService {
   private worldCache?: { at: number; value: WorldState | null };
   private shardPlayerCache: Partial<Record<Shard, { at: number; value: Array<{ userId: string; name: string; prefab: string }> }>> = {};
   private lastKnownPlayerShard = new Map<string, Shard>();
-  private modUpdateAt = 0;
-  private modUpdatePromise?: Promise<void>;
   private lifecycleQueue: Promise<void> = Promise.resolve();
+
+  constructor(private readonly command: typeof runCommand = runCommand, private readonly updateMods = updateEnabledMods) {}
 
   async status() {
     const [master, caves] = await Promise.all([this.isRunning("master"), this.isRunning("caves")]);
@@ -33,7 +37,7 @@ export class GameService {
 
   async isRunning(shard: Shard): Promise<boolean> {
     if (config.demo) return this.demoStatus[shard];
-    const result = await runCommand("tmux", ["has-session", "-t", this.session(shard)], { timeoutMs: 3000 });
+    const result = await this.command("tmux", ["has-session", "-t", `=${this.session(shard)}`], { timeoutMs: 3000 });
     return result.code === 0;
   }
 
@@ -49,15 +53,20 @@ export class GameService {
     }
     if (!fs.existsSync(config.gameBinary64) && !fs.existsSync(config.gameBinary32)) throw new Error("尚未安装 DST 服务端");
     if (await this.isRunning(shard)) return;
-    await this.updateModsBeforeStart();
+    this.worldCache = undefined;
+    delete this.shardPlayerCache[shard];
     const runner = path.join(config.panelRoot, "deployment", "run-shard.sh");
-    const logOffset = this.logSize(shard);
-    const result = await runCommand("tmux", ["new-session", "-d", "-s", this.session(shard), runner, shard === "master" ? "Master" : "Caves"], { timeoutMs: 5000 });
+    // Explicit MOD updates happen once in runAction before launching either shard.
+    const cursor = this.logCursor(shard);
+    const result = await this.command("tmux", ["new-session", "-d", "-s", this.session(shard), runner, shard === "master" ? "Master" : "Caves"], {
+      timeoutMs: 5000,
+      env: { TMUX_TMPDIR: path.join(config.root, "tmux"), MYDST_ROOT: config.root }
+    });
     if (result.code !== 0) {
       if (/duplicate session/i.test(`${result.stderr}\n${result.stdout}`) && await this.isRunning(shard)) return;
       throw new Error(result.stderr || "分片启动失败");
     }
-    await this.waitForReady(shard, logOffset);
+    await this.waitForReady(shard, cursor);
   }
 
   async stop(shard: Shard): Promise<void> {
@@ -73,39 +82,56 @@ export class GameService {
       await delay(1000);
       if (!(await this.isRunning(shard))) return;
     }
-    await runCommand("tmux", ["kill-session", "-t", this.session(shard)], { timeoutMs: 5000 });
+    await this.command("tmux", ["kill-session", "-t", `=${this.session(shard)}`], { timeoutMs: 5000 });
   }
 
-  async action(action: "start" | "stop" | "restart", target: Shard | "all"): Promise<void> {
-    const operation = this.lifecycleQueue.then(() => this.runAction(action, target));
+  async action(action: "start" | "stop" | "restart", target: Shard | "all", onLine: (line: string) => void = () => undefined): Promise<void> {
+    const operation = this.lifecycleQueue.then(() => this.runAction(action, target, onLine));
     this.lifecycleQueue = operation.catch(() => undefined);
     return operation;
   }
 
-  private async runAction(action: "start" | "stop" | "restart", target: Shard | "all"): Promise<void> {
+  private async runAction(action: "start" | "stop" | "restart", target: Shard | "all", onLine: (line: string) => void): Promise<void> {
     const cavesEnabled = gameConfig.get().cavesEnabled;
     if (target === "caves" && !cavesEnabled && action !== "stop") throw new Error("洞穴世界未开启，请先在房间设置中开启");
     const stopShards: Shard[] = target === "all" ? ["master", "caves"] : [target];
     const startShards: Shard[] = target === "all" ? (cavesEnabled ? ["master", "caves"] : ["master"]) : [target];
+    if (action !== "stop" && target !== "all" && gameConfig.getMods().some((mod) => mod.enabled) &&
+      await this.isRunning(target === "master" ? "caves" : "master") && (action === "restart" || !(await this.isRunning(target)))) {
+      throw new Error("更新模组前需要停止全部分片，请使用全部重启，确保地面和洞穴版本一致");
+    }
     if (action === "stop" || action === "restart") {
+      onLine("正在保存世界并停止游戏分片...");
       await Promise.all([...stopShards].reverse().map((shard) => this.stop(shard)));
     }
     if (action === "start" || action === "restart") {
+      const running = await Promise.all([this.isRunning("master"), this.isRunning("caves")]);
+      const needsStart = startShards.some((shard) => !running[shard === "master" ? 0 : 1]);
+      if (needsStart && gameConfig.getMods().some((mod) => mod.enabled)) {
+        if (running.some(Boolean)) throw new Error("更新模组前需要停止全部分片，请使用全部重启，确保地面和洞穴版本一致");
+        onLine("正在检查并更新所有启用模组...");
+        await this.updateMods(onLine);
+      }
       for (const shard of startShards) {
+        onLine(`正在启动${shard === "master" ? "地面" : "洞穴"}世界...`);
         await this.start(shard);
       }
+      onLine("世界已启动完成");
     }
   }
 
-  private async waitForReady(shard: Shard, logOffset: number, timeoutMs = 120_000): Promise<void> {
+  private async waitForReady(shard: Shard, cursor: LogCursor, timeoutMs = 120_000): Promise<void> {
     if (config.demo) return;
     const startedAt = Date.now();
     const readyPattern = shard === "master"
       ? /Sim paused|Server registered via geo DNS|Shard server started on port/i
       : /secondary shard LUA is now ready|Sim paused|secondary shard is now ready/i;
     while (Date.now() - startedAt < timeoutMs) {
-      if (!(await this.isRunning(shard))) throw new Error(`${shard === "master" ? "地面" : "洞穴"}分片进程已退出`);
-      if (this.readLogAfter(shard, logOffset).some((line) => readyPattern.test(line))) return;
+      if (!(await this.isRunning(shard))) {
+        const recent = (await this.logs(shard, 20)).slice(-5).join("\n");
+        throw new Error(`${shard === "master" ? "地面" : "洞穴"}分片进程已退出${recent ? `：\n${recent}` : ""}`);
+      }
+      if (this.readLogAfter(shard, cursor).some((line) => readyPattern.test(line))) return;
       await delay(1000);
     }
     throw new Error(`${shard === "master" ? "地面" : "洞穴"}分片启动超时，请检查 server_log.txt`);
@@ -115,27 +141,38 @@ export class GameService {
     return path.join(config.clusterRoot, shard === "master" ? "Master" : "Caves", "server_log.txt");
   }
 
-  private logSize(shard: Shard): number {
-    try { return fs.statSync(this.logFile(shard)).size; } catch { return 0; }
+  private logCursor(shard: Shard): LogCursor {
+    try {
+      const file = this.logFile(shard);
+      const stat = fs.statSync(file);
+      return { offset: stat.size, inode: stat.ino, head: this.logHead(file, stat.size) };
+    } catch {
+      return { offset: 0, inode: 0, head: Buffer.alloc(0) };
+    }
   }
 
-  private async updateModsBeforeStart(): Promise<void> {
-    if (config.demo || Date.now() - this.modUpdateAt < MOD_UPDATE_COOLDOWN_MS) return;
-    if (this.modUpdatePromise) return this.modUpdatePromise;
-    this.modUpdatePromise = updateEnabledMods(() => undefined)
-      .catch(() => undefined)
-      .finally(() => {
-        this.modUpdateAt = Date.now();
-        this.modUpdatePromise = undefined;
-      });
-    return this.modUpdatePromise;
+  private logHead(file: string, size: number): Buffer {
+    const buffer = Buffer.alloc(Math.min(size, 512));
+    const handle = fs.openSync(file, "r");
+    try {
+      return buffer.subarray(0, fs.readSync(handle, buffer, 0, buffer.length, 0));
+    } finally {
+      fs.closeSync(handle);
+    }
   }
 
-  private readLogAfter(shard: Shard, offset: number): string[] {
+  private readLogAfter(shard: Shard, cursor: LogCursor): string[] {
     const file = this.logFile(shard);
     if (!fs.existsSync(file)) return [];
     const stat = fs.statSync(file);
-    const start = stat.size < offset ? 0 : offset;
+    const head = this.logHead(file, stat.size);
+    // A restart can truncate and regrow the log past its old size between polls.
+    if (stat.ino !== cursor.inode || stat.size < cursor.offset || !head.subarray(0, cursor.head.length).equals(cursor.head)) {
+      cursor.offset = 0;
+      cursor.inode = stat.ino;
+      cursor.head = head;
+    }
+    const start = cursor.offset;
     if (stat.size <= start) return [];
     const length = Math.min(stat.size - start, 2 * 1024 * 1024);
     const readStart = stat.size - length;
@@ -155,9 +192,11 @@ export class GameService {
   private async sendConsole(shard: Shard, command: string): Promise<void> {
     if (config.demo) return;
     if (!(await this.isRunning(shard))) throw new Error(`${shard === "master" ? "地面" : "洞穴"}未运行`);
-    const literal = await runCommand("tmux", ["send-keys", "-t", this.session(shard), "-l", command], { timeoutMs: 3000 });
+    const target = `${this.session(shard)}:0.0`;
+    const literal = await this.command("tmux", ["send-keys", "-t", target, "-l", command], { timeoutMs: 3000 });
     if (literal.code !== 0) throw new Error(literal.stderr || "控制台命令发送失败");
-    await runCommand("tmux", ["send-keys", "-t", this.session(shard), "Enter"], { timeoutMs: 3000 });
+    const enter = await this.command("tmux", ["send-keys", "-t", target, "Enter"], { timeoutMs: 3000 });
+    if (enter.code !== 0) throw new Error(enter.stderr || "控制台命令发送失败");
   }
 
   async update(onLine: (line: string) => void, restartAfter: boolean): Promise<void> {
@@ -171,7 +210,7 @@ export class GameService {
       await delay(1200);
     } else {
       if (!fs.existsSync(config.steamcmd)) throw new Error("SteamCMD 未安装");
-      const result = await runCommand(config.steamcmd, [
+      const result = await this.command(config.steamcmd, [
         "+force_install_dir", config.gameRoot,
         "+login", "anonymous",
         "+app_update", "343050", "validate",
@@ -181,6 +220,7 @@ export class GameService {
     }
     if (restartAfter && (previous.master.running || previous.caves.running)) {
       onLine("更新完成，正在恢复先前运行的分片...");
+      await this.updateMods(onLine);
       if (previous.master.running) await this.start("master");
       if (previous.caves.running) await this.start("caves");
     }

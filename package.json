@@ -11,7 +11,7 @@
     "build:client": "vite build",
     "build:server": "tsc -p tsconfig.server.json",
     "start": "node dist/server/index.js",
-    "test": "npm run build && node --test scripts/announcement-test.mjs scripts/backup-test.mjs scripts/mod-options-test.mjs scripts/mod-library-test.mjs scripts/workshop-service-test.mjs && node scripts/smoke-test.mjs"
+    "test": "npm run build && node --test scripts/game-start-test.mjs scripts/announcement-test.mjs scripts/backup-test.mjs scripts/mod-options-test.mjs scripts/mod-library-test.mjs scripts/workshop-service-test.mjs scripts/mod-start-update-test.mjs scripts/server-action-test.mjs && node scripts/smoke-test.mjs"
   },
   "dependencies": {
     "@types/luaparse": "^0.2.13",

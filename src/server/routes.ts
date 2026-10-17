@@ -233,6 +233,15 @@ api.get("/server/status", async (_req, res) => {
 
 api.post("/server/action", async (req, res) => {
   const body = shardActionSchema.parse(req.body);
+  const active = jobs.active();
+  if (active) { res.status(409).json({ error: `已有任务正在执行：${active.type}` }); return; }
+  if (!config.demo && body.action !== "stop") {
+    const status = await game.status();
+    const job = jobs.run(`server-${body.action}`, (log) => game.action(body.action, body.shard, log));
+    audit(req, `server.${body.action}`, body.shard);
+    res.status(202).json({ ...status, job });
+    return;
+  }
   await game.action(body.action, body.shard);
   audit(req, `server.${body.action}`, body.shard);
   res.json(await game.status());

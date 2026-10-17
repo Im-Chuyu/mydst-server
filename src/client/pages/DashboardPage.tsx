@@ -31,7 +31,7 @@ import {
 import { useCallback, useEffect, useRef, useState, type FormEvent } from "react";
 import { api } from "../api";
 import { ConfirmDialog, type ConfirmState } from "../components/ConfirmDialog";
-import type { ChatMessage, DashboardData, PanelUpdateState, PanelVersion, ServerStatus, Shard } from "../types";
+import type { ChatMessage, DashboardData, JobRecord, PanelUpdateState, PanelVersion, ServerStatus, Shard } from "../types";
 
 type Notify = (type: "success" | "error", message: string) => void;
 
@@ -59,42 +59,35 @@ export function DashboardPage({ notify, role }: { notify: Notify; role: "admin" 
   }, [load]);
 
   async function action(actionName: "start" | "stop" | "restart", shard: Shard | "all") {
-    const waitingForStart = actionName === "start";
+    const waitingForStart = actionName !== "stop";
     setBusy(`${actionName}-${shard}`);
     if (waitingForStart) setStarting(shard);
     try {
       const status = await api.post<ServerStatus>("/server/action", { action: actionName, shard });
       setData((current) => current ? { ...current, server: status } : current);
-      if (waitingForStart) {
-        await waitForStart(shard);
-        return;
+      if (status.job) {
+        setData((current) => current ? { ...current, activeJob: status.job! } : current);
+        await waitForServerJob(status.job.id);
       }
       notify("success", actionName === "start" ? "分片已启动" : actionName === "stop" ? "分片已停止" : "分片已重启");
     } catch (error) {
-      if (waitingForStart) setStarting("");
       notify("error", error instanceof Error ? error.message : "操作失败");
     } finally {
+      setStarting("");
       setBusy("");
       void load(true);
     }
   }
 
-  async function waitForStart(target: Shard | "all") {
-    for (let attempt = 0; attempt < 120; attempt += 1) {
-      await new Promise((resolve) => window.setTimeout(resolve, 1000));
-      const next = await api.get<DashboardData>(`/dashboard?startup=${Date.now()}`);
-      setData(next);
-      const masterReady = next.server.master.running && next.world !== null;
-      const cavesReady = !next.room.cavesEnabled || next.server.caves.running;
-      const ready = target === "master" ? masterReady : target === "caves" ? next.server.caves.running : masterReady && cavesReady;
-      if (ready) {
-        setStarting("");
-        notify("success", "世界已启动完毕");
-        return;
-      }
+  async function waitForServerJob(id: string) {
+    for (;;) {
+      const record = (await api.get<JobRecord[]>("/jobs")).find((job) => job.id === id);
+      if (!record) throw new Error("启动任务记录不存在，请刷新后检查服务器状态");
+      setData((current) => current ? { ...current, activeJob: record.status === "running" ? record : null } : current);
+      if (record.status === "failed") throw new Error(record.error || "模组更新或世界启动失败");
+      if (record.status === "success") return;
+      await new Promise((resolve) => window.setTimeout(resolve, 1500));
     }
-    setStarting("");
-    notify("error", "世界启动超时，请检查游戏日志");
   }
 
   async function saveWorld() {
@@ -252,6 +245,7 @@ export function DashboardPage({ notify, role }: { notify: Notify; role: "admin" 
         <div className="button-row">
           <button className="button secondary" onClick={() => void load()}><RefreshCw size={17} />刷新</button>
           <button className="button primary" disabled={Boolean(busy)} onClick={() => void action("start", "all")}><Play size={17} />全部启动</button>
+          <button className="button secondary" disabled={Boolean(busy) || !online} onClick={() => setConfirm({ title: "更新模组并重启全部分片", message: "将先保存并停止地面和洞穴，更新全部启用模组后再启动。", confirmText: "更新并重启", onConfirm: () => action("restart", "all") })}><RotateCcw size={17} />全部重启</button>
           <button className="button secondary" disabled={Boolean(busy) || !online} onClick={() => setConfirm({ title: "停止全部分片", message: "地面和洞穴会先保存当前世界，然后安全停止，不会创建存档备份。", confirmText: "保存并停止", onConfirm: () => action("stop", "all") })}><CircleStop size={17} />全部停止</button>
         </div>
       </section>
@@ -415,7 +409,7 @@ function playstyleName(value: string): string { return ({ relaxed: "轻松", end
 function seasonName(value: string): string { return ({ autumn: "秋季", winter: "冬季", spring: "春季", summer: "夏季" } as Record<string, string>)[value] || "未知季节"; }
 function phaseName(value: string): string { return ({ day: "白天", dusk: "黄昏", night: "夜晚" } as Record<string, string>)[value] || value; }
 function moonName(value: string): string { return ({ new: "新月", quarter: "弦月", half: "半月", threequarter: "凸月", full: "满月" } as Record<string, string>)[value] || value; }
-function jobName(type: string): string { if (type.startsWith("mod-download:")) return "MOD 下载"; return ({ "game-update": "游戏更新", "world-reset": "世界重置", "save-delete": "删除存档", "backup-create": "存档备份", "backup-restore": "存档恢复", "scheduled-backup": "定时备份", "scheduled-update": "定时更新" } as Record<string, string>)[type] || type; }
+function jobName(type: string): string { if (type.startsWith("mod-download:")) return "MOD 下载"; return ({ "server-start": "更新模组并启动", "server-restart": "保存、更新模组并重启", "game-update": "游戏更新", "world-reset": "世界重置", "save-delete": "删除存档", "backup-create": "存档备份", "backup-restore": "存档恢复", "scheduled-backup": "定时备份", "scheduled-update": "定时更新" } as Record<string, string>)[type] || type; }
 function chatChannelName(value: string): string { return ({ Say: "公屏", Whisper: "私聊", Announcement: "公告", Join: "加入", Leave: "退出" } as Record<string, string>)[value] || value; }
 
 function copyTextFallback(value: string): boolean {

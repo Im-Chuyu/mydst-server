@@ -171,18 +171,49 @@ export function repairWorkshopIndexes(onLine: (line: string) => void, removeIds:
   }
 }
 
-export async function updateEnabledMods(onLine: (line: string) => void): Promise<void> {
+export async function updateEnabledMods(onLine: (line: string) => void, command: typeof runCommand = runCommand): Promise<void> {
   const enabled = gameConfig.getMods().filter((mod) => mod.enabled);
-  for (let index = 0; index < enabled.length; index += 1) {
-    const mod = enabled[index]!;
-    onLine(`正在检查 MOD 更新 (${index + 1}/${enabled.length})：${mod.name || mod.id}`);
+  if (!enabled.length) return;
+  if (config.demo) { onLine("[演示模式] 已完成启用模组更新检查"); return; }
+  if (!fs.existsSync(config.steamcmd)) throw new Error("SteamCMD 未安装，无法在启动前更新模组");
+  let lastError = "";
+  for (let attempt = 1; attempt <= 2; attempt++) {
+    if (attempt > 1) { onLine("5 秒后重试模组更新，保留已有下载进度"); await new Promise((resolve) => setTimeout(resolve, 5000)); }
+    repairWorkshopIndexes(onLine);
+    const temp = prepareSteamTempRoot(onLine);
+    onLine(`正在更新 ${enabled.length} 个启用模组（${attempt}/2），只登录 Steam 一次`);
+    const args = ["+@ShutdownOnFailedCommand", "1", "+@NoPromptForPassword", "1", "+force_install_dir", config.gameRoot, "+login", "anonymous",
+      ...enabled.flatMap((mod) => ["+workshop_download_item", "322330", mod.id, "validate"]), "+quit"];
     try {
-      await ensureWorkshopMod(mod.id, mod.name || `Workshop ${mod.id}`, onLine, 2, true);
+      const result = await command(config.steamcmd, args, {
+        cwd: path.dirname(config.steamcmd), env: { TMPDIR: temp, TEMP: temp, TMP: temp }, timeoutMs: 60 * 60_000, onLine
+      });
+      const output = `${result.stdout}\n${result.stderr}`;
+      const downloaded = new Map([...output.matchAll(/Success\. Downloaded item (\d+) to "([^"\r\n]+)"/g)].map((match) => [match[1]!, match[2]!]));
+      const missing = enabled.filter((mod) => !downloaded.has(mod.id));
+      if (result.code !== 0 || /ERROR!|Missing configuration/i.test(output) || missing.length) {
+        throw new Error(`模组更新没有全部成功${missing.length ? `：${missing.map((mod) => mod.name || mod.id).join("、")}` : ""}。${output.split(/\r?\n/).filter(Boolean).slice(-5).join(" | ")}`);
+      }
+      for (const mod of enabled) {
+        const directory = downloaded.get(mod.id)!;
+        if (!fs.existsSync(path.join(directory, "modinfo.lua"))) throw new Error(`更新后未找到 MOD ${mod.id} 的 modinfo.lua`);
+        installCachedMod(mod.id, directory);
+        // Both locations can be selected by DST. Sync while all shards are stopped.
+        const ugc = path.join(config.dataRoot, "ugc", "content", "322330", mod.id);
+        const target = path.join(config.gameRoot, "mods", `workshop-${mod.id}`);
+        fs.mkdirSync(path.dirname(ugc), { recursive: true, mode: 0o750 });
+        fs.rmSync(ugc, { recursive: true, force: true });
+        fs.cpSync(target, ugc, { recursive: true, force: true });
+        onLine(`已更新并同步模组：${mod.name || mod.id}`);
+      }
+      onLine("所有启用模组已更新，开始启动世界");
+      return;
     } catch (error) {
-      const detail = error instanceof Error ? error.message : String(error);
-      onLine(`MOD ${mod.id} 更新失败，继续使用本地版本：${detail}`);
+      lastError = error instanceof Error ? error.message : String(error);
+      onLine(lastError);
     }
   }
+  throw new Error(`启动已取消，防止加载未更新的模组：${lastError}`);
 }
 
 export async function enrichModMetadata(mods: readonly ModRecord[], onLine?: (line: string) => void, force = false): Promise<ModRecord[]> {

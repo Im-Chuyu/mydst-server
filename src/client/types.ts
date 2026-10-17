@@ -19,6 +19,7 @@ export interface ServerStatus {
   configured: boolean;
   master: { running: boolean; session: string };
   caves: { running: boolean; session: string };
+  job?: JobRecord;
 }
 
 export interface SystemInfo {

@@ -149,8 +149,31 @@ async function assertViewport(page, name) {
     await page.evaluate(() => Object.defineProperty(navigator, "clipboard", { configurable: true, value: undefined }));
     await page.getByRole("button", { name: "复制直连代码" }).click();
     await page.getByRole("status").filter({ hasText: "直连命令已复制" }).waitFor();
+    const startupDashboard = await (await page.request.get(`http://127.0.0.1:${port}/api/dashboard`)).json();
+    await page.route("**/api/dashboard*", (route) => route.fulfill({
+      json: {
+        ...startupDashboard,
+        world: null,
+        server: {
+          ...startupDashboard.server,
+          master: { ...startupDashboard.server.master, running: true },
+          caves: { ...startupDashboard.server.caves, running: true }
+        }
+      }
+    }));
+    const startupQueries = [];
+    page.on("request", (request) => {
+      if (request.url().includes("/dashboard?startup=")) startupQueries.push(request.url());
+    });
     await page.getByRole("button", { name: "全部启动", exact: true }).click();
     await page.getByRole("status").filter({ hasText: "分片已启动" }).waitFor();
+    await page.getByText("世界启动中，请稍候...", { exact: true }).waitFor({ state: "hidden" });
+    assert.deepEqual(startupQueries, [], "A successful start must not depend on world metadata");
+    await page.getByRole("button", { name: "全部重启", exact: true }).click();
+    await page.getByRole("dialog").getByRole("button", { name: "更新并重启", exact: true }).click();
+    await page.getByRole("status").filter({ hasText: "分片已重启" }).waitFor();
+    await page.getByText("世界启动中，请稍候...", { exact: true }).waitFor({ state: "hidden" });
+    await page.unrouteAll({ behavior: "wait" });
     await page.getByRole("button", { name: "系统设置" }).click();
     const announcement = page.locator(".announcement-section");
     await announcement.getByRole("checkbox", { name: "启用自动公告" }).waitFor();
@@ -244,7 +267,12 @@ async function assertViewport(page, name) {
     await mobile.close();
     console.log("Visual test passed: desktop/mobile dashboard and delete confirmation, config, world, players, mods, backups, no browser errors or horizontal overflow");
   } finally {
-    if (browser) await browser.close();
+    if (browser) {
+      for (const context of browser.contexts()) {
+        for (const page of context.pages()) await page.unrouteAll({ behavior: "ignoreErrors" });
+      }
+      await browser.close();
+    }
     server.kill("SIGTERM");
     await new Promise((resolve) => server.once("exit", resolve));
     fs.rmSync(root, { recursive: true, force: true });
