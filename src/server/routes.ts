@@ -369,7 +369,7 @@ api.delete("/mods/library/:id", (req, res) => {
 });
 
 api.get("/mods/workshop/search", async (req, res) => {
-  const query = z.string().trim().min(2).max(80).parse(req.query.q);
+  const query = z.string().trim().min(2).max(2000).parse(req.query.q);
   res.json(await searchWorkshop(query));
 });
 
@@ -379,7 +379,13 @@ api.post("/mods/workshop/:id/download", (req, res) => {
     title: z.string().trim().min(1).max(160),
     previewUrl: z.string().trim().url("MOD 封面地址格式无效").max(1000).refine((value) => /^https:\/\//i.test(value), "MOD 封面必须使用 HTTPS 地址").or(z.literal("")).default("")
   }).parse(req.body);
-  if (gameConfig.getMods().some((mod) => mod.id === id)) throw new Error("这个 MOD 已在服务器列表中");
+  const active = jobs.active();
+  if (active) {
+    if (active.type === `mod-download:${id}`) res.status(202).json(active);
+    else res.status(409).json({ error: `已有任务正在执行：${active.type}，请等待完成后再下载` });
+    return;
+  }
+  if (gameConfig.getMods().some((mod) => mod.id === id)) { res.status(409).json({ error: "这个 MOD 已在服务器列表中" }); return; }
   const job = jobs.run(`mod-download:${id}`, (log) => downloadAndAddMod(id, item.title, item.previewUrl, log));
   audit(req, "mods.download", `${id}: ${item.title}`);
   res.status(202).json(job);

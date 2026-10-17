@@ -4,6 +4,7 @@ import { config } from "./config.js";
 import { gameConfig } from "./game-config.js";
 import { parseConfigurationValueSubset, parseModInfoMetadata, parseModInfoOptions, type ModConfigLanguage, type ModConfigOption, type ModConfigValue } from "./lua-config.js";
 import { runCommand } from "./process-runner.js";
+import { repairWorkshopManifest } from "./steam-workshop-manifest.js";
 import type { ModLibraryRecord, ModRecord } from "./types.js";
 import { resolveWorkshopDetails, type WorkshopItem } from "./workshop-service.js";
 
@@ -151,10 +152,23 @@ export function deleteCachedMod(id: string): void {
     const resolved = fs.realpathSync(directory);
     if (!within(dataRoot, resolved) || !within(fs.realpathSync(root), resolved)) throw new Error("模组缓存路径越界，无法删除");
   }
+  repairWorkshopIndexes(() => undefined, [id]);
   for (const { directory } of directories) fs.rmSync(directory, { recursive: true, force: true });
   const metadata = readLibraryMetadata();
   delete metadata[id];
   saveLibraryMetadata(metadata);
+}
+
+export function repairWorkshopIndexes(onLine: (line: string) => void, removeIds: readonly string[] = []): void {
+  const roots = [
+    path.join(config.root, "Steam", "steamapps", "workshop"), path.join(config.root, "steamapps", "workshop"),
+    path.join(path.dirname(config.steamcmd), "steamapps", "workshop"), path.join(config.gameRoot, "steamapps", "workshop"),
+    path.join(config.dataRoot, "ugc")
+  ];
+  for (const root of roots) {
+    const removed = repairWorkshopManifest(root, removeIds);
+    if (removed.length) onLine(`已修复失效的 Workshop 缓存索引：${removed.join(", ")}`);
+  }
 }
 
 export async function updateEnabledMods(onLine: (line: string) => void): Promise<void> {
@@ -230,9 +244,17 @@ async function ensureWorkshopMod(id: string, title: string, onLine: (line: strin
   } else {
     let lastError = "";
     for (let attempt = 1; attempt <= maxAttempts; attempt += 1) {
+      if (attempt > 1) {
+        const seconds = Math.min(30, 5 * (attempt - 1));
+        onLine(`将在 ${seconds} 秒后继续已有进度重试下载`);
+        await new Promise((resolve) => setTimeout(resolve, seconds * 1000));
+      }
       onLine(`正在通过 SteamCMD 下载 ${title}（尝试 ${attempt}/${maxAttempts}）...`);
       let result: { code: number; stdout: string; stderr: string };
+      const workshopLog = path.join(config.root, "Steam", "logs", "workshop_log.txt");
+      const logOffset = fs.existsSync(workshopLog) ? fs.statSync(workshopLog).size : 0;
       try {
+        repairWorkshopIndexes(onLine);
         const steamTempRoot = prepareSteamTempRoot(onLine);
         result = await runCommand(config.steamcmd, [
           "+@ShutdownOnFailedCommand", "1",
@@ -263,7 +285,19 @@ async function ensureWorkshopMod(id: string, title: string, onLine: (line: strin
         installCachedMod(id, downloaded);
         return;
       }
-      const diagnostic = `${result.stderr}\n${result.stdout}`.split(/\r?\n/).map((line) => line.trim()).filter(Boolean).slice(-12).join(" | ");
+      let steamDiagnostic = "";
+      if (fs.existsSync(workshopLog)) {
+        const handle = fs.openSync(workshopLog, "r");
+        try {
+          const size = fs.fstatSync(handle).size;
+          const tail = Buffer.alloc(Math.min(size < logOffset ? size : size - logOffset, 32 * 1024));
+          fs.readSync(handle, tail, 0, tail.length, size - tail.length);
+          steamDiagnostic = tail.toString("utf8").split(/\r?\n/).filter((line) => /Update canceled|Missing game files|Access Denied|Timeout|No Connection|Disk write|Not enough disk|Failure/i.test(line)).slice(-3).join(" | ");
+        } finally { fs.closeSync(handle); }
+      }
+      const diagnostic = steamDiagnostic || `${result.stderr}\n${result.stdout}`.split(/\r?\n/).map((line) => line.trim()).filter(Boolean).slice(-12).join(" | ");
+      const brokenIds = [...steamDiagnostic.matchAll(/[\\/]content[\\/]322330[\\/](\d{5,12})[\\/]/g)].map((match) => match[1]!);
+      if (brokenIds.length) repairWorkshopIndexes(onLine, brokenIds);
       lastError = diagnostic || (steamcmdFailed ? "SteamCMD 报告 Workshop 下载失败" : "SteamCMD 已结束，但没有找到下载后的 modinfo.lua");
       onLine(`本次 MOD 下载未完成：${lastError}`);
       if (attempt < maxAttempts) onLine("SteamCMD 将继续已有进度重试");

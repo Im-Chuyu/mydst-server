@@ -57,11 +57,14 @@ test("library metadata and deletion include inactive mods and all cache location
       const other = path.join(config.gameRoot, "mods", "workshop-378160973");
       seed(other, "Other Mod");
       const before = fs.readFileSync(path.join(root, "mods.json"), "utf8");
+      const manifest = path.join(config.gameRoot, "steamapps", "workshop", "appworkshop_322330.acf");
+      fs.writeFileSync(manifest, `"AppWorkshop" { "appid" "322330" "WorkshopItemsInstalled" { "${id}" {"size" "10"} } "WorkshopItemDetails" { "${id}" {"title" "deleted"} } }`);
       deleteCachedMod(id);
       assert.ok(copies.every((directory) => !fs.existsSync(directory)));
       assert.ok(fs.existsSync(path.join(other, "modinfo.lua")));
       assert.ok(fs.existsSync(path.join(config.dataRoot, "ugc", "content", "322330")));
       assert.equal(fs.readFileSync(path.join(root, "mods.json"), "utf8"), before);
+      assert.equal(fs.readFileSync(manifest, "utf8").includes(id), false, "deleting cache also removes stale Steam records");
       assert.equal(JSON.parse(fs.readFileSync(path.join(root, "mod-library-metadata.json"), "utf8"))[id], undefined);
       assert.equal((await listModLibrary(async () => [] )).some((item) => item.id === id), false);
       assert.throws(() => deleteCachedMod("../mods"), /无效/);

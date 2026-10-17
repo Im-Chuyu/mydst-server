@@ -231,6 +231,10 @@ try {
 
   const modJob = await call("/mods/workshop/351325790/download", { method: "POST", body: { title: "Geometric Placement" } });
   assert.equal(modJob.type, "mod-download:351325790");
+  const duplicateModJob = await call("/mods/workshop/351325790/download", { method: "POST", body: { title: "Geometric Placement" } });
+  assert.equal(duplicateModJob.id, modJob.id, "repeated download clicks reuse the active task");
+  const otherModResponse = await fetch(`${base}/mods/workshop/378160973/download`, { method: "POST", headers: { Cookie: cookie, "X-CSRF-Token": csrfToken, "Content-Type": "application/json" }, body: JSON.stringify({ title: "Global Positions" }) });
+  assert.equal(otherModResponse.status, 409);
   for (let attempt = 0; attempt < 30; attempt += 1) {
     const job = (await call("/jobs")).find((item) => item.id === modJob.id);
     if (job?.status === "success") break;

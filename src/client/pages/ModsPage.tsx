@@ -21,6 +21,7 @@ export function ModsPage({ notify }: { notify: (type: "success" | "error", messa
   const [deleting, setDeleting] = useState<string | null>(null);
   const trackedJobs = useRef(new Set<string>());
   const completedJobs = useRef(new Set<string>());
+  const searchRequestId = useRef(0);
 
   const loadMods = useCallback(async () => {
     try { setMods(await api.get<ModRecord[]>("/mods")); }
@@ -74,7 +75,7 @@ export function ModsPage({ notify }: { notify: (type: "success" | "error", messa
       const job = await api.post<JobRecord>(`/mods/workshop/${item.id}/download`, { title: item.title, previewUrl: item.previewUrl });
       trackedJobs.current.add(job.id);
       setDownloads((current) => ({ ...current, [item.id]: { id: job.id, status: job.status, message: "正在连接 SteamCMD..." } }));
-      notify("success", `${item.title} 已加入下载队列`);
+      notify("success", `${item.title} 已开始下载`);
     } catch (error) {
       setDownloads((current) => ({ ...current, [item.id]: { id: "failed", status: "failed", message: error instanceof Error ? error.message : "下载任务启动失败" } }));
       notify("error", error instanceof Error ? error.message : "下载任务启动失败");
@@ -108,11 +109,15 @@ export function ModsPage({ notify }: { notify: (type: "success" | "error", messa
   async function search(event: FormEvent) {
     event.preventDefault();
     if (query.trim().length < 2) return;
+    const requestId = ++searchRequestId.current;
     setSearching(true);
     setSearched(true);
-    try { setResults(await api.get<WorkshopItem[]>(`/mods/workshop/search?q=${encodeURIComponent(query.trim())}`)); }
-    catch (error) { setResults([]); notify("error", error instanceof Error ? error.message : "Steam 创意工坊搜索失败"); }
-    finally { setSearching(false); }
+    try {
+      const items = await api.get<WorkshopItem[]>(`/mods/workshop/search?q=${encodeURIComponent(query.trim())}`);
+      if (requestId === searchRequestId.current) setResults(items);
+    }
+    catch (error) { if (requestId === searchRequestId.current) { setResults([]); notify("error", error instanceof Error ? error.message : "Steam 创意工坊搜索失败"); } }
+    finally { if (requestId === searchRequestId.current) setSearching(false); }
   }
 
   async function save() {

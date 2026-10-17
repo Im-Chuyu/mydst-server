@@ -18,15 +18,42 @@ const offlineCatalog = catalogData as WorkshopItem[];
 const offlineById = new Map(offlineCatalog.map((item) => [item.id, item]));
 const searchCache = new Map<string, { expiresAt: number; items: WorkshopItem[] }>();
 const detailsCache = new Map<string, { expiresAt: number; item: WorkshopItem | null }>();
+const searchRequests = new Map<string, Promise<WorkshopItem[]>>();
+
+export function workshopIdFromQuery(query: string): string | undefined {
+  if (/^\d{5,12}$/.test(query.trim())) return query.trim();
+  try {
+    const url = new URL(query);
+    if (!["steamcommunity.com", "www.steamcommunity.com", "steamcommunity-a.akamaihd.net"].includes(url.hostname) || !/^\/sharedfiles\/filedetails\/?$/.test(url.pathname)) return undefined;
+    const id = url.searchParams.get("id") || "";
+    return /^\d{5,12}$/.test(id) ? id : undefined;
+  } catch { return undefined; }
+}
 
 export async function searchWorkshop(query: string, limit = 12): Promise<WorkshopItem[]> {
   const text = query.trim();
-  if (/^\d{5,12}$/.test(text)) return resolveWorkshopDetails([text]);
+  const id = workshopIdFromQuery(text);
+  if (id) {
+    const known = await resolveWorkshopDetails([id]);
+    if (known.length) return known;
+    const live = await searchWorkshopItems(id, 12);
+    const item = live.items.find((item) => item.id === id);
+    if (item) { detailsCache.set(id, { expiresAt: Date.now() + 30 * 60_000, item }); return [item]; }
+    throw new Error("暂时无法读取这个 Workshop ID，请确认模组公开可用后重试");
+  }
 
   const cacheKey = `${normalize(text)}:${limit}`;
   const cached = searchCache.get(cacheKey);
   if (cached && cached.expiresAt > Date.now()) return cached.items;
+  const pending = searchRequests.get(cacheKey);
+  if (pending) return pending;
+  const request = searchWorkshopUncached(text, limit, cacheKey);
+  searchRequests.set(cacheKey, request);
+  try { return await request; }
+  finally { searchRequests.delete(cacheKey); }
+}
 
+async function searchWorkshopUncached(text: string, limit: number, cacheKey: string): Promise<WorkshopItem[]> {
   const terms = normalize(text).split(/\s+/).filter(Boolean);
   const offline = offlineCatalog
     .filter((item) => terms.every((term) => normalize(`${item.title} ${item.id}`).includes(term)))
@@ -36,7 +63,9 @@ export async function searchWorkshop(query: string, limit = 12): Promise<Worksho
   let liveIds: string[] = [];
   let liveError: unknown;
   try {
-    liveIds = await searchWorkshopIds(text, limit * 2);
+    const live = await searchWorkshopItems(text, limit * 2);
+    liveIds = live.ids;
+    for (const item of live.items) detailsCache.set(item.id, { expiresAt: Date.now() + 30 * 60_000, item });
   } catch (error) {
     liveError = error;
   }
@@ -48,10 +77,11 @@ export async function searchWorkshop(query: string, limit = 12): Promise<Worksho
   }
 
   try {
-    const items = (await getWorkshopDetails(ids))
+    const items = (await resolveWorkshopDetails(ids))
       .sort((left, right) => score(left.title, text) - score(right.title, text))
       .slice(0, limit);
-    searchCache.set(cacheKey, { expiresAt: Date.now() + 10 * 60_000, items });
+    if (!items.length && liveIds.length) throw new Error("Steam 搜索有结果，但详情暂时不可用，请稍后重试或使用 Workshop ID");
+    searchCache.set(cacheKey, { expiresAt: Date.now() + (liveError ? 60_000 : 10 * 60_000), items });
     return items;
   } catch (error) {
     if (!offline.length) throw error;
@@ -66,14 +96,14 @@ export async function resolveWorkshopDetails(ids: readonly string[]): Promise<Wo
   const resolved = new Map<string, WorkshopItem>();
   const pending: string[] = [];
   for (const id of uniqueIds) {
-    const offline = offlineById.get(id);
-    if (offline) {
-      resolved.set(id, offline);
-      continue;
-    }
     const cached = detailsCache.get(id);
     if (cached && cached.expiresAt > Date.now()) {
       if (cached.item) resolved.set(id, cached.item);
+      continue;
+    }
+    const offline = offlineById.get(id);
+    if (offline) {
+      resolved.set(id, offline);
       continue;
     }
     pending.push(id);
@@ -95,10 +125,11 @@ export async function resolveWorkshopDetails(ids: readonly string[]): Promise<Wo
   return uniqueIds.flatMap((id) => resolved.get(id) || []);
 }
 
-async function searchWorkshopIds(text: string, limit: number): Promise<string[]> {
+async function searchWorkshopItems(text: string, limit: number): Promise<{ ids: string[]; items: WorkshopItem[] }> {
   const controller = new AbortController();
+  let emptyPage = false;
   try {
-    const html = await Promise.any(workshopSearchOrigins.map(async (origin) => {
+    const result = await Promise.any(workshopSearchOrigins.map(async (origin) => {
       const url = new URL("/workshop/browse/", origin);
       url.searchParams.set("appid", String(appId));
       url.searchParams.set("searchtext", text);
@@ -115,15 +146,50 @@ async function searchWorkshopIds(text: string, limit: number): Promise<string[]>
       if (body.length < 5_000 || (!body.includes("322330") && !body.includes("Don't Starve Together"))) {
         throw new Error(`${origin} returned an invalid workshop page`);
       }
-      return body;
+      const items = extractWorkshopItems(body, limit);
+      const ids = [...new Set([...items.map((item) => item.id), ...extractWorkshopIds(body, limit)])].slice(0, limit);
+      if (!ids.length) { emptyPage = true; throw new Error("This search route returned no matching mods"); }
+      return { items, ids };
     }));
-    return extractWorkshopIds(html, limit);
+    return result;
   } catch (error) {
-    if (error instanceof AggregateError) throw new Error("All Steam Community search origins failed");
+    if (error instanceof AggregateError) {
+      if (emptyPage) return { items: [], ids: [] };
+      throw new Error("All Steam Community search origins failed");
+    }
     throw error;
   } finally {
     controller.abort();
   }
+}
+
+export function extractWorkshopItems(html: string, limit = 12): WorkshopItem[] {
+  const items = new Map<string, WorkshopItem>();
+  let nodes = 0;
+  function visit(value: unknown, depth = 0): void {
+    if (depth > 12 || ++nodes > 50_000 || items.size >= limit) return;
+    if (typeof value === "string" && value.length < 2_000_000 && /^[\[{]/.test(value.trim())) {
+      try { visit(JSON.parse(value), depth + 1); } catch { /* Non-JSON descriptions are text, not executable code. */ }
+    } else if (value && typeof value === "object") {
+      const item = workshopItemFromRecord(value as Record<string, unknown>);
+      if (item) items.set(item.id, item);
+      else for (const nested of Object.values(value)) visit(nested, depth + 1);
+    }
+  }
+  for (const match of html.matchAll(/<script\b[^>]*\btype=["']application\/json["'][^>]*>([\s\S]*?)<\/script>/gi)) {
+    try { visit(JSON.parse(match[1]!)); } catch { /* Other page scripts need not contain JSON. */ }
+  }
+  return [...items.values()];
+}
+
+function workshopItemFromRecord(item: Record<string, unknown>): WorkshopItem | null {
+  const id = String(item.publishedfileid || "");
+  const title = String(item.title || "").trim();
+  const tags = Array.isArray(item.tags) ? item.tags.flatMap((entry) => entry && typeof entry === "object" && "tag" in entry ? [String(entry.tag)] : []) : [];
+  const isMod = tags.some((tag) => ["client_only_mod", "server_only_mod", "all_clients_require_mod"].includes(tag));
+  if (!/^\d{5,12}$/.test(id) || !title || !isMod || Number(item.consumer_app_id ?? item.consumer_appid) !== appId ||
+    item.result !== undefined && Number(item.result) !== 1 || item.file_type !== undefined && Number(item.file_type) !== 0) return null;
+  return { id, title, previewUrl: String(item.preview_url || ""), author: String(item.creator || "") };
 }
 
 export function extractWorkshopIds(html: string, limit = 12): string[] {
@@ -157,15 +223,5 @@ export async function getWorkshopDetails(ids: string[]): Promise<WorkshopItem[]>
   });
   if (!response.ok) throw new Error(`Steam 详情接口返回 ${response.status}`);
   const payload = await response.json() as { response?: { publishedfiledetails?: Array<Record<string, unknown>> } };
-  return (payload.response?.publishedfiledetails || []).flatMap((item) => {
-    const id = String(item.publishedfileid || "");
-    const title = String(item.title || "").trim();
-    const tags = Array.isArray(item.tags) ? item.tags.flatMap((entry) => {
-      if (!entry || typeof entry !== "object" || !("tag" in entry)) return [];
-      return [String((entry as { tag: unknown }).tag)];
-    }) : [];
-    const isMod = tags.some((tag) => ["client_only_mod", "server_only_mod", "all_clients_require_mod"].includes(tag));
-    if (!id || !title || !isMod || Number(item.consumer_app_id) !== appId || Number(item.result) !== 1) return [];
-    return [{ id, title, previewUrl: String(item.preview_url || ""), author: String(item.creator || "") }];
-  });
+  return (payload.response?.publishedfiledetails || []).flatMap((item) => workshopItemFromRecord(item) || []);
 }
