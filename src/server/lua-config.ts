@@ -26,7 +26,22 @@ export interface ParsedConfigurationValues {
 }
 
 type LuaKey = string | number;
-type LuaValue = ModConfigValue | LuaTable | null | undefined;
+type LuaValue = ModConfigValue | LuaTable | LuaFunction | null | undefined;
+
+class LuaScope {
+  private readonly values = new Map<string, LuaValue>();
+  constructor(private readonly parent?: LuaScope) {}
+  get(name: string): LuaValue { return this.values.has(name) ? this.values.get(name) : this.parent?.get(name); }
+  declare(name: string, value: LuaValue): void { this.values.set(name, value); }
+  set(name: string, value: LuaValue): void {
+    if (this.values.has(name) || !this.parent) this.values.set(name, value);
+    else this.parent.set(name, value);
+  }
+}
+
+class LuaFunction {
+  constructor(readonly parameters: Array<{ name: string }>, readonly body: unknown[], readonly scope: LuaScope) {}
+}
 
 class LuaTable {
   readonly entries = new Map<LuaKey, LuaValue>();
@@ -168,12 +183,17 @@ function serializeLuaValue(value: LuaValue, depth = 0): string {
 }
 
 class StaticLuaInterpreter {
-  readonly env = new Map<string, LuaValue>();
+  env = new LuaScope();
   returnValue: LuaValue = undefined;
   private steps = 0;
+  private returning = false;
+  private callDepth = 0;
 
   run(statements: unknown[]): void {
-    for (const statement of statements) this.execute(statement);
+    for (const statement of statements) {
+      if (this.returning) break;
+      this.execute(statement);
+    }
   }
 
   evaluate(input: unknown): LuaValue {
@@ -186,6 +206,7 @@ class StaticLuaInterpreter {
       case "BooleanLiteral": return Boolean(node.value);
       case "NilLiteral": return null;
       case "Identifier": return this.env.get(node.name);
+      case "FunctionDeclaration": return new LuaFunction(node.parameters || [], node.body || [], this.env);
       case "TableConstructorExpression": {
         const table = new LuaTable();
         for (const field of node.fields || []) {
@@ -208,8 +229,11 @@ class StaticLuaInterpreter {
         return base instanceof LuaTable ? base.get(node.identifier.name) : undefined;
       }
       case "UnaryExpression": return this.unary(node.operator, this.evaluate(node.argument));
-      case "BinaryExpression":
-      case "LogicalExpression": return this.binary(node.operator, this.evaluate(node.left), this.evaluate(node.right));
+      case "LogicalExpression": {
+        const left = this.evaluate(node.left);
+        return (node.operator === "and" ? truthy(left) : !truthy(left)) ? this.evaluate(node.right) : left;
+      }
+      case "BinaryExpression": return this.binary(node.operator, this.evaluate(node.left), this.evaluate(node.right));
       case "CallExpression": return this.call(node);
       default: return undefined;
     }
@@ -222,11 +246,24 @@ class StaticLuaInterpreter {
     switch (node.type) {
       case "ReturnStatement":
         this.returnValue = node.arguments?.length === 1 ? this.evaluate(node.arguments[0]) : undefined;
+        this.returning = true;
         break;
       case "LocalStatement":
-      case "AssignmentStatement":
-        (node.variables || []).forEach((target: unknown, index: number) => this.assign(target, this.evaluate(node.init?.[index])));
+      case "AssignmentStatement": {
+        const values = (node.init || []).map((value: unknown) => this.evaluate(value));
+        (node.variables || []).forEach((target: Record<string, any>, index: number) => {
+          if (node.type === "LocalStatement" && target.type === "Identifier") this.env.declare(target.name, values[index]);
+          else this.assign(target, values[index]);
+        });
         break;
+      }
+      case "FunctionDeclaration": {
+        const fn = new LuaFunction(node.parameters || [], node.body || [], this.env);
+        if (node.isLocal && node.identifier?.type === "Identifier") this.env.declare(node.identifier.name, fn);
+        else this.assign(node.identifier, fn);
+        break;
+      }
+      case "DoStatement": this.runBlock(node.body || []); break;
       case "CallStatement": this.evaluate(node.expression); break;
       case "ForNumericStatement": {
         const start = numeric(this.evaluate(node.start));
@@ -235,8 +272,8 @@ class StaticLuaInterpreter {
         if (start === undefined || end === undefined || !step) break;
         const iterations = Math.min(2_000, Math.max(0, Math.floor((end - start) / step) + 1));
         for (let offset = 0; offset < iterations; offset += 1) {
-          this.env.set(node.variable.name, start + offset * step);
-          this.run(node.body || []);
+          this.runBlock(node.body || [], [[node.variable.name, start + offset * step]]);
+          if (this.returning) break;
         }
         break;
       }
@@ -245,22 +282,32 @@ class StaticLuaInterpreter {
         const table = call?.type === "CallExpression" ? this.evaluate(call.arguments?.[0]) : undefined;
         if (!(table instanceof LuaTable)) break;
         for (const [key, value] of table.entries) {
-          if (node.variables?.[0]) this.env.set(node.variables[0].name, key);
-          if (node.variables?.[1]) this.env.set(node.variables[1].name, value);
-          this.run(node.body || []);
+          const variables: Array<[string, LuaValue]> = [];
+          if (node.variables?.[0]) variables.push([node.variables[0].name, key]);
+          if (node.variables?.[1]) variables.push([node.variables[1].name, value]);
+          this.runBlock(node.body || [], variables);
+          if (this.returning) break;
         }
         break;
       }
       case "IfStatement": {
         for (const clause of node.clauses || []) {
           if (clause.type === "ElseClause" || truthy(this.evaluate(clause.condition))) {
-            this.run(clause.body || []);
+            this.runBlock(clause.body || []);
             break;
           }
         }
         break;
       }
     }
+  }
+
+  private runBlock(statements: unknown[], variables: Array<[string, LuaValue]> = []): void {
+    const previous = this.env;
+    this.env = new LuaScope(previous);
+    for (const [name, value] of variables) this.env.declare(name, value);
+    try { this.run(statements); }
+    finally { this.env = previous; }
   }
 
   private assign(input: unknown, value: LuaValue): void {
@@ -276,6 +323,25 @@ class StaticLuaInterpreter {
 
   private call(node: Record<string, any>): LuaValue {
     const args = (node.arguments || []).map((argument: unknown) => this.evaluate(argument));
+    const fn = this.evaluate(node.base);
+    if (fn instanceof LuaFunction) {
+      if (this.callDepth >= 40) throw new Error("modinfo.lua 静态解析函数调用过深");
+      const previous = { env: this.env, returnValue: this.returnValue, returning: this.returning };
+      this.env = new LuaScope(fn.scope);
+      this.returnValue = undefined;
+      this.returning = false;
+      this.callDepth += 1;
+      fn.parameters.forEach((parameter, index) => this.env.declare(parameter.name, args[index]));
+      try {
+        this.run(fn.body);
+        return this.returnValue;
+      } finally {
+        this.env = previous.env;
+        this.returnValue = previous.returnValue;
+        this.returning = previous.returning;
+        this.callDepth -= 1;
+      }
+    }
     if (node.base?.type === "Identifier") {
       if (node.base.name === "tostring") return args[0] === undefined || args[0] === null ? "nil" : String(args[0]);
       if (node.base.name === "tonumber") return numeric(args[0]);
@@ -375,10 +441,11 @@ function mergeModOptions(groups: ModConfigOption[][]): ModConfigOption[] {
         merged.push(option);
         continue;
       }
-      existing.label = option.label || existing.label;
-      existing.hover = option.hover || existing.hover;
-      if (option.choices.length > 1 || existing.choices.length <= 1) existing.choices = option.choices;
-      existing.defaultValue = option.defaultValue;
+      // Evaluated options are authoritative. Literal/structural fallbacks may
+      // omit computed labels, defaults or dynamically appended choices.
+      if (existing.label === existing.name && option.label !== option.name) existing.label = option.label;
+      if (!existing.hover) existing.hover = option.hover;
+      if (option.choices.length > existing.choices.length) existing.choices = option.choices;
     }
   }
   return merged;
