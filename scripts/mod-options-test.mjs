@@ -2,6 +2,38 @@ import assert from "node:assert/strict";
 import { test } from "node:test";
 import { parseModInfoOptions } from "../dist/server/lua-config.js";
 
+test("configuration text defaults to Chinese and can explicitly request English", () => {
+  const source = `
+    local chinese = locale == "zh" or locale == "zhr"
+    local function option(enabled)
+      return { description = enabled and (chinese and "开启" or "Enabled") or (chinese and "关闭" or "Disabled"), data = enabled }
+    end
+    configuration_options = {{ name = "voice", label = chinese and "伙伴语音" or "Companion Voice", hover = chinese and "控制伙伴语音" or "Toggle companion voice", options = { option(true), option(false) }, default = true }}
+  `;
+  const [zh] = parseModInfoOptions(source);
+  const [en] = parseModInfoOptions(source, "en");
+  assert.equal(zh.label, "伙伴语音");
+  assert.equal(zh.hover, "控制伙伴语音");
+  assert.deepEqual(zh.choices.map((choice) => choice.description), ["开启", "关闭"]);
+  assert.equal(en.label, "Companion Voice");
+  assert.equal(en.hover, "Toggle companion voice");
+  assert.deepEqual(en.choices.map((choice) => choice.description), ["Enabled", "Disabled"]);
+  assert.deepEqual(zh.choices.map((choice) => choice.data), en.choices.map((choice) => choice.data));
+  assert.equal(zh.defaultValue, en.defaultValue);
+});
+
+test("ChooseTranslationTable follows the display locale and falls back to author-provided text", () => {
+  const source = `
+    local text = ChooseTranslationTable({ zh = {label = "共享地图", on = "开启"}, en = {label = "Shared Map", on = "On"} })
+    configuration_options = {{ name="map", label=text.label, options={{description=text.on,data=true},{description="Off",data=false}}, default=true }}
+  `;
+  assert.equal(parseModInfoOptions(source)[0].label, "共享地图");
+  assert.equal(parseModInfoOptions(source, "en")[0].label, "Shared Map");
+  assert.equal(parseModInfoOptions('configuration_options={{name="mode", label=ChooseTranslationTable({en="English only"}),options={{description="On",data=true}},default=true}}')[0].label, "English only");
+  const fixed = 'configuration_options={{name="mode",label="固定名称",options={{description="开启",data=true}},default=true}}';
+  assert.deepEqual(parseModInfoOptions(fixed), parseModInfoOptions(fixed, "en"));
+});
+
 test("helper functions preserve true and false choices instead of falling back to the default", () => {
   const options = parseModInfoOptions(`
     local function option(description, data, hover)

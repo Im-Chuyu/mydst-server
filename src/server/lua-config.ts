@@ -1,6 +1,7 @@
 import * as luaparse from "luaparse";
 
 export type ModConfigValue = string | number | boolean;
+export type ModConfigLanguage = "zh" | "en";
 export interface ModConfigChoice { description: string; data: ModConfigValue }
 export interface ModConfigOption {
   name: string;
@@ -56,12 +57,12 @@ class LuaTable {
   append(value: LuaValue): void { this.set(this.length() + 1, value); }
 }
 
-export function parseModInfoOptions(source: string): ModConfigOption[] {
+export function parseModInfoOptions(source: string, language: ModConfigLanguage = "zh"): ModConfigOption[] {
   const parsedOptions: ModConfigOption[][] = [];
   let parseError: unknown;
   try {
     const chunk = parseLua(source);
-    const interpreter = new StaticLuaInterpreter();
+    const interpreter = new StaticLuaInterpreter(language);
     interpreter.run(chunk.body);
     const returned = interpreter.returnValue;
     const returnedConfiguration = returned instanceof LuaTable ? returned.get("configuration_options") : undefined;
@@ -80,7 +81,7 @@ export function parseModInfoOptions(source: string): ModConfigOption[] {
   const literal = extractConfigurationTable(source);
   if (literal) {
     try {
-      parsedOptions.push(optionsFromLuaTable(parseLuaTableValue(literal)));
+      parsedOptions.push(optionsFromLuaTable(parseLuaTableValue(literal, language)));
     } catch (error) {
       parseError ||= error;
     }
@@ -188,6 +189,10 @@ class StaticLuaInterpreter {
   private steps = 0;
   private returning = false;
   private callDepth = 0;
+
+  constructor(private readonly language?: ModConfigLanguage) {
+    if (language) this.env.declare("locale", language);
+  }
 
   run(statements: unknown[]): void {
     for (const statement of statements) {
@@ -343,6 +348,9 @@ class StaticLuaInterpreter {
       }
     }
     if (node.base?.type === "Identifier") {
+      if (node.base.name === "ChooseTranslationTable" && this.language && args[0] instanceof LuaTable) {
+        return args[0].get(this.language) ?? args[0].get("en") ?? args[0].get(1);
+      }
       if (node.base.name === "tostring") return args[0] === undefined || args[0] === null ? "nil" : String(args[0]);
       if (node.base.name === "tonumber") return numeric(args[0]);
     }
@@ -424,8 +432,8 @@ function optionsFromLuaTable(configuration: LuaValue): ModConfigOption[] {
   });
 }
 
-function parseLuaTableValue(source: string): LuaValue {
-  const interpreter = new StaticLuaInterpreter();
+function parseLuaTableValue(source: string, language?: ModConfigLanguage): LuaValue {
+  const interpreter = new StaticLuaInterpreter(language);
   const chunk = parseLua(`return ${source}`);
   const statement = chunk.body[0] as unknown as { type?: string; arguments?: unknown[] } | undefined;
   if (!statement || statement.type !== "ReturnStatement" || statement.arguments?.length !== 1) return undefined;

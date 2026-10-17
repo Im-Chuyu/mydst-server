@@ -413,7 +413,8 @@ api.post("/mods/metadata/refresh", async (req, res) => {
 
 api.get("/mods/:id/configuration", (req, res) => {
   const id = z.string().regex(/^\d{5,12}$/).parse(req.params.id);
-  res.json(getModConfiguration(id));
+  const language = z.enum(["zh", "en"]).default("zh").parse(req.query.language);
+  res.json(getModConfiguration(id, language));
 });
 
 api.put("/mods", async (req, res) => {

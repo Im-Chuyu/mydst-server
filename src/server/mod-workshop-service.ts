@@ -2,7 +2,7 @@ import fs from "node:fs";
 import path from "node:path";
 import { config } from "./config.js";
 import { gameConfig } from "./game-config.js";
-import { parseConfigurationValueSubset, parseModInfoMetadata, parseModInfoOptions, type ModConfigOption, type ModConfigValue } from "./lua-config.js";
+import { parseConfigurationValueSubset, parseModInfoMetadata, parseModInfoOptions, type ModConfigLanguage, type ModConfigOption, type ModConfigValue } from "./lua-config.js";
 import { runCommand } from "./process-runner.js";
 import type { ModLibraryRecord, ModRecord } from "./types.js";
 import { resolveWorkshopDetails, type WorkshopItem } from "./workshop-service.js";
@@ -290,7 +290,7 @@ function prepareSteamTempRoot(onLine: (line: string) => void): string {
   return tempRoot;
 }
 
-export function getModConfiguration(id: string): ModConfigurationInfo {
+export function getModConfiguration(id: string, language: ModConfigLanguage = "zh"): ModConfigurationInfo {
   const mod = gameConfig.getMods().find((item) => item.id === id);
   let values: Record<string, ModConfigValue> = {};
   let configurationWarning = "";
@@ -303,7 +303,7 @@ export function getModConfiguration(id: string): ModConfigurationInfo {
   const file = findModInfo(id);
   if (!file) return { installed: false, options: [], values, warning: configurationWarning || "服务器中尚未找到该 MOD 的 modinfo.lua" };
   try {
-    const options = parseModInfoOptions(fs.readFileSync(file, "utf8"));
+    const options = parseModInfoOptions(fs.readFileSync(file, "utf8"), language);
     return { installed: true, options, values, sourcePath: file, warning: configurationWarning || (options.length ? undefined : "该 MOD 没有可静态读取的配置项，可使用 Lua 模式配置") };
   } catch (error) {
     return { installed: true, options: [], values, sourcePath: file, warning: error instanceof Error ? `modinfo.lua 解析失败：${error.message}` : "modinfo.lua 解析失败" };

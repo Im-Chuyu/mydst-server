@@ -190,21 +190,35 @@ function ModCover({ url, name, className }: { url: string; name: string; classNa
 
 function ModConfigurationEditor({ mod, onChange, notify }: { mod: ModRecord; onChange: (configuration: string) => void; notify: (type: "success" | "error", message: string) => void }) {
   const [mode, setMode] = useState<"visual" | "lua">("visual");
+  const [language, setLanguage] = useState<"zh" | "en">(() => {
+    try { return window.localStorage.getItem(`mydst:mod-config-language:${mod.id}`) === "en" ? "en" : "zh"; }
+    catch { return "zh"; }
+  });
   const [info, setInfo] = useState<ModConfigurationInfo | null>(null);
   const [loading, setLoading] = useState(true);
   const [downloadJobId, setDownloadJobId] = useState<string | null>(null);
   const [values, setValues] = useState<Record<string, ModConfigValue>>(() => parseLuaValues(mod.configuration));
+  const requestId = useRef(0);
 
   const load = useCallback(async () => {
+    const currentRequest = ++requestId.current;
     setLoading(true);
-    try { setInfo(await api.get<ModConfigurationInfo>(`/mods/${mod.id}/configuration`)); }
-    catch (error) { notify("error", error instanceof Error ? error.message : "读取 MOD 配置失败"); }
-    finally { setLoading(false); }
-  }, [mod.id, notify]);
-  useEffect(() => { void load(); }, [load]);
+    try {
+      const next = await api.get<ModConfigurationInfo>(`/mods/${mod.id}/configuration?language=${language}`);
+      if (currentRequest === requestId.current) setInfo(next);
+    }
+    catch (error) { if (currentRequest === requestId.current) notify("error", error instanceof Error ? error.message : "读取 MOD 配置失败"); }
+    finally { if (currentRequest === requestId.current) setLoading(false); }
+  }, [mod.id, language, notify]);
+  useEffect(() => { void load(); return () => { requestId.current += 1; }; }, [load]);
   useEffect(() => {
-    if (info) setValues(info.values);
+    if (info) setValues((current) => ({ ...Object.fromEntries(info.options.map((option) => [option.name, option.defaultValue])), ...info.values, ...current }));
   }, [info]);
+
+  function changeLanguage(next: "zh" | "en") {
+    setLanguage(next);
+    try { window.localStorage.setItem(`mydst:mod-config-language:${mod.id}`, next); } catch { /* Display preferences also work without browser storage. */ }
+  }
   useEffect(() => {
     if (!downloadJobId) return;
     let disposed = false;
@@ -250,8 +264,9 @@ function ModConfigurationEditor({ mod, onChange, notify }: { mod: ModRecord; onC
   return <div className="mod-configuration">
     <div className="mod-config-toolbar">
       <div className="segmented"><button type="button" className={mode === "visual" ? "active" : ""} onClick={() => setMode("visual")}><SlidersHorizontal size={14} />可视化</button><button type="button" className={mode === "lua" ? "active" : ""} onClick={() => setMode("lua")}><Code2 size={14} />Lua 代码</button></div>
-      <button type="button" className="icon-button" title="重新读取 modinfo.lua" onClick={() => void load()}><RefreshCw className={loading ? "spin" : ""} size={16} /></button>
+      <div className="mod-config-tools"><label className="mod-config-language"><span>显示语言</span><select aria-label={`${mod.name} 配置显示语言`} value={language} onChange={(event) => changeLanguage(event.target.value as "zh" | "en")}><option value="zh">中文</option><option value="en">English</option></select></label><button type="button" className="icon-button" title="重新读取 modinfo.lua" onClick={() => void load()}><RefreshCw className={loading ? "spin" : ""} size={16} /></button></div>
     </div>
+    {mode === "visual" && <p className="mod-config-language-hint">按模组自带翻译显示；没有对应语言时保留原文。切换语言会保留当前配置值。</p>}
     {mode === "lua" ? <textarea className="mod-lua-editor" spellCheck={false} value={mod.configuration} onChange={(event) => onChange(event.target.value)} aria-label={`${mod.name} Lua 配置`} /> : loading ? <div className="page-loading"><RefreshCw className="spin" size={18} />正在读取 modinfo.lua</div> : !info?.options.length ? <div className="mod-config-empty"><CircleHelp size={20} /><span>{info?.warning || "该 MOD 没有可配置项"}</span>{info && !info.installed && <button type="button" className="button secondary small" disabled={Boolean(downloadJobId)} onClick={() => void download()}>{downloadJobId ? <RefreshCw className="spin" size={15} /> : <Download size={15} />}{downloadJobId ? "下载中" : "下载并读取配置"}</button>}</div> : <div>
       {info.warning && <div className="mod-config-note"><CircleHelp size={15} /><span>{info.warning} 可视化修改会保留其它 Lua 配置。</span></div>}
       <div className="mod-option-grid">{info.options.map((option) => {
